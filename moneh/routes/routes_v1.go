@@ -1,6 +1,7 @@
 package routes
 
 import (
+	flwhandlers "moneh/modules/flows/http_handlers"
 	syshandlers "moneh/modules/systems/http_handlers"
 	"net/http"
 
@@ -24,6 +25,8 @@ func InitV1() *echo.Echo {
 	e.POST("api/v1/dct", syshandlers.PostDictionary)
 
 	// =============== Private routes ===============
+	e.GET("api/v1/flows", flwhandlers.GetAllFlow)
+	e.DELETE("api/v1/flows/destroy/:id", flwhandlers.HardDelFlowById)
 
 	return e
 }
