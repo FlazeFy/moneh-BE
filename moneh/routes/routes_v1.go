@@ -27,11 +27,14 @@ func InitV1() *echo.Echo {
 
 	// Flows
 	e.GET("api/v1/flows", flwhandlers.GetAllFlow)
+	e.POST("api/v1/flows", flwhandlers.PostFlow)
 	e.DELETE("api/v1/flows/destroy/:id", flwhandlers.HardDelFlowById)
+	e.DELETE("api/v1/flows/by/:id", flwhandlers.SoftDelFlowById)
 
 	// Stats
 	e.GET("api/v1/stats/flowtype/:ord", stshandlers.GetTotalFlowByType)
 	e.GET("api/v1/stats/flowcat/:ord", stshandlers.GetTotalFlowByCat)
+	e.GET("api/v1/stats/dcttype/:ord", stshandlers.GetTotalDctByType)
 
 	// =============== Private routes ===============
 

@@ -32,3 +32,16 @@ func GetTotalFlowByCat(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, result)
 }
+
+func GetTotalDctByType(c echo.Context) error {
+	ord := c.Param("ord")
+	view := "dictionaries_type"
+	table := "dictionaries"
+
+	result, err := repositories.GetTotalStats("api/v1/stats/dcttype/"+ord, ord, view, table)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
