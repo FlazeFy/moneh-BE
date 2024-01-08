@@ -37,3 +37,13 @@ func PostDictionary(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, result)
 }
+
+func GetAllTags(c echo.Context) error {
+	page, _ := strconv.Atoi(c.QueryParam("page"))
+	result, err := repositories.GetAllTags(page, 10, "api/v1/tag")
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}

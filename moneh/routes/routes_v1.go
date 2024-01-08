@@ -25,8 +25,11 @@ func InitV1() *echo.Echo {
 	e.DELETE("api/v1/dct/destroy/:id", syshandlers.HardDelDictionaryById)
 	e.POST("api/v1/dct", syshandlers.PostDictionary)
 
+	// Tags
+	e.GET("api/v1/tag/:ord", syshandlers.GetAllTags)
+
 	// Flows
-	e.GET("api/v1/flows", flwhandlers.GetAllFlow)
+	e.GET("api/v1/flows/:ord", flwhandlers.GetAllFlow)
 	e.POST("api/v1/flows", flwhandlers.PostFlow)
 	e.DELETE("api/v1/flows/destroy/:id", flwhandlers.HardDelFlowById)
 	e.DELETE("api/v1/flows/by/:id", flwhandlers.SoftDelFlowById)
