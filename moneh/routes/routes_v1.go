@@ -2,6 +2,7 @@ package routes
 
 import (
 	flwhandlers "moneh/modules/flows/http_handlers"
+	pckhandlers "moneh/modules/pockets/http_handlers"
 	stshandlers "moneh/modules/stats/http_handlers"
 	syshandlers "moneh/modules/systems/http_handlers"
 	"net/http"
@@ -34,6 +35,9 @@ func InitV1() *echo.Echo {
 	e.POST("api/v1/flows", flwhandlers.PostFlow)
 	e.DELETE("api/v1/flows/destroy/:id", flwhandlers.HardDelFlowById)
 	e.DELETE("api/v1/flows/by/:id", flwhandlers.SoftDelFlowById)
+
+	// Pockets
+	e.GET("api/v1/pockets/headers/:ord", pckhandlers.GetAllPocketHeaders)
 
 	// Stats
 	e.GET("api/v1/stats/flowtype/:ord", stshandlers.GetTotalFlowByType)
