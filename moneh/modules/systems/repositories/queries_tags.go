@@ -18,7 +18,6 @@ func GetAllTags(page, pageSize int, path string) (response.Response, error) {
 	var res response.Response
 	var baseTable = "tags"
 	var sqlStatement string
-	var where string
 
 	sqlStatement = "SELECT tags_slug, tags_name " +
 		"FROM " + baseTable + " " +
@@ -50,7 +49,7 @@ func GetAllTags(page, pageSize int, path string) (response.Response, error) {
 	}
 
 	// Page
-	total, err := builders.GetTotalCount(con, baseTable, &where)
+	total, err := builders.GetTotalCount(con, baseTable, nil)
 	if err != nil {
 		return res, err
 	}

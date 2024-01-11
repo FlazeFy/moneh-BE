@@ -19,6 +19,16 @@ func GetAllFlow(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetSummaryByType(c echo.Context) error {
+	types := c.Param("type")
+	result, err := repositories.GetSummaryByType("api/v1/flows/summary/"+types, types)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
 func HardDelFlowById(c echo.Context) error {
 	id := c.Param("id")
 	result, err := repositories.HardDelFlowById(id)

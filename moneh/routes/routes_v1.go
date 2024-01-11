@@ -30,6 +30,7 @@ func InitV1() *echo.Echo {
 
 	// Flows
 	e.GET("api/v1/flows/:ord", flwhandlers.GetAllFlow)
+	e.GET("api/v1/flows/summary/:type", flwhandlers.GetSummaryByType)
 	e.POST("api/v1/flows", flwhandlers.PostFlow)
 	e.DELETE("api/v1/flows/destroy/:id", flwhandlers.HardDelFlowById)
 	e.DELETE("api/v1/flows/by/:id", flwhandlers.SoftDelFlowById)

@@ -9,15 +9,19 @@ import (
 	"moneh/packages/helpers/response"
 	"moneh/packages/utils/pagination"
 	"net/http"
+	"strconv"
 )
 
 func GetAllFlow(page, pageSize int, path string, ord string) (response.Response, error) {
 	// Declaration
-	var obj models.GetAnimalHeaders
-	var arrobj []models.GetAnimalHeaders
+	var obj models.GetFlow
+	var arrobj []models.GetFlow
 	var res response.Response
 	var baseTable = "flows"
 	var sqlStatement string
+
+	// Converted Column
+	var FlowsAmmount string
 
 	// Query builder
 	activeTemplate := builders.GetTemplateLogic("active")
@@ -47,7 +51,7 @@ func GetAllFlow(page, pageSize int, path string, ord string) (response.Response,
 			&obj.FlowsCategory,
 			&obj.FlowsName,
 			&obj.FlowsDesc,
-			&obj.FlowsAmmount,
+			&FlowsAmmount,
 			&obj.FlowsTag,
 			&obj.IsShared,
 		)
@@ -55,6 +59,14 @@ func GetAllFlow(page, pageSize int, path string, ord string) (response.Response,
 		if err != nil {
 			return res, err
 		}
+
+		// Converted
+		intFlowAmmount, err := strconv.Atoi(FlowsAmmount)
+		if err != nil {
+			return res, err
+		}
+
+		obj.FlowsAmmount = intFlowAmmount
 
 		arrobj = append(arrobj, obj)
 	}
@@ -89,6 +101,85 @@ func GetAllFlow(page, pageSize int, path string, ord string) (response.Response,
 			"to":             pagination.To,
 			"total":          total,
 		}
+	}
+
+	return res, nil
+}
+
+func GetSummaryByType(path string, types string) (response.Response, error) {
+	// Declaration
+	var obj models.GetSummaryByType
+	var arrobj []models.GetSummaryByType
+	var res response.Response
+	var baseTable = "flows"
+	var sqlStatement string
+
+	// Converted Column
+	var Average string
+	var TotalItem string
+	var TotalAmmount string
+
+	// Query builder
+	col := "flows_ammount"
+	avgQuery := builders.GetFormulaQuery(&col, "average")
+	totalItemQuery := builders.GetFormulaQuery(nil, "total_item")
+	totalAmmountQuery := builders.GetFormulaQuery(&col, "total_sum")
+
+	sqlStatement = "SELECT " + avgQuery + " average, " +
+		totalItemQuery + " total_item, " +
+		totalAmmountQuery + " total_ammount " +
+		"FROM " + baseTable + " " +
+		"WHERE flows_type = '" + types + "' "
+
+	// Exec
+	con := database.CreateCon()
+	rows, err := con.Query(sqlStatement)
+	defer rows.Close()
+
+	if err != nil {
+		return res, err
+	}
+
+	// Map
+	for rows.Next() {
+		err = rows.Scan(
+			&Average,
+			&TotalItem,
+			&TotalAmmount,
+		)
+
+		if err != nil {
+			return res, err
+		}
+
+		// Converted
+		intAverage, err := strconv.Atoi(Average)
+		intTotalItem, err := strconv.Atoi(TotalItem)
+		intTotalAmmount, err := strconv.Atoi(TotalAmmount)
+		if err != nil {
+			return res, err
+		}
+
+		obj.Average = intAverage
+		obj.TotalItem = intTotalItem
+		obj.TotalAmmount = intTotalAmmount
+
+		arrobj = append(arrobj, obj)
+	}
+
+	// Page
+	total, err := builders.GetTotalCount(con, baseTable, nil)
+	if err != nil {
+		return res, err
+	}
+
+	// Response
+	res.Status = http.StatusOK
+	res.Message = generator.GenerateQueryMsg(baseTable, total)
+	if total == 0 {
+		res.Data = nil
+	} else {
+		res.Data = arrobj
 	}
 
 	return res, nil

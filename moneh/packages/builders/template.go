@@ -87,8 +87,19 @@ func GetTemplateStats(ctx, firstTable, name string, ord string, joinArgs *string
 	// Notes :
 	// Full query
 	if name == "most_appear" {
-		return "SELECT " + ctx + " as context, COUNT(1) AS total FROM " + firstTable + " " + args + " GROUP BY " + ctx + " ORDER BY total " + ord
+		return "SELECT " + ctx + " as context, " + GetFormulaQuery(nil, "total_item") + " total FROM " + firstTable + " " + args + " GROUP BY " + ctx + " ORDER BY total " + ord
 	}
 
+	return ""
+}
+
+func GetFormulaQuery(colTarget *string, name string) string {
+	if name == "average" {
+		return "CEIL(SUM(" + *colTarget + ") / COUNT(1)) AS "
+	} else if name == "total_item" {
+		return "COUNT(1) AS "
+	} else if name == "total_sum" {
+		return "SUM(" + *colTarget + ") AS "
+	}
 	return ""
 }
