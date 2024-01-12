@@ -38,6 +38,7 @@ func InitV1() *echo.Echo {
 
 	// Pockets
 	e.GET("api/v1/pockets/headers/:ord", pckhandlers.GetAllPocketHeaders)
+	e.POST("api/v1/pockets", pckhandlers.PostPocket)
 
 	// Stats
 	e.GET("api/v1/stats/flowtype/:ord", stshandlers.GetTotalFlowByType)

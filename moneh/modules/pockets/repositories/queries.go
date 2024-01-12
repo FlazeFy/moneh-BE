@@ -24,12 +24,10 @@ func GetAllPocketHeaders(page, pageSize int, path string, ord string) (response.
 	var PocketsLimit string
 
 	// Query builder
-	activeTemplate := builders.GetTemplateLogic("active")
 	order := builders.GetTemplateOrder("dynamic_data", baseTable, "pockets_name")
 
 	sqlStatement = "SELECT id, pockets_name, pockets_desc, pockets_type, pockets_limit " +
 		"FROM " + baseTable + " " +
-		"WHERE " + activeTemplate + " " +
 		"ORDER BY " + order + " " +
 		"LIMIT ? OFFSET ?"
 
