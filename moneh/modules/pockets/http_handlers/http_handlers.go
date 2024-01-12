@@ -27,3 +27,13 @@ func PostPocket(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, result)
 }
+
+func HardDelPocketById(c echo.Context) error {
+	id := c.Param("id")
+	result, err := repositories.HardDelPocketById(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}

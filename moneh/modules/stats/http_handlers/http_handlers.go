@@ -45,3 +45,16 @@ func GetTotalDctByType(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, result)
 }
+
+func GetTotalPocketByType(c echo.Context) error {
+	ord := c.Param("ord")
+	view := "pockets_type"
+	table := "pockets"
+
+	result, err := repositories.GetTotalStats("api/v1/stats/pockettype/"+ord, ord, view, table)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}

@@ -28,6 +28,7 @@ func InitV1() *echo.Echo {
 
 	// Tags
 	e.GET("api/v1/tag/:ord", syshandlers.GetAllTags)
+	e.DELETE("api/v1/tag/destroy/:id", syshandlers.HardDelTagById)
 
 	// Flows
 	e.GET("api/v1/flows/:ord", flwhandlers.GetAllFlow)
@@ -39,10 +40,12 @@ func InitV1() *echo.Echo {
 	// Pockets
 	e.GET("api/v1/pockets/headers/:ord", pckhandlers.GetAllPocketHeaders)
 	e.POST("api/v1/pockets", pckhandlers.PostPocket)
+	e.DELETE("api/v1/pockets/destroy/:id", pckhandlers.HardDelPocketById)
 
 	// Stats
 	e.GET("api/v1/stats/flowtype/:ord", stshandlers.GetTotalFlowByType)
 	e.GET("api/v1/stats/flowcat/:ord", stshandlers.GetTotalFlowByCat)
+	e.GET("api/v1/stats/pockettype/:ord", stshandlers.GetTotalPocketByType)
 	e.GET("api/v1/stats/dcttype/:ord", stshandlers.GetTotalDctByType)
 
 	// =============== Private routes ===============
