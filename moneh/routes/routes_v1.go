@@ -5,6 +5,7 @@ import (
 	pckhandlers "moneh/modules/pockets/http_handlers"
 	stshandlers "moneh/modules/stats/http_handlers"
 	syshandlers "moneh/modules/systems/http_handlers"
+	wshhandlers "moneh/modules/wishlists/http_handlers"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -41,6 +42,9 @@ func InitV1() *echo.Echo {
 	e.GET("api/v1/pockets/headers/:ord", pckhandlers.GetAllPocketHeaders)
 	e.POST("api/v1/pockets", pckhandlers.PostPocket)
 	e.DELETE("api/v1/pockets/destroy/:id", pckhandlers.HardDelPocketById)
+
+	// Wishlists
+	e.GET("api/v1/wishlists/headers/:ord", wshhandlers.GetAllWishlistHeaders)
 
 	// Stats
 	e.GET("api/v1/stats/flowtype/:ord", stshandlers.GetTotalFlowByType)
