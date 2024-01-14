@@ -58,3 +58,42 @@ func GetTotalPocketByType(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, result)
 }
+
+func GetTotalWishlistType(c echo.Context) error {
+	ord := c.Param("ord")
+	view := "wishlists_type"
+	table := "wishlists"
+
+	result, err := repositories.GetTotalStats("api/v1/stats/wishlisttype/"+ord, ord, view, table)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetTotalWishlistPriority(c echo.Context) error {
+	ord := c.Param("ord")
+	view := "wishlists_priority"
+	table := "wishlists"
+
+	result, err := repositories.GetTotalStats("api/v1/stats/wishlistpriority/"+ord, ord, view, table)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetTotalWishlistIsAchieved(c echo.Context) error {
+	ord := c.Param("ord")
+	view := "is_achieved"
+	table := "wishlists"
+
+	result, err := repositories.GetTotalStats("api/v1/stats/wishlistisachieved/"+ord, ord, view, table)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
