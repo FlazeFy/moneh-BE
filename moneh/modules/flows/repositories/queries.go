@@ -25,7 +25,7 @@ func GetAllFlow(page, pageSize int, path string, ord string) (response.Response,
 
 	// Query builder
 	activeTemplate := builders.GetTemplateLogic("active")
-	order := builders.GetTemplateOrder("dynamic_data", baseTable, "flows_name")
+	order := builders.GetTemplateOrder("dynamic_data", baseTable, "flows_name", ord)
 
 	sqlStatement = "SELECT id, flows_type, flows_category, flows_name, flows_desc, flows_ammount, flows_tag, is_shared " +
 		"FROM " + baseTable + " " +

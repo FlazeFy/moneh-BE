@@ -45,6 +45,9 @@ func InitV1() *echo.Echo {
 
 	// Wishlists
 	e.GET("api/v1/wishlists/headers/:ord", wshhandlers.GetAllWishlistHeaders)
+	e.POST("api/v1/wishlists", wshhandlers.PostWishlist)
+	e.DELETE("api/v1/wishlists/destroy/:id", wshhandlers.HardDelWishlistById)
+	e.DELETE("api/v1/wishlists/by/:id", wshhandlers.SoftDelWishlistById)
 
 	// Stats
 	e.GET("api/v1/stats/flowtype/:ord", stshandlers.GetTotalFlowByType)

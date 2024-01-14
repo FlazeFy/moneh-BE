@@ -27,13 +27,13 @@ func GetTemplateConcat(name, col string) string {
 	return ""
 }
 
-func GetTemplateOrder(name, tableName, ext string) string {
+func GetTemplateOrder(name, tableName, ext, ord string) string {
 	if name == "permanent_data" {
-		return tableName + ".created_at DESC, " + tableName + "." + ext + " DESC "
+		return tableName + ".created_at " + ord + ", " + tableName + "." + ext + " " + ord + " "
 	} else if name == "dynamic_data" {
-		return tableName + ".updated_at DESC, " + tableName + ".created_at DESC, " + tableName + "." + ext + " DESC "
+		return tableName + ".updated_at " + ord + ", " + tableName + ".created_at " + ord + ", " + tableName + "." + ext + " " + ord + " "
 	} else if name == "most_used_normal" {
-		return " COUNT(1) DESC"
+		return " COUNT(1) " + ord + ""
 	}
 	return ""
 }

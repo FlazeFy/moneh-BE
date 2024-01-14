@@ -25,7 +25,7 @@ func GetAllWishlistHeaders(page, pageSize int, path string, ord string) (respons
 	var WishlistImgUrl sql.NullString
 
 	// Query builder
-	order := builders.GetTemplateOrder("dynamic_data", baseTable, "pockets_name")
+	order := builders.GetTemplateOrder("dynamic_data", baseTable, "wishlists_name", ord)
 
 	sqlStatement = "SELECT id, wishlists_name, wishlists_desc, wishlists_img_url, wishlists_type, wishlists_priority " +
 		"FROM " + baseTable + " " +
