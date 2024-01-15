@@ -19,6 +19,15 @@ func GetAllWishlistHeaders(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetSummary(c echo.Context) error {
+	result, err := repositories.GetSummary("api/v1/wishlists/summary")
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
 func HardDelWishlistById(c echo.Context) error {
 	id := c.Param("id")
 	result, err := repositories.HardDelWishlistById(id)

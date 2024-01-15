@@ -99,10 +99,11 @@ func PostWishlist(data echo.Context) (response.Response, error) {
 	wishlistImgUrl := data.FormValue("wishlists_img_url")
 	wishlistType := data.FormValue("wishlists_type")
 	wishlistPriority := data.FormValue("wishlists_priority")
+	wishlistPrice := data.FormValue("wishlists_price")
 	isAchieved := data.FormValue("is_achieved")
 
 	// Command builder
-	sqlStatement = "INSERT INTO " + baseTable + " (id, wishlists_name, wishlists_desc, wishlists_img_url, wishlists_type, wishlists_priority, is_achieved, created_at, updated_at, deleted_at) " +
+	sqlStatement = "INSERT INTO " + baseTable + " (id, wishlists_name, wishlists_desc, wishlists_img_url, wishlists_type, wishlists_priority, wishlists_price, is_achieved, created_at, updated_at, deleted_at) " +
 		"VALUES (?,?,?,?,?,?,?,?,null,null)"
 
 	// Exec
@@ -112,7 +113,7 @@ func PostWishlist(data echo.Context) (response.Response, error) {
 		return res, err
 	}
 
-	result, err := stmt.Exec(id, wishlistName, wishlistDesc, wishlistImgUrl, wishlistType, wishlistPriority, isAchieved, dt)
+	result, err := stmt.Exec(id, wishlistName, wishlistDesc, wishlistImgUrl, wishlistType, wishlistPriority, wishlistPrice, isAchieved, dt)
 	if err != nil {
 		return res, err
 	}

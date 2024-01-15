@@ -100,6 +100,13 @@ func GetFormulaQuery(colTarget *string, name string) string {
 		return "COUNT(1) AS "
 	} else if name == "total_sum" {
 		return "SUM(" + *colTarget + ") AS "
+	} else if name == "total_condition" {
+		// Column target with condition
+		return "COUNT(CASE WHEN " + *colTarget + " THEN 1 END) AS "
+	} else if name == "max" {
+		return "MAX(" + *colTarget + ") AS "
+	} else if name == "min" {
+		return "MIN(" + *colTarget + ") AS "
 	}
 	return ""
 }
