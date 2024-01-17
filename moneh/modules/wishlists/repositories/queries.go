@@ -124,11 +124,20 @@ func GetSummary(path string) (response.Response, error) {
 	var Achieved string
 	var TotalItem string
 	var TotalAmmount string
+	var MostExpensive string
+	var Cheapest string
 
 	// Query builder
 	col := "wishlists_price"
 	col2 := "is_achieved = 1"
 	col3 := "wishlists_type"
+	col4 := map[string]string{
+		"to_count":   "wishlists_price",
+		"to_get":     "wishlists_name",
+		"from_table": "wishlists",
+	}
+	stringCol4 := converter.MapToString(col4)
+
 	avgQuery := builders.GetFormulaQuery(&col, "average")
 	totalItemConQuery := builders.GetFormulaQuery(&col2, "total_condition")
 	totalItemQuery := builders.GetFormulaQuery(nil, "total_item")
@@ -136,6 +145,8 @@ func GetSummary(path string) (response.Response, error) {
 	exp := builders.GetFormulaQuery(&col, "max")
 	chp := builders.GetFormulaQuery(&col, "min")
 	mostType := builders.GetFormulaQuery(&col3, "max")
+	expName := builders.GetFormulaQuery(&stringCol4, "max_object")
+	chpName := builders.GetFormulaQuery(&stringCol4, "min_object")
 
 	sqlStatement = "SELECT " + avgQuery + " average, " +
 		totalItemConQuery + " achieved, " +
@@ -143,7 +154,9 @@ func GetSummary(path string) (response.Response, error) {
 		totalAmmountQuery + " total_ammount, " +
 		exp + " most_expensive, " +
 		chp + " cheapest, " +
-		mostType + " most_type " +
+		mostType + " most_type, " +
+		expName + " most_expensive_name, " +
+		chpName + " cheapest_name " +
 		"FROM " + baseTable
 
 	// Exec
@@ -162,9 +175,11 @@ func GetSummary(path string) (response.Response, error) {
 			&Achieved,
 			&TotalItem,
 			&TotalAmmount,
-			&obj.MostExpensive,
-			&obj.Cheapest,
+			&MostExpensive,
+			&Cheapest,
 			&obj.MostType,
+			&obj.MostExpensiveName,
+			&obj.CheapestName,
 		)
 
 		if err != nil {
@@ -176,6 +191,8 @@ func GetSummary(path string) (response.Response, error) {
 		intAchieved, err := strconv.Atoi(Achieved)
 		intTotalItem, err := strconv.Atoi(TotalItem)
 		intTotalAmmount, err := strconv.Atoi(TotalAmmount)
+		intMostExpensive, err := strconv.Atoi(MostExpensive)
+		intCheapest, err := strconv.Atoi(Cheapest)
 		if err != nil {
 			return res, err
 		}
@@ -184,6 +201,8 @@ func GetSummary(path string) (response.Response, error) {
 		obj.Achieved = intAchieved
 		obj.TotalItem = intTotalItem
 		obj.TotalAmmount = intTotalAmmount
+		obj.MostExpensive = intMostExpensive
+		obj.Cheapest = intCheapest
 
 		arrobj = append(arrobj, obj)
 	}

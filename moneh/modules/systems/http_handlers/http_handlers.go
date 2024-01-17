@@ -38,6 +38,27 @@ func PostDictionary(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func PostFeedback(c echo.Context) error {
+	result, err := repositories.PostFeedback(c)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetAllFeedback(c echo.Context) error {
+	page, _ := strconv.Atoi(c.QueryParam("page"))
+	ord := c.Param("ord")
+	ord_obj := c.Param("ord_obj")
+	result, err := repositories.GetAllFeedback(page, 10, "api/v1/feedback/"+ord_obj+"/"+ord, ord_obj, ord)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
 func GetAllTags(c echo.Context) error {
 	page, _ := strconv.Atoi(c.QueryParam("page"))
 	result, err := repositories.GetAllTags(page, 10, "api/v1/tag")

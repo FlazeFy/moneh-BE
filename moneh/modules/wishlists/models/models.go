@@ -11,12 +11,14 @@ type (
 		WishlistPrice    int    `json:"wishlists_price"`
 	}
 	GetSummary struct {
-		Average       int    `json:"average"`
-		Achieved      int    `json:"achieved"`
-		TotalItem     int    `json:"total_item"`
-		TotalAmmount  int    `json:"total_ammount"`
-		MostExpensive string `json:"most_expensive"`
-		Cheapest      string `json:"cheapest"`
-		MostType      string `json:"most_type"`
+		Average           int    `json:"average"`
+		Achieved          int    `json:"achieved"`
+		TotalItem         int    `json:"total_item"`
+		TotalAmmount      int    `json:"total_ammount"`
+		MostExpensive     int    `json:"most_expensive"`
+		Cheapest          int    `json:"cheapest"`
+		MostType          string `json:"most_type"`
+		MostExpensiveName string `json:"most_expensive_name"`
+		CheapestName      string `json:"cheapest_name"`
 	}
 )

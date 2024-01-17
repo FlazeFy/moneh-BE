@@ -43,6 +43,10 @@ func InitV1() *echo.Echo {
 	e.POST("api/v1/pockets", pckhandlers.PostPocket)
 	e.DELETE("api/v1/pockets/destroy/:id", pckhandlers.HardDelPocketById)
 
+	// Feedbacks
+	e.POST("api/v1/feedbacks", syshandlers.PostFeedback)
+	e.GET("api/v1/feedbacks/:ord_obj/:ord", syshandlers.GetAllFeedback)
+
 	// Wishlists
 	e.GET("api/v1/wishlists/headers/:ord", wshhandlers.GetAllWishlistHeaders)
 	e.POST("api/v1/wishlists", wshhandlers.PostWishlist)

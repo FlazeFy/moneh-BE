@@ -1,5 +1,10 @@
 package builders
 
+import (
+	"fmt"
+	"moneh/packages/helpers/converter"
+)
+
 func GetTemplateSelect(name string, firstTable, secondTable *string) string {
 	if name == "content_info" {
 		return *firstTable + "_slug," + *firstTable + "_name"
@@ -107,6 +112,22 @@ func GetFormulaQuery(colTarget *string, name string) string {
 		return "MAX(" + *colTarget + ") AS "
 	} else if name == "min" {
 		return "MIN(" + *colTarget + ") AS "
+	} else if name == "max_object" || name == "min_object" {
+		prop, err := converter.StringToMap(*colTarget)
+		if err != nil {
+			fmt.Println("Error:", err)
+			return ""
+		}
+
+		toCount, _ := prop["to_count"]
+		toGet, _ := prop["to_get"]
+		fromTable, _ := prop["from_table"]
+
+		if name == "max_object" {
+			return "(SELECT " + toGet + " FROM " + fromTable + " WHERE " + toCount + " = (SELECT MAX(" + toCount + ") FROM " + fromTable + ")) AS "
+		} else if name == "min_object" {
+			return "(SELECT " + toGet + " FROM " + fromTable + " WHERE " + toCount + " = (SELECT MIN(" + toCount + ") FROM " + fromTable + ")) AS "
+		}
 	}
 	return ""
 }

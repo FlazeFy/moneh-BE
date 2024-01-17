@@ -2,6 +2,7 @@ package converter
 
 import (
 	"database/sql"
+	"encoding/json"
 	"strings"
 )
 
@@ -27,4 +28,15 @@ func ConvertStringBool(val string) bool {
 	} else {
 		return true
 	}
+}
+
+func MapToString(val map[string]string) string {
+	result, _ := json.Marshal(val)
+	return string(result)
+}
+
+func StringToMap(val string) (map[string]string, error) {
+	var result map[string]string
+	err := json.Unmarshal([]byte(val), &result)
+	return result, err
 }
