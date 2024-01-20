@@ -63,6 +63,9 @@ func InitV1() *echo.Echo {
 	e.GET("api/v1/stats/wishlistpriority/:ord", stshandlers.GetTotalWishlistPriority)
 	e.GET("api/v1/stats/wishlistisachieved/:ord", stshandlers.GetTotalWishlistIsAchieved)
 
+	// Dashboard
+	e.GET("api/v1/dashboard", stshandlers.GetDashboard)
+
 	// =============== Private routes ===============
 
 	return e

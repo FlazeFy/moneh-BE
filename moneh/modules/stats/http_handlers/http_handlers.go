@@ -97,3 +97,12 @@ func GetTotalWishlistIsAchieved(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, result)
 }
+
+func GetDashboard(c echo.Context) error {
+	result, err := repositories.GetDashboard("api/v1/dashboard")
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}

@@ -5,4 +5,17 @@ type (
 		Context string `json:"context"`
 		Total   int    `json:"total"`
 	}
+	GetDashboard struct {
+		LastIncome               string `json:"last_income"`
+		LastSpending             string `json:"last_spending"`
+		MostExpensiveSpending    string `json:"most_expensive_spending"`
+		MostHighestIncome        string `json:"most_highest_income"`
+		LastIncomeVal            int    `json:"last_income_value"`
+		LastSpendingVal          int    `json:"last_spending_value"`
+		MostExpensiveSpendingVal int    `json:"most_expensive_spending_value"`
+		MostHighestIncomeVal     int    `json:"most_highest_income_value"`
+		TotalItemIncome          int    `json:"total_item_income"`
+		TotalItemSpending        int    `json:"total_item_spending"`
+		MyBalance                int    `json:"my_balance"`
+	}
 )

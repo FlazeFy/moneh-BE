@@ -3,6 +3,7 @@ package builders
 import (
 	"fmt"
 	"moneh/packages/helpers/converter"
+	"strings"
 )
 
 func GetTemplateSelect(name string, firstTable, secondTable *string) string {
@@ -112,7 +113,7 @@ func GetFormulaQuery(colTarget *string, name string) string {
 		return "MAX(" + *colTarget + ") AS "
 	} else if name == "min" {
 		return "MIN(" + *colTarget + ") AS "
-	} else if name == "max_object" || name == "min_object" {
+	} else if name == "max_object" || name == "min_object" || name == "total_sum_case" {
 		prop, err := converter.StringToMap(*colTarget)
 		if err != nil {
 			fmt.Println("Error:", err)
@@ -123,10 +124,21 @@ func GetFormulaQuery(colTarget *string, name string) string {
 		toGet, _ := prop["to_get"]
 		fromTable, _ := prop["from_table"]
 
+		finalCount := strings.Split(toCount, " ")
+
+		var count string = finalCount[0]
+
+		if len(finalCount) > 1 {
+			count = finalCount[len(finalCount)-1]
+		}
+
 		if name == "max_object" {
-			return "(SELECT " + toGet + " FROM " + fromTable + " WHERE " + toCount + " = (SELECT MAX(" + toCount + ") FROM " + fromTable + ")) AS "
+
+			return "(SELECT " + toGet + " FROM " + fromTable + " WHERE " + toCount + " = (SELECT MAX(" + count + ") FROM " + fromTable + ")) AS "
 		} else if name == "min_object" {
-			return "(SELECT " + toGet + " FROM " + fromTable + " WHERE " + toCount + " = (SELECT MIN(" + toCount + ") FROM " + fromTable + ")) AS "
+			return "(SELECT " + toGet + " FROM " + fromTable + " WHERE " + toCount + " = (SELECT MIN(" + count + ") FROM " + fromTable + ")) AS "
+		} else if name == "total_sum_case" {
+			return "SUM(CASE WHEN " + toGet + " THEN " + toCount + " ELSE 0 END) "
 		}
 	}
 	return ""
