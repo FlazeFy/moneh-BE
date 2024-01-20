@@ -1,6 +1,7 @@
 package routes
 
 import (
+	authhandlers "moneh/modules/auth/http_handlers"
 	flwhandlers "moneh/modules/flows/http_handlers"
 	pckhandlers "moneh/modules/pockets/http_handlers"
 	stshandlers "moneh/modules/stats/http_handlers"
@@ -21,6 +22,10 @@ func InitV1() *echo.Echo {
 	})
 
 	// =============== Public routes ===============
+
+	// Auth
+	e.POST("api/v1/login", authhandlers.PostLoginUser)
+	e.POST("api/v1/register", authhandlers.PostRegister)
 
 	// Dictionary
 	e.GET("api/v1/dct/:type", syshandlers.GetDictionaryByType)
