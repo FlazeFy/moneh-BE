@@ -67,6 +67,7 @@ func InitV1() *echo.Echo {
 	e.GET("api/v1/stats/wishlisttype/:ord", stshandlers.GetTotalWishlistType)
 	e.GET("api/v1/stats/wishlistpriority/:ord", stshandlers.GetTotalWishlistPriority)
 	e.GET("api/v1/stats/wishlistisachieved/:ord", stshandlers.GetTotalWishlistIsAchieved)
+	e.GET("api/v1/stats/dctmod/:table/:col", stshandlers.GetTotalDictionaryToModule)
 
 	// Dashboard
 	e.GET("api/v1/dashboard", stshandlers.GetDashboard)

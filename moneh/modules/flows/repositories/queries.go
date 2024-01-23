@@ -1,10 +1,12 @@
 package repositories
 
 import (
+	"database/sql"
 	"math"
 	"moneh/modules/flows/models"
 	"moneh/packages/builders"
 	"moneh/packages/database"
+	"moneh/packages/helpers/converter"
 	"moneh/packages/helpers/generator"
 	"moneh/packages/helpers/response"
 	"moneh/packages/utils/pagination"
@@ -22,6 +24,9 @@ func GetAllFlow(page, pageSize int, path string, ord string) (response.Response,
 
 	// Converted Column
 	var FlowsAmmount string
+
+	// Nullable Column
+	var FlowsTag sql.NullString
 
 	// Query builder
 	activeTemplate := builders.GetTemplateLogic("active")
@@ -52,7 +57,7 @@ func GetAllFlow(page, pageSize int, path string, ord string) (response.Response,
 			&obj.FlowsName,
 			&obj.FlowsDesc,
 			&FlowsAmmount,
-			&obj.FlowsTag,
+			&FlowsTag,
 			&obj.IsShared,
 		)
 
@@ -67,6 +72,7 @@ func GetAllFlow(page, pageSize int, path string, ord string) (response.Response,
 		}
 
 		obj.FlowsAmmount = intFlowAmmount
+		obj.FlowsTag = converter.CheckNullString(FlowsTag)
 
 		arrobj = append(arrobj, obj)
 	}

@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"fmt"
+	"database/sql"
 	"moneh/modules/stats/models"
 	"moneh/packages/builders"
 	"moneh/packages/database"
@@ -64,6 +64,59 @@ func GetTotalStats(path string, ord string, view string, table string) (response
 	return res, nil
 }
 
+func GetTotalDictionaryToModule(path string, table string, col string) (response.Response, error) {
+	// Declaration
+	var obj models.GetMostAppear
+	var arrobj []models.GetMostAppear
+	var res response.Response
+	var baseTable string = "dictionaries"
+	var sqlStatement string
+	var extraStatement string = "JOIN " + table + " ON dictionaries.dictionaries_name = " + table + "." + col + " " +
+		"WHERE dictionaries_type = '" + col + "'"
+
+	// Converted column
+	var totalStr string
+
+	// Query builder
+	sqlStatement = builders.GetTemplateStats(col, baseTable, "most_appear", "desc", &extraStatement)
+
+	// Exec
+	con := database.CreateCon()
+	rows, err := con.Query(sqlStatement)
+	defer rows.Close()
+
+	if err != nil {
+		return res, err
+	}
+
+	// Map
+	for rows.Next() {
+		err = rows.Scan(
+			&obj.Context,
+			&totalStr)
+
+		if err != nil {
+			return res, err
+		}
+
+		// Converted
+		totalInt, err := strconv.Atoi(totalStr)
+		if err != nil {
+			return res, err
+		}
+
+		obj.Total = totalInt
+		arrobj = append(arrobj, obj)
+	}
+
+	// Response
+	res.Status = http.StatusOK
+	res.Message = generator.GenerateQueryMsg("Stats", 1)
+	res.Data = arrobj
+
+	return res, nil
+}
+
 func GetDashboard(path string) (response.Response, error) {
 	// Declaration
 	var obj models.GetDashboard
@@ -80,6 +133,9 @@ func GetDashboard(path string) (response.Response, error) {
 	var totalItemIncome string
 	var totalItemSpending string
 	var myBalance string
+
+	// Nullable column
+	var LastSpending sql.NullString
 
 	// Query builder
 	lastIncomeQueryRaw := map[string]string{
@@ -169,9 +225,7 @@ func GetDashboard(path string) (response.Response, error) {
 		mostHighestIncomeValSql + " most_highest_income_value, " +
 		totalItemIncomeSql + " total_item_income, " +
 		totalItemSpendingSql + " total_item_spending, " +
-		myBalanceSql + " my_balance FROM " + baseTable
-
-	fmt.Println(sqlStatement)
+		myBalanceSql + " my_balance FROM " + baseTable + " limit 1"
 
 	// Exec
 	con := database.CreateCon()
@@ -186,7 +240,7 @@ func GetDashboard(path string) (response.Response, error) {
 	for rows.Next() {
 		err = rows.Scan(
 			&obj.LastIncome,
-			&obj.LastSpending,
+			&LastSpending,
 			&obj.MostExpensiveSpending,
 			&obj.MostHighestIncome,
 			&lastIncomeVal,
@@ -221,6 +275,10 @@ func GetDashboard(path string) (response.Response, error) {
 		obj.TotalItemIncome = totalItemIncomeInt
 		obj.TotalItemSpending = totalItemSpendingInt
 		obj.MyBalance = myBalanceInt
+
+		// Nullable Converter
+		obj.LastSpending = converter.CheckNullString(LastSpending)
+
 		arrobj = append(arrobj, obj)
 	}
 

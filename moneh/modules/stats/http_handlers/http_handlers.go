@@ -98,6 +98,18 @@ func GetTotalWishlistIsAchieved(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetTotalDictionaryToModule(c echo.Context) error {
+	table := c.Param("table")
+	col := c.Param("col")
+
+	result, err := repositories.GetTotalDictionaryToModule("api/v1/stats/dctmod/"+table+"/"+col, table, col)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
 func GetDashboard(c echo.Context) error {
 	result, err := repositories.GetDashboard("api/v1/dashboard")
 	if err != nil {

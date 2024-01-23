@@ -9,6 +9,7 @@ import (
 	"moneh/packages/helpers/response"
 	"moneh/packages/utils/pagination"
 	"net/http"
+	"strconv"
 )
 
 func GetDictionaryByType(page, pageSize int, path string, dctType string) (response.Response, error) {
@@ -20,6 +21,9 @@ func GetDictionaryByType(page, pageSize int, path string, dctType string) (respo
 	var sqlStatement string
 	var where string
 
+	// Converted column
+	var ID string
+
 	// Query builder
 	if dctType != "all" {
 		where = "dictionaries_type = '" + dctType + "' "
@@ -29,7 +33,7 @@ func GetDictionaryByType(page, pageSize int, path string, dctType string) (respo
 
 	order := "dictionaries_name DESC "
 
-	sqlStatement = "SELECT dictionaries_name " +
+	sqlStatement = "SELECT id, dictionaries_name " +
 		"FROM " + baseTable + " " +
 		"WHERE " + where +
 		"ORDER BY " + order +
@@ -48,12 +52,21 @@ func GetDictionaryByType(page, pageSize int, path string, dctType string) (respo
 	// Map
 	for rows.Next() {
 		err = rows.Scan(
+			&ID,
 			&obj.DctName,
 		)
 
 		if err != nil {
 			return res, err
 		}
+
+		// Converted
+		intID, err := strconv.Atoi(ID)
+		if err != nil {
+			return res, err
+		}
+
+		obj.ID = intID
 
 		arrobj = append(arrobj, obj)
 	}

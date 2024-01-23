@@ -125,8 +125,11 @@ func GetFormulaQuery(colTarget *string, name string) string {
 		fromTable, _ := prop["from_table"]
 
 		finalCount := strings.Split(toCount, " ")
+		remainCount := strings.Split(toCount, " AND ")
 
 		var count string = finalCount[0]
+		var whereCount string
+		whereCount = " WHERE " + remainCount[0]
 
 		if len(finalCount) > 1 {
 			count = finalCount[len(finalCount)-1]
@@ -134,9 +137,9 @@ func GetFormulaQuery(colTarget *string, name string) string {
 
 		if name == "max_object" {
 
-			return "(SELECT " + toGet + " FROM " + fromTable + " WHERE " + toCount + " = (SELECT MAX(" + count + ") FROM " + fromTable + ")) AS "
+			return "(SELECT " + toGet + " FROM " + fromTable + " WHERE " + toCount + " = (SELECT MAX(" + count + ") FROM " + fromTable + " " + whereCount + ") limit 1) AS "
 		} else if name == "min_object" {
-			return "(SELECT " + toGet + " FROM " + fromTable + " WHERE " + toCount + " = (SELECT MIN(" + count + ") FROM " + fromTable + ")) AS "
+			return "(SELECT " + toGet + " FROM " + fromTable + " WHERE " + toCount + " = (SELECT MIN(" + count + ") FROM " + fromTable + " " + whereCount + ") limit 1) AS "
 		} else if name == "total_sum_case" {
 			return "SUM(CASE WHEN " + toGet + " THEN " + toCount + " ELSE 0 END) "
 		}
