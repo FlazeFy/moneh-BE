@@ -16,4 +16,11 @@ type (
 		TotalItem    int `json:"total_item"`
 		TotalAmmount int `json:"total_ammount"`
 	}
+	GetTotalItemAmmountPerDateByType struct {
+		TotalItem    int `json:"total_item"`
+		TotalAmmount int `json:"total_ammount"`
+
+		// Properties
+		Context string `json:"context"`
+	}
 )

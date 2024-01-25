@@ -77,11 +77,19 @@ func PostDictionary(data echo.Context) (response.Response, error) {
 		return res, err
 	}
 
+	id, err := result.LastInsertId()
+	if err != nil {
+		return res, err
+	}
+
 	// Response
 	res.Status = http.StatusOK
 	res.Message = generator.GenerateCommandMsg(baseTable, "create", int(rowsAffected))
-	res.Data = map[string]int64{
-		"rows_affected": rowsAffected,
+	res.Data = map[string]interface{}{
+		"id":                id,
+		"dictionaries_type": dctType,
+		"dictionaries_name": dctName,
+		"rows_affected":     rowsAffected,
 	}
 
 	return res, nil

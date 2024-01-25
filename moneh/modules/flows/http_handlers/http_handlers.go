@@ -57,3 +57,14 @@ func PostFlow(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, result)
 }
+
+func GetTotalItemAmmountPerDateByType(c echo.Context) error {
+	types := c.Param("type")
+	view := c.Param("view")
+	result, err := repositories.GetTotalItemAmmountPerDateByType(types, view)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}

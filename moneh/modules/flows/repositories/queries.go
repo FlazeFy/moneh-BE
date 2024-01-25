@@ -190,3 +190,81 @@ func GetSummaryByType(path string, types string) (response.Response, error) {
 
 	return res, nil
 }
+
+func GetTotalItemAmmountPerDateByType(types, view string) (response.Response, error) {
+	// Declaration
+	var obj models.GetTotalItemAmmountPerDateByType
+	var arrobj []models.GetTotalItemAmmountPerDateByType
+	var res response.Response
+	var baseTable = "flows"
+	var sqlStatement string
+
+	// Converted Column
+	var TotalItem string
+	var TotalAmmount string
+
+	// Query builder
+	col := map[string]string{
+		"to_count": "flows_ammount",
+		"to_get":   "created_at",
+		"view":     view,
+	}
+	query := converter.MapToString(col)
+	queryFinal := builders.GetFormulaQuery(&query, "periodic")
+
+	sqlStatement = "SELECT " + queryFinal + " " +
+		"FROM " + baseTable + " " +
+		"WHERE flows_type = '" + types + "' " +
+		"GROUP BY 2"
+
+	// Exec
+	con := database.CreateCon()
+	rows, err := con.Query(sqlStatement)
+	defer rows.Close()
+
+	if err != nil {
+		return res, err
+	}
+
+	// Map
+	for rows.Next() {
+		err = rows.Scan(
+			&TotalItem,
+			&obj.Context,
+			&TotalAmmount,
+		)
+
+		if err != nil {
+			return res, err
+		}
+
+		// Converted
+		intTotalItem, err := strconv.Atoi(TotalItem)
+		intTotalAmmount, err := strconv.Atoi(TotalAmmount)
+		if err != nil {
+			return res, err
+		}
+
+		obj.TotalItem = intTotalItem
+		obj.TotalAmmount = intTotalAmmount
+
+		arrobj = append(arrobj, obj)
+	}
+
+	// Page
+	total, err := builders.GetTotalCount(con, baseTable, nil)
+	if err != nil {
+		return res, err
+	}
+
+	// Response
+	res.Status = http.StatusOK
+	res.Message = generator.GenerateQueryMsg(baseTable, total)
+	if total == 0 {
+		res.Data = nil
+	} else {
+		res.Data = arrobj
+	}
+
+	return res, nil
+}

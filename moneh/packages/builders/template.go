@@ -113,7 +113,7 @@ func GetFormulaQuery(colTarget *string, name string) string {
 		return "MAX(" + *colTarget + ") AS "
 	} else if name == "min" {
 		return "MIN(" + *colTarget + ") AS "
-	} else if name == "max_object" || name == "min_object" || name == "total_sum_case" {
+	} else if name == "max_object" || name == "min_object" || name == "total_sum_case" || name == "periodic" {
 		prop, err := converter.StringToMap(*colTarget)
 		if err != nil {
 			fmt.Println("Error:", err)
@@ -142,6 +142,8 @@ func GetFormulaQuery(colTarget *string, name string) string {
 			return "(SELECT " + toGet + " FROM " + fromTable + " WHERE " + toCount + " = (SELECT MIN(" + count + ") FROM " + fromTable + " " + whereCount + ") limit 1) AS "
 		} else if name == "total_sum_case" {
 			return "SUM(CASE WHEN " + toGet + " THEN " + toCount + " ELSE 0 END) "
+		} else if name == "periodic" {
+			return "COUNT(1) as total_item, " + prop["view"] + "(" + toGet + ") as context, SUM(" + toCount + ") as total_ammount"
 		}
 	}
 	return ""
