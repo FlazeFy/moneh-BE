@@ -215,7 +215,8 @@ func GetTotalItemAmmountPerDateByType(types, view string) (response.Response, er
 	sqlStatement = "SELECT " + queryFinal + " " +
 		"FROM " + baseTable + " " +
 		"WHERE flows_type = '" + types + "' " +
-		"GROUP BY 2"
+		"GROUP BY 2 " +
+		"LIMIT 7"
 
 	// Exec
 	con := database.CreateCon()

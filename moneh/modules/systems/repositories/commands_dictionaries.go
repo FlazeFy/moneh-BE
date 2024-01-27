@@ -1,13 +1,12 @@
 package repositories
 
 import (
+	"moneh/modules/systems/models"
 	"moneh/packages/builders"
 	"moneh/packages/database"
 	"moneh/packages/helpers/generator"
 	"moneh/packages/helpers/response"
 	"net/http"
-
-	"github.com/labstack/echo"
 )
 
 func HardDelDictionaryById(id string) (response.Response, error) {
@@ -46,15 +45,11 @@ func HardDelDictionaryById(id string) (response.Response, error) {
 	return res, nil
 }
 
-func PostDictionary(data echo.Context) (response.Response, error) {
+func PostDictionary(d models.PostDictionaryByType) (response.Response, error) {
 	// Declaration
 	var res response.Response
 	var baseTable = "dictionaries"
 	var sqlStatement string
-
-	// Data
-	dctName := data.FormValue("dictionaries_name")
-	dctType := data.FormValue("dictionaries_type")
 
 	// Command builder
 	sqlStatement = "INSERT INTO " + baseTable + " (id, dictionaries_type, dictionaries_name) " +
@@ -67,7 +62,7 @@ func PostDictionary(data echo.Context) (response.Response, error) {
 		return res, err
 	}
 
-	result, err := stmt.Exec(dctType, dctName)
+	result, err := stmt.Exec(d.DctType, d.DctName)
 	if err != nil {
 		return res, err
 	}
@@ -86,10 +81,9 @@ func PostDictionary(data echo.Context) (response.Response, error) {
 	res.Status = http.StatusOK
 	res.Message = generator.GenerateCommandMsg(baseTable, "create", int(rowsAffected))
 	res.Data = map[string]interface{}{
-		"id":                id,
-		"dictionaries_type": dctType,
-		"dictionaries_name": dctName,
-		"rows_affected":     rowsAffected,
+		"id":            id,
+		"data":          d,
+		"rows_affected": rowsAffected,
 	}
 
 	return res, nil

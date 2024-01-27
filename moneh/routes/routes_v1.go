@@ -65,6 +65,7 @@ func InitV1() *echo.Echo {
 	e.GET("api/v1/stats/flowtype/:ord", stshandlers.GetTotalFlowByType)
 	e.GET("api/v1/stats/flowcat/:ord", stshandlers.GetTotalFlowByCat)
 	e.GET("api/v1/stats/pockettype/:ord", stshandlers.GetTotalPocketByType)
+	e.GET("api/v1/stats/ammountflowtype/:ord", stshandlers.GetTotalAmmountFlowByType)
 	e.GET("api/v1/stats/dcttype/:ord", stshandlers.GetTotalDctByType)
 	e.GET("api/v1/stats/wishlisttype/:ord", stshandlers.GetTotalWishlistType)
 	e.GET("api/v1/stats/wishlistpriority/:ord", stshandlers.GetTotalWishlistPriority)

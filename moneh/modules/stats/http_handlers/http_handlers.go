@@ -12,7 +12,7 @@ func GetTotalFlowByType(c echo.Context) error {
 	view := "flows_type"
 	table := "flows"
 
-	result, err := repositories.GetTotalStats("api/v1/stats/flowtype/"+ord, ord, view, table)
+	result, err := repositories.GetTotalStats(ord, view, table, "most_appear", nil)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -25,7 +25,7 @@ func GetTotalFlowByCat(c echo.Context) error {
 	view := "flows_category"
 	table := "flows"
 
-	result, err := repositories.GetTotalStats("api/v1/stats/flowcat/"+ord, ord, view, table)
+	result, err := repositories.GetTotalStats(ord, view, table, "most_appear", nil)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -38,7 +38,7 @@ func GetTotalDctByType(c echo.Context) error {
 	view := "dictionaries_type"
 	table := "dictionaries"
 
-	result, err := repositories.GetTotalStats("api/v1/stats/dcttype/"+ord, ord, view, table)
+	result, err := repositories.GetTotalStats(ord, view, table, "most_appear", nil)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -51,7 +51,21 @@ func GetTotalPocketByType(c echo.Context) error {
 	view := "pockets_type"
 	table := "pockets"
 
-	result, err := repositories.GetTotalStats("api/v1/stats/pockettype/"+ord, ord, view, table)
+	result, err := repositories.GetTotalStats(ord, view, table, "most_appear", nil)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetTotalAmmountFlowByType(c echo.Context) error {
+	ord := c.Param("ord")
+	view := "flows_type"
+	table := "flows"
+	ext := "flows_ammount"
+
+	result, err := repositories.GetTotalStats(ord, view, table, "total_ammount", &ext)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -64,7 +78,7 @@ func GetTotalWishlistType(c echo.Context) error {
 	view := "wishlists_type"
 	table := "wishlists"
 
-	result, err := repositories.GetTotalStats("api/v1/stats/wishlisttype/"+ord, ord, view, table)
+	result, err := repositories.GetTotalStats(ord, view, table, "most_appear", nil)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -77,7 +91,7 @@ func GetTotalWishlistPriority(c echo.Context) error {
 	view := "wishlists_priority"
 	table := "wishlists"
 
-	result, err := repositories.GetTotalStats("api/v1/stats/wishlistpriority/"+ord, ord, view, table)
+	result, err := repositories.GetTotalStats(ord, view, table, "most_appear", nil)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -90,7 +104,7 @@ func GetTotalWishlistIsAchieved(c echo.Context) error {
 	view := "is_achieved"
 	table := "wishlists"
 
-	result, err := repositories.GetTotalStats("api/v1/stats/wishlistisachieved/"+ord, ord, view, table)
+	result, err := repositories.GetTotalStats(ord, view, table, "most_appear", nil)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -102,7 +116,7 @@ func GetTotalDictionaryToModule(c echo.Context) error {
 	table := c.Param("table")
 	col := c.Param("col")
 
-	result, err := repositories.GetTotalDictionaryToModule("api/v1/stats/dctmod/"+table+"/"+col, table, col)
+	result, err := repositories.GetTotalDictionaryToModule(table, col)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -111,7 +125,7 @@ func GetTotalDictionaryToModule(c echo.Context) error {
 }
 
 func GetDashboard(c echo.Context) error {
-	result, err := repositories.GetDashboard("api/v1/dashboard")
+	result, err := repositories.GetDashboard()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}

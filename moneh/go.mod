@@ -5,6 +5,7 @@ go 1.20
 require github.com/labstack/echo v3.3.10+incompatible
 
 require (
+	github.com/bxcodec/faker/v3 v3.8.1 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

@@ -1,6 +1,7 @@
 package httphandlers
 
 import (
+	"moneh/modules/systems/models"
 	"moneh/modules/systems/repositories"
 	"net/http"
 	"strconv"
@@ -30,7 +31,13 @@ func HardDelDictionaryById(c echo.Context) error {
 }
 
 func PostDictionary(c echo.Context) error {
-	result, err := repositories.PostDictionary(c)
+	var obj models.PostDictionaryByType
+
+	// Data
+	obj.DctName = c.FormValue("dictionaries_name")
+	obj.DctType = c.FormValue("dictionaries_type")
+
+	result, err := repositories.PostDictionary(obj)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}

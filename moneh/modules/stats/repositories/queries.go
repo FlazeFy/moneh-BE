@@ -12,7 +12,7 @@ import (
 	"strconv"
 )
 
-func GetTotalStats(path string, ord string, view string, table string) (response.Response, error) {
+func GetTotalStats(ord string, view string, table string, typeStats string, extraTotal *string) (response.Response, error) {
 	// Declaration
 	var obj models.GetMostAppear
 	var arrobj []models.GetMostAppear
@@ -25,7 +25,7 @@ func GetTotalStats(path string, ord string, view string, table string) (response
 	var totalStr string
 
 	// Query builder
-	sqlStatement = builders.GetTemplateStats(mainCol, baseTable, "most_appear", ord, nil)
+	sqlStatement = builders.GetTemplateStats(mainCol, baseTable, typeStats, ord, extraTotal)
 
 	// Exec
 	con := database.CreateCon()
@@ -64,7 +64,7 @@ func GetTotalStats(path string, ord string, view string, table string) (response
 	return res, nil
 }
 
-func GetTotalDictionaryToModule(path string, table string, col string) (response.Response, error) {
+func GetTotalDictionaryToModule(table string, col string) (response.Response, error) {
 	// Declaration
 	var obj models.GetMostAppear
 	var arrobj []models.GetMostAppear
@@ -117,7 +117,7 @@ func GetTotalDictionaryToModule(path string, table string, col string) (response
 	return res, nil
 }
 
-func GetDashboard(path string) (response.Response, error) {
+func GetDashboard() (response.Response, error) {
 	// Declaration
 	var obj models.GetDashboard
 	var arrobj []models.GetDashboard

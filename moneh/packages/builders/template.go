@@ -94,8 +94,9 @@ func GetTemplateStats(ctx, firstTable, name string, ord string, joinArgs *string
 	// Full query
 	if name == "most_appear" {
 		return "SELECT " + ctx + " as context, " + GetFormulaQuery(nil, "total_item") + " total FROM " + firstTable + " " + args + " GROUP BY " + ctx + " ORDER BY total " + ord
+	} else if name == "total_ammount" {
+		return "SELECT " + ctx + " as context, " + GetFormulaQuery(joinArgs, "total_sum") + " total FROM " + firstTable + " " + args + " GROUP BY " + ctx + " ORDER BY total " + ord
 	}
-
 	return ""
 }
 
