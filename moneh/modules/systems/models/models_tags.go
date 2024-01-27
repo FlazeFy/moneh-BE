@@ -5,4 +5,9 @@ type (
 		TagSlug string `json:"tags_slug"`
 		TagName string `json:"tags_name"`
 	}
+	PostTag struct {
+		ID      string `json:"id"`
+		TagSlug string `json:"tags_slug"`
+		TagName string `json:"tags_name"`
+	}
 )

@@ -2,7 +2,6 @@ package seeders
 
 import (
 	"fmt"
-	"moneh/factories/dummies"
 	"moneh/modules/systems/models"
 	"moneh/modules/systems/repositories"
 	"moneh/packages/helpers/generator"
@@ -10,16 +9,17 @@ import (
 	"github.com/bxcodec/faker/v3"
 )
 
-func SeedDictionaries(total int, showRes bool) {
-	var obj models.PostDictionaryByType
+func SeedTags(total int, showRes bool) {
+	var obj models.PostTag
 	idx := 0
 
 	for idx < total {
 		// Data
-		obj.DctType = generator.GetSlug(dummies.DummyDctType())
-		obj.DctName = faker.Word()
+		name := faker.Word()
+		obj.TagSlug = generator.GetSlug(name)
+		obj.TagName = name
 
-		result, err := repositories.PostDictionary(obj)
+		result, err := repositories.PostTag(obj)
 		if err != nil {
 			fmt.Println(err.Error())
 		}

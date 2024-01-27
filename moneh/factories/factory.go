@@ -42,7 +42,8 @@ func Factory() {
 			case 1:
 				seeders.SeedDictionaries(total, isPrint)
 			case 2:
-				fmt.Println("It's Tuesday!")
+				seeders.SeedTags(total, isPrint)
+				// ID is empty after run
 			default:
 				fmt.Println("\n" + msgFailed + " : Invalid module")
 			}
