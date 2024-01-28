@@ -1,18 +1,19 @@
 package generator
 
 import (
-	"crypto/rand"
+	// "crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"math/rand"
 	"regexp"
 	"strings"
 	"time"
 )
 
 func GetSlug(val string) string {
-	res := strings.ReplaceAll(val, " ", "-")
+	res := strings.ReplaceAll(val, " ", "_")
 
-	res = strings.ReplaceAll(res, "_", "-")
+	res = strings.ReplaceAll(res, "-", "_")
 
 	regExp := regexp.MustCompile(`[!:\\\[/"\;\.\'^£$%&*()}{@#~?><>,|=+¬\]]`)
 	res = regExp.ReplaceAllString(res, "")
@@ -50,4 +51,12 @@ func GenerateTimeNow(name string) string {
 		return res
 	}
 	return ""
+}
+
+func GeneratePrice(max, min int) int {
+	rand.Seed(time.Now().UnixNano())
+
+	res := rand.Intn(max-min+1) + min
+
+	return res
 }

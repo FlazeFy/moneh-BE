@@ -6,6 +6,7 @@ import (
 	"moneh/modules/systems/models"
 	"moneh/modules/systems/repositories"
 	"moneh/packages/helpers/generator"
+	"moneh/packages/helpers/response"
 
 	"github.com/bxcodec/faker/v3"
 )
@@ -13,6 +14,7 @@ import (
 func SeedDictionaries(total int, showRes bool) {
 	var obj models.PostDictionaryByType
 	idx := 0
+	var logs string
 
 	for idx < total {
 		// Data
@@ -26,7 +28,14 @@ func SeedDictionaries(total int, showRes bool) {
 
 		if showRes {
 			fmt.Println(result.Data)
+			if strData, ok := result.Data.(string); ok {
+				logs += strData + "\n"
+			}
 		}
 		idx++
+	}
+
+	if showRes {
+		response.ResponsePrinter("txt", "seeder_dictionaries", logs)
 	}
 }
