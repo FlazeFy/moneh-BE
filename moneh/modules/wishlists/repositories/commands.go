@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"moneh/modules/wishlists/models"
 	"moneh/packages/builders"
 	"moneh/packages/database"
 	"moneh/packages/helpers/generator"
@@ -9,7 +10,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo"
 )
 
 func HardDelWishlistById(slug string) (response.Response, error) {
@@ -85,7 +85,7 @@ func SoftDelWishlistById(id string) (response.Response, error) {
 	return res, nil
 }
 
-func PostWishlist(data echo.Context) (response.Response, error) {
+func PostWishlist(d models.PostWishlist) (response.Response, error) {
 	// Declaration
 	var res response.Response
 	var baseTable = "wishlists"
@@ -94,17 +94,10 @@ func PostWishlist(data echo.Context) (response.Response, error) {
 
 	// Data
 	id := uuid.Must(uuid.NewRandom())
-	wishlistName := data.FormValue("wishlists_name")
-	wishlistDesc := data.FormValue("wishlists_desc")
-	wishlistImgUrl := data.FormValue("wishlists_img_url")
-	wishlistType := data.FormValue("wishlists_type")
-	wishlistPriority := data.FormValue("wishlists_priority")
-	wishlistPrice := data.FormValue("wishlists_price")
-	isAchieved := data.FormValue("is_achieved")
 
 	// Command builder
 	sqlStatement = "INSERT INTO " + baseTable + " (id, wishlists_name, wishlists_desc, wishlists_img_url, wishlists_type, wishlists_priority, wishlists_price, is_achieved, created_at, updated_at, deleted_at) " +
-		"VALUES (?,?,?,?,?,?,?,?,null,null)"
+		"VALUES (?,?,?,?,?,?,?,?,?,null,null)"
 
 	// Exec
 	con := database.CreateCon()
@@ -113,7 +106,7 @@ func PostWishlist(data echo.Context) (response.Response, error) {
 		return res, err
 	}
 
-	result, err := stmt.Exec(id, wishlistName, wishlistDesc, wishlistImgUrl, wishlistType, wishlistPriority, wishlistPrice, isAchieved, dt)
+	result, err := stmt.Exec(id, d.WishlistName, d.WishlistDesc, d.WishlistImgUrl, d.WishlistType, d.WishlistPriority, d.WishlistPrice, d.IsAchieved, dt)
 	if err != nil {
 		return res, err
 	}
@@ -126,7 +119,9 @@ func PostWishlist(data echo.Context) (response.Response, error) {
 	// Response
 	res.Status = http.StatusOK
 	res.Message = generator.GenerateCommandMsg(baseTable, "create", int(rowsAffected))
-	res.Data = map[string]int64{
+	res.Data = map[string]interface{}{
+		"id":            id,
+		"data":          d,
 		"rows_affected": rowsAffected,
 	}
 

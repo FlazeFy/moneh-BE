@@ -19,3 +19,32 @@ func DummyDctType() string {
 
 	return res
 }
+
+func DummyPriority() string {
+	seed := []string{
+		"high",
+		"medium",
+		"low",
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	idx := rand.Intn(len(seed))
+	res := seed[idx]
+
+	return res
+}
+
+func DummyWishlistType() string {
+	seed := []string{
+		"Gadget",
+		"Food & Beverages",
+		"Vehicle",
+		"Trip",
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	idx := rand.Intn(len(seed))
+	res := seed[idx]
+
+	return res
+}

@@ -1,6 +1,7 @@
 package httphandlers
 
 import (
+	"moneh/modules/wishlists/models"
 	"moneh/modules/wishlists/repositories"
 	"net/http"
 	"strconv"
@@ -49,7 +50,21 @@ func SoftDelWishlistById(c echo.Context) error {
 }
 
 func PostWishlist(c echo.Context) error {
-	result, err := repositories.PostWishlist(c)
+	var obj models.PostWishlist
+
+	// Converted
+	WishlistPriceInt, _ := strconv.Atoi(c.FormValue("wishlists_price"))
+	IsAchievedInt, _ := strconv.Atoi(c.FormValue("is_achieved"))
+
+	obj.WishlistName = c.FormValue("wishlists_name")
+	obj.WishlistDesc = c.FormValue("wishlists_desc")
+	obj.WishlistImgUrl = c.FormValue("wishlists_img_url")
+	obj.WishlistType = c.FormValue("wishlists_type")
+	obj.WishlistPriority = c.FormValue("wishlists_priority")
+	obj.WishlistPrice = WishlistPriceInt
+	obj.IsAchieved = IsAchievedInt
+
+	result, err := repositories.PostWishlist(obj)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}

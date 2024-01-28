@@ -21,4 +21,16 @@ type (
 		MostExpensiveName string `json:"most_expensive_name"`
 		CheapestName      string `json:"cheapest_name"`
 	}
+	PostWishlist struct {
+		WishlistName     string `json:"wishlists_name"`
+		WishlistDesc     string `json:"wishlists_desc"`
+		WishlistImgUrl   string `json:"wishlists_img_url"`
+		WishlistType     string `json:"wishlists_type"`
+		WishlistPriority string `json:"wishlists_priority"`
+		WishlistPrice    int    `json:"wishlists_price"`
+		IsAchieved       int    `json:"is_achieved"`
+
+		// Properties
+		CreatedAt string `json:"created_at"`
+	}
 )
