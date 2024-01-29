@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"moneh/modules/pockets/models"
 	"moneh/packages/builders"
 	"moneh/packages/database"
 	"moneh/packages/helpers/generator"
@@ -12,7 +13,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-func PostPocket(data echo.Context) (response.Response, error) {
+func PostPocket(d models.GetPocketHeaders) (response.Response, error) {
 	// Declaration
 	var res response.Response
 	var baseTable = "pockets"
@@ -21,10 +22,6 @@ func PostPocket(data echo.Context) (response.Response, error) {
 
 	// Data
 	id := uuid.Must(uuid.NewRandom())
-	pocketName := data.FormValue("pockets_name")
-	pocketDesc := data.FormValue("pockets_desc")
-	pocketType := data.FormValue("pockets_type")
-	pocketLimit := data.FormValue("pockets_limit")
 
 	// Command builder
 	sqlStatement = "INSERT INTO " + baseTable + " (id, pockets_name, pockets_desc, pockets_type, pockets_limit, created_at, updated_at) " +
@@ -37,7 +34,7 @@ func PostPocket(data echo.Context) (response.Response, error) {
 		return res, err
 	}
 
-	result, err := stmt.Exec(id, pocketName, pocketDesc, pocketType, pocketLimit, dt)
+	result, err := stmt.Exec(id, d.PocketsName, d.PocketsDesc, d.PocketsType, d.PocketsLimit, dt)
 	if err != nil {
 		return res, err
 	}
@@ -50,7 +47,9 @@ func PostPocket(data echo.Context) (response.Response, error) {
 	// Response
 	res.Status = http.StatusOK
 	res.Message = generator.GenerateCommandMsg(baseTable, "create", int(rowsAffected))
-	res.Data = map[string]int64{
+	res.Data = map[string]interface{}{
+		"id":            id,
+		"data":          d,
 		"rows_affected": rowsAffected,
 	}
 

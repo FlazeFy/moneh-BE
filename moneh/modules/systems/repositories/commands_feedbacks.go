@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"moneh/modules/systems/models"
 	"moneh/packages/database"
 	"moneh/packages/helpers/generator"
 	"moneh/packages/helpers/response"
@@ -8,10 +9,9 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo"
 )
 
-func PostFeedback(data echo.Context) (response.Response, error) {
+func PostFeedback(d models.PostFeedback) (response.Response, error) {
 	// Declaration
 	var res response.Response
 	var baseTable = "feedbacks"
@@ -20,8 +20,6 @@ func PostFeedback(data echo.Context) (response.Response, error) {
 
 	// Data
 	id := uuid.Must(uuid.NewRandom())
-	fdbRate := data.FormValue("feedbacks_rate")
-	fdbDesc := data.FormValue("feedbacks_desc")
 
 	// Command builder
 	sqlStatement = "INSERT INTO " + baseTable + " (id, feedbacks_rate, feedbacks_desc, created_at) " +
@@ -34,7 +32,7 @@ func PostFeedback(data echo.Context) (response.Response, error) {
 		return res, err
 	}
 
-	result, err := stmt.Exec(id, fdbRate, fdbDesc, dt)
+	result, err := stmt.Exec(id, d.FdbRate, d.FdbDesc, dt)
 	if err != nil {
 		return res, err
 	}
@@ -47,7 +45,9 @@ func PostFeedback(data echo.Context) (response.Response, error) {
 	// Response
 	res.Status = http.StatusOK
 	res.Message = generator.GenerateCommandMsg(baseTable, "create", int(rowsAffected))
-	res.Data = map[string]int64{
+	res.Data = map[string]interface{}{
+		"id":            id,
+		"data":          d,
 		"rows_affected": rowsAffected,
 	}
 

@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/google/uuid"
 	"github.com/labstack/echo"
 )
 
@@ -47,7 +46,14 @@ func PostDictionary(c echo.Context) error {
 }
 
 func PostFeedback(c echo.Context) error {
-	result, err := repositories.PostFeedback(c)
+	var obj models.PostFeedback
+	fdbRateInt, _ := strconv.Atoi(c.FormValue("feedbacks_rate"))
+
+	// Data
+	obj.FdbRate = fdbRateInt
+	obj.FdbDesc = c.FormValue("feedbacks_desc")
+
+	result, err := repositories.PostFeedback(obj)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -88,10 +94,9 @@ func HardDelTagById(c echo.Context) error {
 }
 
 func PostTag(c echo.Context) error {
-	var obj models.PostTag
+	var obj models.GetTags
 
 	// Data
-	obj.ID = uuid.Must(uuid.NewRandom()).String()
 	obj.TagSlug = c.FormValue("tags_slug")
 	obj.TagName = c.FormValue("tags_name")
 

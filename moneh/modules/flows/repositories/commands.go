@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"moneh/modules/flows/models"
 	"moneh/packages/builders"
 	"moneh/packages/database"
 	"moneh/packages/helpers/generator"
@@ -9,7 +10,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/labstack/echo"
 )
 
 func HardDelFlowById(slug string) (response.Response, error) {
@@ -85,7 +85,7 @@ func SoftDelFlowById(id string) (response.Response, error) {
 	return res, nil
 }
 
-func PostFlow(data echo.Context) (response.Response, error) {
+func PostFlow(d models.GetFlow) (response.Response, error) {
 	// Declaration
 	var res response.Response
 	var baseTable = "flows"
@@ -94,13 +94,6 @@ func PostFlow(data echo.Context) (response.Response, error) {
 
 	// Data
 	id := uuid.Must(uuid.NewRandom())
-	flowType := data.FormValue("flows_type")
-	flowCat := data.FormValue("flows_category")
-	flowName := data.FormValue("flows_name")
-	flowDesc := data.FormValue("flows_desc")
-	flowAmmount := data.FormValue("flows_ammount")
-	flowTag := data.FormValue("flows_tag")
-	isShared := data.FormValue("is_shared")
 
 	// Command builder
 	sqlStatement = "INSERT INTO " + baseTable + " (id, flows_type, flows_category, flows_name, flows_desc, flows_ammount, flows_tag, is_shared, created_at, updated_at, deleted_at) " +
@@ -113,7 +106,7 @@ func PostFlow(data echo.Context) (response.Response, error) {
 		return res, err
 	}
 
-	result, err := stmt.Exec(id, flowType, flowCat, flowName, flowDesc, flowAmmount, flowTag, isShared, dt)
+	result, err := stmt.Exec(id, d.FlowsType, d.FlowsCategory, d.FlowsName, d.FlowsDesc, d.FlowsAmmount, d.FlowsTag, d.IsShared, dt)
 	if err != nil {
 		return res, err
 	}
@@ -126,7 +119,9 @@ func PostFlow(data echo.Context) (response.Response, error) {
 	// Response
 	res.Status = http.StatusOK
 	res.Message = generator.GenerateCommandMsg(baseTable, "create", int(rowsAffected))
-	res.Data = map[string]int64{
+	res.Data = map[string]interface{}{
+		"id":            id,
+		"data":          d,
 		"rows_affected": rowsAffected,
 	}
 

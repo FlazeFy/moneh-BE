@@ -9,7 +9,7 @@ type (
 		FlowsDesc     string `json:"flows_desc"`
 		FlowsAmmount  int    `json:"flows_ammount"`
 		FlowsTag      string `json:"flows_tag"`
-		IsShared      string `json:"is_shared"`
+		IsShared      int    `json:"is_shared"`
 	}
 	GetSummaryByType struct {
 		Average      int `json:"average"`

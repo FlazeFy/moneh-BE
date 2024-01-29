@@ -9,6 +9,7 @@ import (
 	"moneh/packages/helpers/response"
 	"moneh/packages/utils/pagination"
 	"net/http"
+	"strconv"
 )
 
 func GetAllFeedback(page, pageSize int, path, ord_obj, ord string) (response.Response, error) {
@@ -18,6 +19,9 @@ func GetAllFeedback(page, pageSize int, path, ord_obj, ord string) (response.Res
 	var res response.Response
 	var baseTable = "feedbacks"
 	var sqlStatement string
+
+	// Converted column
+	var fdbRate string
 
 	sqlStatement = "SELECT feedbacks_rate, feedbacks_desc, created_at " +
 		"FROM " + baseTable + " " +
@@ -37,7 +41,7 @@ func GetAllFeedback(page, pageSize int, path, ord_obj, ord string) (response.Res
 	// Map
 	for rows.Next() {
 		err = rows.Scan(
-			&obj.FdbRate,
+			&fdbRate,
 			&obj.FdbDesc,
 			&obj.CreatedAt,
 		)
@@ -45,6 +49,14 @@ func GetAllFeedback(page, pageSize int, path, ord_obj, ord string) (response.Res
 		if err != nil {
 			return res, err
 		}
+
+		// Converted
+		fdbRateInt, err := strconv.Atoi(fdbRate)
+		if err != nil {
+			return res, err
+		}
+
+		obj.FdbRate = fdbRateInt
 
 		arrobj = append(arrobj, obj)
 	}

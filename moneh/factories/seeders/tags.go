@@ -11,7 +11,7 @@ import (
 )
 
 func SeedTags(total int, showRes bool) {
-	var obj models.PostTag
+	var obj models.GetTags
 	idx := 0
 	var logs string
 

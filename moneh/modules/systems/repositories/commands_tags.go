@@ -7,6 +7,8 @@ import (
 	"moneh/packages/helpers/generator"
 	"moneh/packages/helpers/response"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 func HardDelTagById(id string) (response.Response, error) {
@@ -45,11 +47,14 @@ func HardDelTagById(id string) (response.Response, error) {
 	return res, nil
 }
 
-func PostTag(d models.PostTag) (response.Response, error) {
+func PostTag(d models.GetTags) (response.Response, error) {
 	// Declaration
 	var res response.Response
 	var baseTable = "tags"
 	var sqlStatement string
+
+	// Data
+	id := uuid.Must(uuid.NewRandom())
 
 	// Command builder
 	sqlStatement = "INSERT INTO " + baseTable + " (id, tags_slug, tags_name) " +
@@ -62,17 +67,12 @@ func PostTag(d models.PostTag) (response.Response, error) {
 		return res, err
 	}
 
-	result, err := stmt.Exec(d.ID, d.TagSlug, d.TagName)
+	result, err := stmt.Exec(id, d.TagSlug, d.TagName)
 	if err != nil {
 		return res, err
 	}
 
 	rowsAffected, err := result.RowsAffected()
-	if err != nil {
-		return res, err
-	}
-
-	id, err := result.LastInsertId()
 	if err != nil {
 		return res, err
 	}
