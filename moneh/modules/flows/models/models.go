@@ -23,4 +23,8 @@ type (
 		// Properties
 		Context string `json:"context"`
 	}
+	GetMonthlyFlow struct {
+		Title   string `json:"title"`
+		Context string `json:"context"`
+	}
 )

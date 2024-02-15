@@ -39,6 +39,7 @@ func InitV1() *echo.Echo {
 
 	// Flows
 	e.GET("api/v1/flows/:ord", flwhandlers.GetAllFlow)
+	e.GET("api/v1/flows/month/:mon/:year/:type", flwhandlers.GetMonthlyFlow)
 	e.GET("api/v1/flows/summary/:type", flwhandlers.GetSummaryByType)
 	e.GET("api/v1/flows/dateammount/:type/:view", flwhandlers.GetTotalItemAmmountPerDateByType)
 	e.POST("api/v1/flows", flwhandlers.PostFlow)

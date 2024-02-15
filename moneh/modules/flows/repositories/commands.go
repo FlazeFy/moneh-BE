@@ -16,10 +16,9 @@ func HardDelFlowById(slug string) (response.Response, error) {
 	// Declaration
 	var res response.Response
 	var baseTable = "flows"
-	var sqlStatement string
 
 	// Command builder
-	sqlStatement = builders.GetTemplateCommand("hard_delete", baseTable, "id")
+	sqlStatement := builders.GetTemplateCommand("hard_delete", baseTable, "id")
 
 	// Exec
 	con := database.CreateCon()
