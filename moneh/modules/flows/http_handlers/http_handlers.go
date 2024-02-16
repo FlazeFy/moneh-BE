@@ -83,12 +83,25 @@ func GetTotalItemAmmountPerDateByType(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-func GetMonthlyFlow(c echo.Context) error {
+func GetMonthlyFlowItem(c echo.Context) error {
 	mon := c.Param("mon")
 	year := c.Param("year")
 	types := c.Param("type")
 
-	result, err := repositories.GetMonthlyFlow(mon, year, types)
+	result, err := repositories.GetMonthlyFlowItem(mon, year, types)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetMonthlyFlowTotal(c echo.Context) error {
+	mon := c.Param("mon")
+	year := c.Param("year")
+	types := c.Param("type")
+
+	result, err := repositories.GetMonthlyFlowTotal(mon, year, types)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}

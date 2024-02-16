@@ -270,7 +270,7 @@ func GetTotalItemAmmountPerDateByType(types, view string) (response.Response, er
 	return res, nil
 }
 
-func GetMonthlyFlow(mon, year, types string) (response.Response, error) {
+func GetMonthlyFlowItem(mon, year, types string) (response.Response, error) {
 	// Declaration
 	var obj models.GetMonthlyFlow
 	var arrobj []models.GetMonthlyFlow
@@ -288,6 +288,62 @@ func GetMonthlyFlow(mon, year, types string) (response.Response, error) {
 		"WHERE MONTH(created_at) = '" + mon + "' " +
 		"AND YEAR(created_at) = '" + year + "' " +
 		flowWhere + " "
+
+	// Exec
+	con := database.CreateCon()
+	rows, err := con.Query(sqlStatement)
+
+	defer rows.Close()
+
+	if err != nil {
+		return res, err
+	}
+
+	// Map
+	for rows.Next() {
+		err = rows.Scan(
+			&obj.Title,
+			&obj.Context,
+		)
+
+		if err != nil {
+			return res, err
+		}
+
+		arrobj = append(arrobj, obj)
+	}
+
+	// Response
+	res.Status = http.StatusOK
+	res.Message = generator.GenerateQueryMsg(baseTable, len(arrobj))
+	if len(arrobj) == 0 {
+		res.Data = nil
+	} else {
+		res.Data = arrobj
+	}
+
+	return res, nil
+}
+
+func GetMonthlyFlowTotal(mon, year, types string) (response.Response, error) {
+	// Declaration
+	var obj models.GetMonthlyFlow
+	var arrobj []models.GetMonthlyFlow
+	var res response.Response
+	var baseTable = "flows"
+
+	var flowWhere = ""
+
+	if types != "all" {
+		flowWhere = "AND flows_type = '" + types + "'"
+	}
+
+	sqlStatement := "SELECT SUM(flows_ammount) as title, DATE(created_at) as context " +
+		"FROM " + baseTable + " " +
+		"WHERE MONTH(created_at) = '" + mon + "' " +
+		"AND YEAR(created_at) = '" + year + "' " +
+		flowWhere + " " +
+		"GROUP BY 2"
 
 	// Exec
 	con := database.CreateCon()
