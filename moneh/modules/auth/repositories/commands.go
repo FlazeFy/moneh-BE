@@ -11,6 +11,8 @@ import (
 	"moneh/packages/helpers/generator"
 	"moneh/packages/helpers/response"
 	"net/http"
+	"strconv"
+	"strings"
 )
 
 func PostUserAuth(username, password string) (string, error, string) {
@@ -72,7 +74,6 @@ func PostUserRegister(body models.UserRegister) (response.Response, error) {
 		// Query builder
 		colFirstTemplate := builders.GetTemplateSelect("user_credential", nil, nil)
 		colSecondTemplate := builders.GetTemplateSelect("user_mini_info", nil, nil)
-		colThirdTemplate := builders.GetTemplateSelect("properties", &baseTable, nil)
 		colFourthTemplate := builders.GetTemplateSelect("user_joined_info", &baseTable, nil)
 
 		if err != nil {
@@ -80,9 +81,9 @@ func PostUserRegister(body models.UserRegister) (response.Response, error) {
 		}
 
 		sqlStatement := "INSERT INTO " + baseTable + " " +
-			"(id, " + colFirstTemplate + ", " + colSecondTemplate + ", valid_until, " + colThirdTemplate +
-			", deleted_at, deleted_by, " + colFourthTemplate + ", language_code) " + " " +
-			"VALUES (?, ?, ?, ?, null, ?, ?, null, ?, ?, null, null, null, null, null, null, 0, 'en')"
+			"(id, " + colFirstTemplate + ", " + colSecondTemplate + ", created_at, updated_at, updated_by" +
+			", deleted_at, deleted_by, " + colFourthTemplate + ") " + " " +
+			"VALUES (?, ?, ?, ?, ?, ?, null, ?, null, null, null, null, null, null, 0)"
 
 		// Exec
 		con := database.CreateCon()
@@ -93,7 +94,7 @@ func PostUserRegister(body models.UserRegister) (response.Response, error) {
 			return res, err
 		}
 
-		result, err := cmd.Exec(id, body.Username, body.Email, hashPass, body.FirstName, body.LastName, body.ValidUntil, createdAt)
+		result, err := cmd.Exec(id, body.Username, body.Email, hashPass, body.FirstName, body.LastName, createdAt)
 		if err != nil {
 			return res, err
 		}
@@ -146,4 +147,37 @@ func PostAccessToken(body models.UserToken) error {
 		return err
 	}
 	return nil
+}
+
+func SignOut(token string) (response.Response, error) {
+	// Declaration
+	var res response.Response
+	var baseTable = "users_tokens"
+	token = strings.Replace(token, "Bearer ", "", -1)
+
+	sqlStatement := "DELETE FROM " + baseTable + " WHERE token= ?"
+
+	// Exec
+	con := database.CreateCon()
+	cmd, err := con.Prepare(sqlStatement)
+	if err != nil {
+		return res, err
+	}
+
+	result, err := cmd.Exec(token)
+	if err != nil {
+		return res, err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if rowsAffected == 0 {
+		return res, err
+	}
+
+	// Response
+	res.Status = http.StatusOK
+	res.Message = generator.GenerateCommandMsg("account", "sign out", 1)
+	res.Data = map[string]string{"result": strconv.Itoa(int(rowsAffected)) + " rows affected"}
+
+	return res, err
 }

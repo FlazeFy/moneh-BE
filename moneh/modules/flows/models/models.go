@@ -27,4 +27,9 @@ type (
 		Title   string `json:"title"`
 		Context string `json:"context"`
 	}
+	GetMonthlyFlowTotal struct {
+		Title   string `json:"title"`
+		Type    string `json:"type"`
+		Context string `json:"context"`
+	}
 )

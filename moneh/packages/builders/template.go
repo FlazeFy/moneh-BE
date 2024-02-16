@@ -13,6 +13,16 @@ func GetTemplateSelect(name string, firstTable, secondTable *string) string {
 		return "created_at, created_by"
 	} else if name == "properties_full" {
 		return "created_at, created_by, updated_at, updated_by"
+	} else if name == "user_credential" {
+		return "username, email, password, image_url"
+	} else if name == "user_mini_info" {
+		return "first_name, last_name"
+	} else if name == "user_joined_info" {
+		return "accepted_at, accepted_by, is_accepted"
+	} else if name == "user_access" {
+		return "context_type, context_id"
+	} else if name == "auth" {
+		return "username, password"
 	}
 	return ""
 }

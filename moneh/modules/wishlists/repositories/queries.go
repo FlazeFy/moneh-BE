@@ -27,11 +27,12 @@ func GetAllWishlistHeaders(page, pageSize int, path string, ord string) (respons
 
 	// Converted column
 	var WishlistPrice string
+	var IsAchieved string
 
 	// Query builder
 	order := builders.GetTemplateOrder("dynamic_data", baseTable, "wishlists_name", ord)
 
-	sqlStatement = "SELECT id, wishlists_name, wishlists_desc, wishlists_img_url, wishlists_type, wishlists_priority, wishlists_price " +
+	sqlStatement = "SELECT id, wishlists_name, wishlists_desc, wishlists_img_url, wishlists_type, wishlists_priority, wishlists_price, is_achieved " +
 		"FROM " + baseTable + " " +
 		"ORDER BY " + order + " " +
 		"LIMIT ? OFFSET ?"
@@ -56,6 +57,7 @@ func GetAllWishlistHeaders(page, pageSize int, path string, ord string) (respons
 			&obj.WishlistType,
 			&obj.WishlistPriority,
 			&WishlistPrice,
+			&IsAchieved,
 		)
 
 		if err != nil {
@@ -67,11 +69,13 @@ func GetAllWishlistHeaders(page, pageSize int, path string, ord string) (respons
 
 		// Converted
 		intWishlistPrice, err := strconv.Atoi(WishlistPrice)
+		intIsAchieved, err := strconv.Atoi(IsAchieved)
 		if err != nil {
 			return res, err
 		}
 
 		obj.WishlistPrice = intWishlistPrice
+		obj.IsAchieved = intIsAchieved
 
 		arrobj = append(arrobj, obj)
 	}

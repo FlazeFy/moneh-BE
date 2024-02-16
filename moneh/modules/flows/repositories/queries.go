@@ -327,18 +327,18 @@ func GetMonthlyFlowItem(mon, year, types string) (response.Response, error) {
 
 func GetMonthlyFlowTotal(mon, year, types string) (response.Response, error) {
 	// Declaration
-	var obj models.GetMonthlyFlow
-	var arrobj []models.GetMonthlyFlow
+	var obj models.GetMonthlyFlowTotal
+	var arrobj []models.GetMonthlyFlowTotal
 	var res response.Response
 	var baseTable = "flows"
 
 	var flowWhere = ""
 
-	if types != "all" {
+	if types != "final_total" {
 		flowWhere = "AND flows_type = '" + types + "'"
 	}
 
-	sqlStatement := "SELECT SUM(flows_ammount) as title, DATE(created_at) as context " +
+	sqlStatement := "SELECT SUM(flows_ammount) as title, flows_type as type, DATE(created_at) as context " +
 		"FROM " + baseTable + " " +
 		"WHERE MONTH(created_at) = '" + mon + "' " +
 		"AND YEAR(created_at) = '" + year + "' " +
@@ -359,6 +359,7 @@ func GetMonthlyFlowTotal(mon, year, types string) (response.Response, error) {
 	for rows.Next() {
 		err = rows.Scan(
 			&obj.Title,
+			&obj.Type,
 			&obj.Context,
 		)
 

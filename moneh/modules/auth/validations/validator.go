@@ -5,7 +5,6 @@ import (
 	"moneh/packages/helpers/converter"
 	"moneh/packages/helpers/generator"
 	"moneh/packages/utils/validator"
-	"strconv"
 )
 
 func GetValidateRegister(body models.UserRegister) (bool, string) {
@@ -18,7 +17,6 @@ func GetValidateRegister(body models.UserRegister) (bool, string) {
 	minEmail, maxEmail := validator.GetValidationLength("email")
 	minFName, maxFName := validator.GetValidationLength("first_name")
 	_, maxLName := validator.GetValidationLength("last_name")
-	minValidUntil, maxValidUntil := validator.GetValidationLength("valid_until")
 
 	// Value
 	uname := converter.TotalChar(body.Username)
@@ -26,7 +24,6 @@ func GetValidateRegister(body models.UserRegister) (bool, string) {
 	email := converter.TotalChar(body.Email)
 	fname := converter.TotalChar(body.FirstName)
 	lname := converter.TotalChar(body.LastName)
-	valid, _ := strconv.Atoi(body.ValidUntil)
 
 	// Validate
 	if uname <= minUname || uname >= maxUname {
@@ -60,13 +57,6 @@ func GetValidateRegister(body models.UserRegister) (bool, string) {
 			msg += ", "
 		}
 		msg += generator.GenerateValidatorMsg("Last name", 0, maxFName)
-	}
-	if valid <= minValidUntil || valid >= maxValidUntil {
-		status = false
-		if msg != "" {
-			msg += ", "
-		}
-		msg += generator.GenerateValidatorMsg("Valid until", minValidUntil, maxValidUntil)
 	}
 
 	if status {
