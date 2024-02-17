@@ -1,11 +1,13 @@
 package routes
 
 import (
+	middlewares "moneh/middlewares/jwt"
 	authhandlers "moneh/modules/auth/http_handlers"
 	flwhandlers "moneh/modules/flows/http_handlers"
 	pckhandlers "moneh/modules/pockets/http_handlers"
 	stshandlers "moneh/modules/stats/http_handlers"
 	syshandlers "moneh/modules/systems/http_handlers"
+	ushandlers "moneh/modules/users/http_handlers"
 	wshhandlers "moneh/modules/wishlists/http_handlers"
 	"net/http"
 
@@ -80,6 +82,8 @@ func InitV1() *echo.Echo {
 	e.GET("api/v1/dashboard", stshandlers.GetDashboard)
 
 	// =============== Private routes ===============
+	// User
+	e.GET("api/v1/user/my", ushandlers.GetMyProfile, middlewares.CustomJWTAuth)
 
 	return e
 }
