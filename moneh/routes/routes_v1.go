@@ -28,7 +28,7 @@ func InitV1() *echo.Echo {
 	// Auth
 	e.POST("api/v1/login", authhandlers.PostLoginUser)
 	e.POST("api/v1/register", authhandlers.PostRegister)
-	e.GET("api/v1/logout", authhandlers.SignOut)
+	e.POST("api/v1/logout", authhandlers.SignOut)
 
 	// Dictionary
 	e.GET("api/v1/dct/:type", syshandlers.GetDictionaryByType)
