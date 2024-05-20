@@ -32,13 +32,13 @@ func InitV1() *echo.Echo {
 
 	// Dictionary
 	e.GET("api/v1/dct/:type", syshandlers.GetDictionaryByType)
-	e.DELETE("api/v1/dct/destroy/:id", syshandlers.HardDelDictionaryById)
-	e.POST("api/v1/dct", syshandlers.PostDictionary)
+	e.DELETE("api/v1/dct/destroy/:id", syshandlers.HardDelDictionaryById, middlewares.CustomJWTAuth)
+	e.POST("api/v1/dct", syshandlers.PostDictionary, middlewares.CustomJWTAuth)
 
 	// Tags
 	e.GET("api/v1/tag/:ord", syshandlers.GetAllTags)
-	e.DELETE("api/v1/tag/destroy/:id", syshandlers.HardDelTagById)
-	e.POST("api/v1/tag", syshandlers.PostTag)
+	e.DELETE("api/v1/tag/destroy/:id", syshandlers.HardDelTagById, middlewares.CustomJWTAuth)
+	e.POST("api/v1/tag", syshandlers.PostTag, middlewares.CustomJWTAuth)
 
 	// Flows
 	e.GET("api/v1/flows/:ord", flwhandlers.GetAllFlow)

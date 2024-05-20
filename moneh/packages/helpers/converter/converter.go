@@ -3,6 +3,8 @@ package converter
 import (
 	"database/sql"
 	"encoding/json"
+	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -39,4 +41,33 @@ func StringToMap(val string) (map[string]string, error) {
 	var result map[string]string
 	err := json.Unmarshal([]byte(val), &result)
 	return result, err
+}
+
+func StructToMap(data interface{}) (map[string]interface{}, error) {
+	val := reflect.ValueOf(data)
+	if val.Kind() == reflect.Ptr {
+		val = val.Elem()
+	}
+
+	out := make(map[string]interface{})
+	typ := val.Type()
+	for i := 0; i < val.NumField(); i++ {
+		fieldValue := val.Field(i).Interface()
+		fieldName := typ.Field(i).Tag.Get("json")
+
+		// Custom conversion logic
+		switch fieldValue.(type) {
+		case string:
+			// Example of converting string to int
+			if intValue, err := strconv.Atoi(fieldValue.(string)); err == nil {
+				out[fieldName] = intValue
+			} else {
+				out[fieldName] = fieldValue
+			}
+		default:
+			out[fieldName] = fieldValue
+		}
+	}
+
+	return out, nil
 }
