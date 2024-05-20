@@ -83,6 +83,24 @@ func GetAllTags(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetAllTagsFirebase(c echo.Context) error {
+	result, err := repositories.GetAllTagsFirebase()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
+func GetDictionaryByTypeFirebase(c echo.Context) error {
+	result, err := repositories.GetDictionaryByTypeFirebase()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
 func HardDelTagById(c echo.Context) error {
 	id := c.Param("id")
 	result, err := repositories.HardDelTagById(id)

@@ -32,6 +32,7 @@ func InitV1() *echo.Echo {
 
 	// Dictionary
 	e.GET("api/v1/dct/:type", syshandlers.GetDictionaryByType)
+	e.GET("api/v2/dct/:type", syshandlers.GetDictionaryByTypeFirebase)
 	e.DELETE("api/v1/dct/destroy/:id", syshandlers.HardDelDictionaryById, middlewares.CustomJWTAuth)
 	e.POST("api/v1/dct", syshandlers.PostDictionary, middlewares.CustomJWTAuth)
 
@@ -39,6 +40,8 @@ func InitV1() *echo.Echo {
 	e.GET("api/v1/tag/:ord", syshandlers.GetAllTags)
 	e.DELETE("api/v1/tag/destroy/:id", syshandlers.HardDelTagById, middlewares.CustomJWTAuth)
 	e.POST("api/v1/tag", syshandlers.PostTag, middlewares.CustomJWTAuth)
+
+	e.GET("api/v2/tag/:ord", syshandlers.GetAllTagsFirebase)
 
 	// Flows
 	e.GET("api/v1/flows/:ord", flwhandlers.GetAllFlow)

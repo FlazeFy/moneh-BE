@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"context"
+	"log"
 	"math"
 	"moneh/modules/systems/models"
 	"moneh/packages/builders"
@@ -106,6 +108,44 @@ func GetDictionaryByType(page, pageSize int, path string, dctType string) (respo
 	} else {
 		res.Status = http.StatusOK
 		res.Message = generator.GenerateQueryMsg(baseTable, 1)
+		res.Data = arrobj
+	}
+
+	return res, nil
+}
+
+func GetDictionaryByTypeFirebase() (response.Response, error) {
+	// Declaration
+	var obj map[string]models.GetDictionaryByType
+	var res response.Response
+	var baseTable = "dictionaries"
+
+	// Exec
+	ctx := context.Background()
+	client, err := database.InitializeFirebaseDB(ctx)
+	if err != nil {
+		log.Fatalln("error in initializing firebase DB client: ", err)
+		return res, err
+	}
+
+	ref := client.NewRef(baseTable)
+	if err := ref.Get(ctx, &obj); err != nil {
+		log.Fatalln("error in reading from firebase DB:", err)
+		return res, err
+	}
+
+	var arrobj []models.GetDictionaryByType
+	for _, v := range obj {
+		arrobj = append(arrobj, v)
+	}
+
+	// Build response
+	total := len(arrobj)
+	res.Status = http.StatusOK
+	res.Message = generator.GenerateQueryMsg(baseTable, total)
+	if total == 0 {
+		res.Data = nil
+	} else {
 		res.Data = arrobj
 	}
 
