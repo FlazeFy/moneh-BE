@@ -1,27 +1,28 @@
-package main
+package testcase
 
 import (
 	"encoding/json"
 	"fmt"
 	"moneh/packages/tests"
 	"testing"
+	"time"
 
 	"github.com/go-resty/resty/v2"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
-func TestAuth(t *testing.T) {
+func Test_TC001(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Moneh API Testing Suite - Auth")
+	RunSpecs(t, "Moneh API Testing Suite - TC-001 Login")
 }
 
-var _ = Describe("Moneh API Testing - Auth", func() {
+var _ = Describe("Moneh API Testing Suite - TC-001 Login", func() {
 	const method = "get"
 	var tokenLogin string
 	const local_url = "http://127.0.0.1:1323"
 
-	It(fmt.Sprintf("%s - Login", method), func() {
+	It(fmt.Sprintf("%s - TC-001 Login", method), func() {
 		body := map[string]string{
 			"username": "flazefy",
 			"password": "nopass123",
@@ -43,22 +44,26 @@ var _ = Describe("Moneh API Testing - Auth", func() {
 
 		if data, ok := result["data"].(map[string]interface{}); ok {
 			if token, ok := data["token"].(string); ok {
+				var respond tests.Record
+				strBody, _ := json.Marshal(body)
+				strRes, _ := json.Marshal(result["data"])
+
 				tokenLogin = token
 				fmt.Println("Token:", tokenLogin)
+
+				// Audit
+				respond.Context = "Integration Test"
+				respond.Title = "TC-001 Login Test"
+				respond.Request = string(strBody)
+				respond.Response = string(strRes)
+				respond.CreatedAt = time.Now()
+
+				tests.WriteAudit(respond)
 			} else {
 				Fail("Token not found in response data")
 			}
 		} else {
 			Fail("Data field not found in response")
 		}
-	})
-
-	It(fmt.Sprintf("%s - Logout", method), func() {
-		client := resty.New()
-		resp, err := client.R().
-			SetHeader("Authorization", fmt.Sprintf("Bearer %s", tokenLogin)).
-			Post(local_url + "/api/v1/logout")
-
-		tests.ValidateResponse(resp, err)
 	})
 })

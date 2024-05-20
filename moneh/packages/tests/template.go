@@ -10,6 +10,8 @@ import (
 
 func ValidateResponse(resp *resty.Response, err error) {
 	Expect(err).To(BeNil())
+	// fmt.Println(resp.StatusCode())
+
 	Expect(resp.StatusCode()).To(Equal(http.StatusOK))
 	Expect(resp.Body()).NotTo(BeNil())
 	fmt.Println(resp.String())
