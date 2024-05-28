@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"moneh/packages/builders"
 	"moneh/packages/database"
+	"moneh/packages/helpers/converter"
 	"strconv"
 	"strings"
 )
@@ -38,6 +39,7 @@ func GetAllFlowBot() (string, error) {
 	}
 
 	// Map
+	var total int
 	for rows.Next() {
 		err = rows.Scan(
 			&obj.FlowsType,
@@ -59,24 +61,36 @@ func GetAllFlowBot() (string, error) {
 
 		obj.FlowsAmmount = intFlowAmmount
 
+		// Calculated
+		total += obj.FlowsAmmount
+
 		arrobj = append(arrobj, obj)
 	}
 
-	for _, flow := range arrobj {
+	for _, dt := range arrobj {
+		amount := converter.ConvertPriceNumber(dt.FlowsAmmount)
+
 		res.WriteString(fmt.Sprintf(`
 				Type : %s
 				Category : %s
 				Name : %s
-				Amount : Rp. %d, 00
+				Amount : Rp. %s,00
 				Created At : %s
 			`,
-			flow.FlowsType,
-			flow.FlowsCategory,
-			flow.FlowsName,
-			flow.FlowsAmmount,
-			flow.CreatedAt,
+			dt.FlowsType,
+			dt.FlowsCategory,
+			dt.FlowsName,
+			amount,
+			dt.CreatedAt,
 		))
 	}
+
+	// Subtotal
+	totalAmount := converter.ConvertPriceNumber(total)
+	res.WriteString(fmt.Sprintf(`
+			==============================
+			Total Amount: Rp. %s,00
+		`, totalAmount))
 
 	return res.String(), nil
 }

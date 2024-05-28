@@ -71,3 +71,17 @@ func StructToMap(data interface{}) (map[string]interface{}, error) {
 
 	return out, nil
 }
+
+func ConvertPriceNumber(n int) string {
+	in := strconv.Itoa(n)
+	out := ""
+
+	for i, r := range in {
+		if i > 0 && (len(in)-i)%3 == 0 {
+			out += "."
+		}
+		out += string(r)
+	}
+
+	return out
+}

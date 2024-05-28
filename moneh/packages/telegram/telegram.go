@@ -4,6 +4,7 @@ import (
 	"log"
 	"moneh/configs"
 	"moneh/modules/bots/flow"
+	"moneh/modules/bots/pocket"
 
 	tele_bot "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -76,9 +77,13 @@ func InitTeleBot() {
 				msg := tele_bot.NewMessage(callback.Message.Chat.ID, responseText)
 				bot.Send(msg)
 			case "pocket_get_list_pocket":
-				responseText := "Displaying all pockets..."
-				msg := tele_bot.NewMessage(callback.Message.Chat.ID, responseText)
-				bot.Send(msg)
+				bot.Send(tele_bot.NewMessage(callback.Message.Chat.ID, "Displaying all pockets..."))
+				res, _ := pocket.GetAllPocketBot()
+				if err != nil {
+					bot.Send(tele_bot.NewMessage(callback.Message.Chat.ID, err.Error()))
+				}
+				bot.Send(tele_bot.NewMessage(callback.Message.Chat.ID, string(res)))
+
 			case "pocket_stats":
 				responseText := "Displaying pocket stats..."
 				msg := tele_bot.NewMessage(callback.Message.Chat.ID, responseText)
