@@ -1,7 +1,14 @@
 package telegram
 
 import (
+	"fmt"
+	"log"
 	"moneh/modules/bots/dct"
+	"moneh/modules/flows/models"
+	"moneh/modules/flows/repositories"
+	"moneh/packages/helpers/converter"
+	"strconv"
+	"strings"
 
 	tele_bot "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -13,10 +20,10 @@ func HandleAddFlow(callback *tele_bot.CallbackQuery, bot *tele_bot.BotAPI) {
 	inputFlowType := tele_bot.NewMessage(userId, "Select Flow Type : ")
 	inputFlowType.ReplyMarkup = tele_bot.NewInlineKeyboardMarkup(
 		tele_bot.NewInlineKeyboardRow(
-			tele_bot.NewInlineKeyboardButtonData("Income", "flows_category_income"),
+			tele_bot.NewInlineKeyboardButtonData("Income", "flows_type_income"),
 		),
 		tele_bot.NewInlineKeyboardRow(
-			tele_bot.NewInlineKeyboardButtonData("Spending", "flows_category_spending"),
+			tele_bot.NewInlineKeyboardButtonData("Spending", "flows_type_spending"),
 		),
 	)
 	bot.Send(inputFlowType)
@@ -25,16 +32,20 @@ func HandleAddFlow(callback *tele_bot.CallbackQuery, bot *tele_bot.BotAPI) {
 	UserInputs[userId] = make(map[string]string)
 }
 
-func HandleFlowTypeInput(update tele_bot.Update, bot *tele_bot.BotAPI) {
-	userId := update.Message.Chat.ID
-	flowType := update.Message.Text
+func HandleFlowTypeInput(update *tele_bot.Update, bot *tele_bot.BotAPI, flowType string) {
+	if update.Message == nil {
+		log.Println("Message in update is nil")
+		return
+	}
 
-	if flowType != "flows_category_income" && flowType != "flows_category_spending" {
+	userId := update.Message.Chat.ID
+
+	if flowType != "flows_type_income" && flowType != "flows_type_spending" {
 		bot.Send(tele_bot.NewMessage(userId, "Please select a valid flow type: Income or Spending."))
 		return
 	}
 
-	UserInputs[userId]["flow_type"] = flowType
+	UserInputs[userId]["flows_type"] = flowType
 	UserStates[userId] = "waiting_for_flow_category"
 
 	dct, err := dct.GetDctByType("flows_category")
@@ -59,5 +70,86 @@ func HandleFlowCategoryInput(update tele_bot.Update, bot *tele_bot.BotAPI) {
 	userId := update.Message.Chat.ID
 	flowCategory := update.Message.Text
 
-	UserInputs[userId]["flow_category"] = flowCategory
+	UserInputs[userId]["flows_category"] = flowCategory
+
+	bot.Send(tele_bot.NewMessage(userId, "Type your flow name :"))
+	UserStates[userId] = "waiting_for_flow_name"
+}
+
+func HandleFlowNameInput(update tele_bot.Update, bot *tele_bot.BotAPI) {
+	userId := update.Message.Chat.ID
+	flowName := update.Message.Text
+
+	UserInputs[userId]["flows_name"] = flowName
+
+	bot.Send(tele_bot.NewMessage(userId, "Type your flow desc :"))
+	UserStates[userId] = "waiting_for_flow_desc"
+}
+
+func HandleFlowDescInput(update tele_bot.Update, bot *tele_bot.BotAPI) {
+	userId := update.Message.Chat.ID
+	flowDesc := update.Message.Text
+
+	UserInputs[userId]["flows_desc"] = flowDesc
+
+	bot.Send(tele_bot.NewMessage(userId, "Type your flow ammount (Rp.) :"))
+	UserStates[userId] = "waiting_for_flow_ammount"
+}
+
+func SubmitFlow(update tele_bot.Update, bot *tele_bot.BotAPI) {
+	userId := update.Message.Chat.ID
+	flowAmmount := update.Message.Text
+
+	UserInputs[userId]["flows_ammount"] = flowAmmount
+
+	// Clean
+	UserInputs[userId]["flows_category"] = strings.Replace(UserInputs[userId]["flows_category"], "flows_category_", "", 1)
+	UserInputs[userId]["flows_type"] = strings.Replace(UserInputs[userId]["flows_type"], "flows_type_", "", 1)
+
+	var res strings.Builder
+
+	intAmount, err := strconv.Atoi(UserInputs[userId]["flows_ammount"])
+	if err != nil {
+		bot.Send(tele_bot.NewMessage(userId, "Something error with flow ammount : "+err.Error()))
+		return
+	}
+
+	amount := converter.ConvertPriceNumber(intAmount)
+	res.WriteString(fmt.Sprintf(`
+			Detail of submited flow
+
+			Type : %s
+			Category : %s
+			Name : %s
+			Ammount : Rp. %s,00
+
+			Notes : %s
+		`,
+		UserInputs[userId]["flows_type"],
+		UserInputs[userId]["flows_category"],
+		UserInputs[userId]["flows_name"],
+		amount,
+		UserInputs[userId]["flows_desc"],
+	))
+
+	bot.Send(tele_bot.NewMessage(userId, res.String()))
+	bot.Send(tele_bot.NewMessage(userId, "Sending flow..."))
+
+	var obj models.GetFlow
+
+	obj.FlowsType = UserInputs[userId]["flows_type"]
+	obj.FlowsCategory = UserInputs[userId]["flows_category"]
+	obj.FlowsName = UserInputs[userId]["flows_name"]
+	obj.FlowsDesc = UserInputs[userId]["flows_desc"]
+	obj.FlowsAmmount = intAmount
+	obj.FlowsTag = "null"
+	obj.IsShared = 0
+
+	result, err := repositories.PostFlow(obj)
+	if err != nil {
+		bot.Send(tele_bot.NewMessage(userId, err.Error()))
+		return
+	}
+
+	bot.Send(tele_bot.NewMessage(userId, result.Message))
 }

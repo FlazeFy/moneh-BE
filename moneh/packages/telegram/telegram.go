@@ -41,9 +41,16 @@ func handleMessage(update tele_bot.Update, bot *tele_bot.BotAPI) {
 
 	switch UserStates[userId] {
 	case "waiting_for_flow_type":
-		HandleFlowTypeInput(update, bot)
+		flowType := update.Message.Text
+		HandleFlowTypeInput(&update, bot, flowType)
 	case "waiting_for_flow_category":
 		HandleFlowCategoryInput(update, bot)
+	case "waiting_for_flow_name":
+		HandleFlowNameInput(update, bot)
+	case "waiting_for_flow_desc":
+		HandleFlowDescInput(update, bot)
+	case "waiting_for_flow_ammount":
+		SubmitFlow(update, bot)
 	default:
 		if update.Message.Text == "/start" {
 			HandleStartCommand(update, bot)
@@ -64,6 +71,9 @@ func handleCallbackQuery(update tele_bot.Update, bot *tele_bot.BotAPI) {
 		HandleGetAllFlow(callback, bot)
 	case "flow_add":
 		HandleAddFlow(callback, bot)
+	case "flows_category_income", "flows_category_spending":
+		flowType := callback.Data
+		HandleFlowTypeInput(&update, bot, flowType)
 	case "flow_stats":
 		handleFlowStats(callback, bot)
 	case "pocket_get_list_pocket":

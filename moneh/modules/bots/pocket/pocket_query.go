@@ -71,7 +71,7 @@ func GetAllPocketBot() (string, error) {
 				Type : %s
 				Name : %s
 				Notes : %s
-				Amount : Rp. %s,00
+				Limit : Rp. %s,00
 			`,
 			dt.PocketsType,
 			dt.PocketsName,
