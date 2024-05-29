@@ -1,6 +1,8 @@
 package telegram
 
-import tele_bot "github.com/go-telegram-bot-api/telegram-bot-api"
+import (
+	tele_bot "github.com/go-telegram-bot-api/telegram-bot-api"
+)
 
 func HandleStartCommand(update tele_bot.Update, bot *tele_bot.BotAPI) {
 	userId := update.Message.Chat.ID

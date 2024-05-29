@@ -3,6 +3,7 @@ package telegram
 import (
 	"log"
 	"moneh/configs"
+	"strings"
 
 	tele_bot "github.com/go-telegram-bot-api/telegram-bot-api"
 )
@@ -40,6 +41,8 @@ func handleMessage(update tele_bot.Update, bot *tele_bot.BotAPI) {
 	userId := update.Message.Chat.ID
 
 	switch UserStates[userId] {
+
+	// Handle post flow
 	case "waiting_for_flow_type":
 		flowType := update.Message.Text
 		HandleFlowTypeInput(&update, bot, flowType)
@@ -51,9 +54,33 @@ func handleMessage(update tele_bot.Update, bot *tele_bot.BotAPI) {
 		HandleFlowDescInput(update, bot)
 	case "waiting_for_flow_ammount":
 		SubmitFlow(update, bot)
+
+	// Handle post pocket
+	case "waiting_for_pocket_type":
+		pocketType := update.Message.Text
+		HandlePocketTypeInput(&update, bot, pocketType)
+	case "waiting_for_pocket_name":
+		HandlePocketNameInput(update, bot)
+	case "waiting_for_pocket_desc":
+		HandlePocketDescInput(update, bot)
+	case "waiting_for_pocket_limit":
+		SubmitPocket(update, bot)
+
+	// Others
 	default:
-		if update.Message.Text == "/start" {
-			HandleStartCommand(update, bot)
+		if update.Message.Chat.Type == "group" {
+			if strings.HasPrefix(update.Message.Text, "/start/moneh") {
+				HandleStartCommand(update, bot)
+			} else if update.Message.Text == "/stop" {
+				// HandleStopCommand(update, bot)
+			}
+		} else {
+			// Private chat handling
+			if update.Message.Text == "/start" {
+				HandleStartCommand(update, bot)
+			} else if update.Message.Text == "/stop" {
+				// HandleStopCommand(update, bot)
+			}
 		}
 	}
 }
@@ -74,12 +101,15 @@ func handleCallbackQuery(update tele_bot.Update, bot *tele_bot.BotAPI) {
 	case "flows_category_income", "flows_category_spending":
 		flowType := callback.Data
 		HandleFlowTypeInput(&update, bot, flowType)
+	case "pockets_type_Bank":
+		pocketType := callback.Data
+		HandlePocketTypeInput(&update, bot, pocketType)
 	case "flow_stats":
 		handleFlowStats(callback, bot)
 	case "pocket_get_list_pocket":
 		HandleGetAllPocket(callback, bot)
 	case "pocket_add":
-		handleAddPocket(callback, bot)
+		HandleAddPocket(callback, bot)
 	case "pocket_stats":
 		handlePocketStats(callback, bot)
 	default:
@@ -96,10 +126,6 @@ func handleFlowStats(callback *tele_bot.CallbackQuery, bot *tele_bot.BotAPI) {
 	responseText := "Displaying flow stats..."
 	msg := tele_bot.NewMessage(userId, responseText)
 	bot.Send(msg)
-}
-
-func handleAddPocket(callback *tele_bot.CallbackQuery, bot *tele_bot.BotAPI) {
-	// ...
 }
 
 func handlePocketStats(callback *tele_bot.CallbackQuery, bot *tele_bot.BotAPI) {
