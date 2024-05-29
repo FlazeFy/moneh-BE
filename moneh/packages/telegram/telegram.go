@@ -66,6 +66,11 @@ func handleMessage(update tele_bot.Update, bot *tele_bot.BotAPI) {
 	case "waiting_for_pocket_limit":
 		SubmitPocket(update, bot)
 
+	// Handle get daily flow
+	case "waiting_for_days_track":
+		days := update.Message.Text
+		FetchDailyFLow(&update, bot, days)
+
 	// Others
 	default:
 		if update.Message.Chat.Type == "group" {
@@ -98,6 +103,8 @@ func handleCallbackQuery(update tele_bot.Update, bot *tele_bot.BotAPI) {
 		HandleDashboardMenu(callback, bot)
 	case "flow_get_list_flow":
 		HandleGetAllFlow(callback, bot)
+	case "flow_get_daily_flow":
+		HandleGetDailyFlow(callback, bot)
 	case "flow_add":
 		HandleAddFlow(callback, bot)
 	case "flows_category_income", "flows_category_spending":

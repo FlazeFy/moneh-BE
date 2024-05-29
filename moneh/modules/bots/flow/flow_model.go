@@ -8,4 +8,9 @@ type (
 		FlowsAmmount  int    `json:"flows_ammount"`
 		CreatedAt     string `json:"created_at"`
 	}
+	GetFlowDaily struct {
+		Context       string `json:"context"`
+		TotalSpending int    `json:"total_spending"`
+		TotalIncome   int    `json:"total_income"`
+	}
 )

@@ -24,7 +24,7 @@ func GetAllFlowBot() (string, error) {
 
 	// Query builder
 	activeTemplate := builders.GetTemplateLogic("active")
-	order := builders.GetTemplateOrder("dynamic_data", baseTable, "flows_name", "desc")
+	order := builders.GetTemplateOrder("dynamic_data", baseTable, "flows_name", "ASC")
 
 	sqlStatement = "SELECT flows_type, flows_category, flows_name, flows_ammount, created_at " +
 		"FROM " + baseTable + " " +
@@ -293,6 +293,99 @@ func GetDashboard() (string, error) {
 			myBalanceConverted,
 		))
 	}
+
+	return res.String(), nil
+}
+
+func GetAllFlowDaily(len string) (string, error) {
+	// Declaration
+	var obj GetFlowDaily
+	var arrobj []GetFlowDaily
+	var baseTable = "flows"
+	var sqlStatement string
+	var res strings.Builder
+
+	// Converted Column
+	var TotalSpending string
+	var TotalIncome string
+
+	sqlStatement = `
+		SELECT 
+			DATE(created_at) as context,
+			SUM(CASE WHEN flows_type = 'spending' THEN flows_ammount ELSE 0 END) as total_spending,
+			SUM(CASE WHEN flows_type = 'income' THEN flows_ammount ELSE 0 END) as total_income
+		FROM ` + baseTable + `
+		WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL ` + len + ` DAY)
+		GROUP BY context 
+		ORDER BY context ASC`
+
+	// Exec
+	con := database.CreateCon()
+	rows, err := con.Query(sqlStatement)
+	defer rows.Close()
+
+	if err != nil {
+		return "", err
+	}
+
+	// Map
+	var total int
+	for rows.Next() {
+		err = rows.Scan(
+			&obj.Context,
+			&TotalSpending,
+			&TotalIncome,
+		)
+
+		if err != nil {
+			return "", err
+		}
+
+		// Converted
+		intTotalSpending, err := strconv.Atoi(TotalSpending)
+		intTotalIncome, err := strconv.Atoi(TotalIncome)
+
+		if err != nil {
+			return "", err
+		}
+
+		obj.TotalSpending = intTotalSpending
+		obj.TotalIncome = intTotalIncome
+
+		// Calculated
+		total += obj.TotalIncome - obj.TotalSpending
+
+		arrobj = append(arrobj, obj)
+	}
+
+	for _, dt := range arrobj {
+		tSpending := converter.ConvertPriceNumber(dt.TotalSpending)
+		tIncome := converter.ConvertPriceNumber(dt.TotalIncome)
+
+		res.WriteString(fmt.Sprintf(`
+				Date 		: %s
+				Income 		: + Rp. %s,00
+				Spending 	: - Rp. %s,00
+			`,
+			dt.Context,
+			tIncome,
+			tSpending,
+		))
+	}
+
+	// Subtotal
+	var symbol string
+
+	if total > 0 {
+		symbol = "+"
+	} else {
+		symbol = "-"
+	}
+	subtotal := converter.ConvertPriceNumber(total)
+	res.WriteString(fmt.Sprintf(`
+			==============================
+			Subtotal: %s Rp. %s,00
+		`, symbol, subtotal))
 
 	return res.String(), nil
 }

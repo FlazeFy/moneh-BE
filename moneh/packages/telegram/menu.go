@@ -32,6 +32,9 @@ func HandleFlowMenu(callback *tele_bot.CallbackQuery, bot *tele_bot.BotAPI) {
 			tele_bot.NewInlineKeyboardButtonData("See All Flow", "flow_get_list_flow"),
 		),
 		tele_bot.NewInlineKeyboardRow(
+			tele_bot.NewInlineKeyboardButtonData("See Daily Flow", "flow_get_daily_flow"),
+		),
+		tele_bot.NewInlineKeyboardRow(
 			tele_bot.NewInlineKeyboardButtonData("Add Flow", "flow_add"),
 		),
 	)

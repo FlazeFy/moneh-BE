@@ -4,6 +4,7 @@ import (
 	"moneh/modules/pockets/models"
 	"moneh/packages/builders"
 	"moneh/packages/database"
+	"moneh/packages/helpers/converter"
 	"moneh/packages/helpers/generator"
 	"moneh/packages/helpers/response"
 	"net/http"
@@ -44,13 +45,18 @@ func PostPocket(d models.GetPocketHeaders) (response.Response, error) {
 		return res, err
 	}
 
+	// Exec - Firebase
+	dataMap, err := converter.StructToMap(d)
+	firebaseInsert := database.InsertFirebase(id.String(), baseTable, dataMap)
+
 	// Response
 	res.Status = http.StatusOK
 	res.Message = generator.GenerateCommandMsg(baseTable, "create", int(rowsAffected))
 	res.Data = map[string]interface{}{
-		"id":            id,
-		"data":          d,
-		"rows_affected": rowsAffected,
+		"id":             id,
+		"data":           d,
+		"rows_affected":  rowsAffected,
+		"is_realtime_db": firebaseInsert,
 	}
 
 	return res, nil
