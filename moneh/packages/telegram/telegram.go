@@ -3,11 +3,12 @@ package telegram
 import (
 	"log"
 	"moneh/configs"
-	"moneh/modules/bots/flow"
-	"moneh/modules/bots/pocket"
 
 	tele_bot "github.com/go-telegram-bot-api/telegram-bot-api"
 )
+
+var UserStates = make(map[int64]string)
+var UserInputs = make(map[int64]map[string]string)
 
 func InitTeleBot() {
 	bot, err := tele_bot.NewBotAPI(configs.GetConfigTele().TELE_TOKEN)
@@ -16,88 +17,84 @@ func InitTeleBot() {
 	}
 
 	bot.Debug = true
-
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
 	u := tele_bot.NewUpdate(0)
 	u.Timeout = 60
 
 	updates, err := bot.GetUpdatesChan(u)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	for update := range updates {
 		if update.Message != nil {
-			if update.Message.Text == "/start" {
-				firstName := update.Message.From.FirstName
-				msg := tele_bot.NewMessage(update.Message.Chat.ID, "Hello "+firstName+"! Welcome to Moneh Bot")
-
-				msg.ReplyMarkup = tele_bot.NewInlineKeyboardMarkup(
-					tele_bot.NewInlineKeyboardRow(
-						tele_bot.NewInlineKeyboardButtonData("Flow", "menu_flow"),
-						tele_bot.NewInlineKeyboardButtonData("Pocket", "menu_pocket"),
-					),
-				)
-				bot.Send(msg)
-				bot.Send(tele_bot.NewMessage(update.Message.Chat.ID, "Select what menu do you want to do"))
-			}
+			handleMessage(update, bot)
 		} else if update.CallbackQuery != nil {
-			callback := update.CallbackQuery
-
-			switch callback.Data {
-
-			case "menu_flow":
-				msg := tele_bot.NewMessage(callback.Message.Chat.ID, "Selected Menu : Flow")
-				msg.ReplyMarkup = tele_bot.NewInlineKeyboardMarkup(
-					tele_bot.NewInlineKeyboardRow(
-						tele_bot.NewInlineKeyboardButtonData("See All Flow", "flow_get_list_flow"),
-						tele_bot.NewInlineKeyboardButtonData("See Stats", "flow_stats"),
-					),
-				)
-				bot.Send(msg)
-
-			case "menu_pocket":
-				msg := tele_bot.NewMessage(callback.Message.Chat.ID, "Selected Menu : Pocket")
-				msg.ReplyMarkup = tele_bot.NewInlineKeyboardMarkup(
-					tele_bot.NewInlineKeyboardRow(
-						tele_bot.NewInlineKeyboardButtonData("See All Pocket", "pocket_get_list_pocket"),
-						tele_bot.NewInlineKeyboardButtonData("See Stats", "pocket_stats"),
-					),
-				)
-				bot.Send(msg)
-
-			case "flow_get_list_flow":
-				bot.Send(tele_bot.NewMessage(callback.Message.Chat.ID, "Displaying all flows..."))
-				res, _ := flow.GetAllFlowBot()
-				if err != nil {
-					bot.Send(tele_bot.NewMessage(callback.Message.Chat.ID, err.Error()))
-				}
-				bot.Send(tele_bot.NewMessage(callback.Message.Chat.ID, string(res)))
-
-			case "flow_stats":
-				responseText := "Displaying flow stats..."
-				msg := tele_bot.NewMessage(callback.Message.Chat.ID, responseText)
-				bot.Send(msg)
-			case "pocket_get_list_pocket":
-				bot.Send(tele_bot.NewMessage(callback.Message.Chat.ID, "Displaying all pockets..."))
-				res, _ := pocket.GetAllPocketBot()
-				if err != nil {
-					bot.Send(tele_bot.NewMessage(callback.Message.Chat.ID, err.Error()))
-				}
-				bot.Send(tele_bot.NewMessage(callback.Message.Chat.ID, string(res)))
-
-			case "pocket_stats":
-				responseText := "Displaying pocket stats..."
-				msg := tele_bot.NewMessage(callback.Message.Chat.ID, responseText)
-				bot.Send(msg)
-			default:
-				responseText := "Unknown option selected."
-				msg := tele_bot.NewMessage(callback.Message.Chat.ID, responseText)
-				bot.Send(msg)
-			}
-
-			// Acknowledge the callback query
-			callbackResponse := tele_bot.NewCallback(callback.ID, "")
-			bot.AnswerCallbackQuery(callbackResponse)
+			handleCallbackQuery(update, bot)
 		}
 	}
+}
 
+func handleMessage(update tele_bot.Update, bot *tele_bot.BotAPI) {
+	userId := update.Message.Chat.ID
+
+	switch UserStates[userId] {
+	case "waiting_for_flow_type":
+		HandleFlowTypeInput(update, bot)
+	case "waiting_for_flow_category":
+		HandleFlowCategoryInput(update, bot)
+	default:
+		if update.Message.Text == "/start" {
+			HandleStartCommand(update, bot)
+		}
+	}
+}
+
+func handleCallbackQuery(update tele_bot.Update, bot *tele_bot.BotAPI) {
+	callback := update.CallbackQuery
+	userId := callback.Message.Chat.ID
+
+	switch callback.Data {
+	case "menu_flow":
+		HandleFlowMenu(callback, bot)
+	case "menu_pocket":
+		HandlePocketMenu(callback, bot)
+	case "flow_get_list_flow":
+		HandleGetAllFlow(callback, bot)
+	case "flow_add":
+		HandleAddFlow(callback, bot)
+	case "flow_stats":
+		handleFlowStats(callback, bot)
+	case "pocket_get_list_pocket":
+		HandleGetAllPocket(callback, bot)
+	case "pocket_add":
+		handleAddPocket(callback, bot)
+	case "pocket_stats":
+		handlePocketStats(callback, bot)
+	default:
+		bot.Send(tele_bot.NewMessage(userId, "Unknown option selected."))
+	}
+
+	// Acknowledge the callback query
+	callbackResponse := tele_bot.NewCallback(callback.ID, "")
+	bot.AnswerCallbackQuery(callbackResponse)
+}
+
+func handleFlowStats(callback *tele_bot.CallbackQuery, bot *tele_bot.BotAPI) {
+	userId := callback.Message.Chat.ID
+	responseText := "Displaying flow stats..."
+	msg := tele_bot.NewMessage(userId, responseText)
+	bot.Send(msg)
+}
+
+func handleAddPocket(callback *tele_bot.CallbackQuery, bot *tele_bot.BotAPI) {
+	// ...
+}
+
+func handlePocketStats(callback *tele_bot.CallbackQuery, bot *tele_bot.BotAPI) {
+	userId := callback.Message.Chat.ID
+	responseText := "Displaying pocket stats..."
+	msg := tele_bot.NewMessage(userId, responseText)
+	bot.Send(msg)
 }
