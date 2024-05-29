@@ -94,6 +94,8 @@ func handleCallbackQuery(update tele_bot.Update, bot *tele_bot.BotAPI) {
 		HandleFlowMenu(callback, bot)
 	case "menu_pocket":
 		HandlePocketMenu(callback, bot)
+	case "menu_dashboard":
+		HandleDashboardMenu(callback, bot)
 	case "flow_get_list_flow":
 		HandleGetAllFlow(callback, bot)
 	case "flow_add":
@@ -104,14 +106,10 @@ func handleCallbackQuery(update tele_bot.Update, bot *tele_bot.BotAPI) {
 	case "pockets_type_Bank":
 		pocketType := callback.Data
 		HandlePocketTypeInput(&update, bot, pocketType)
-	case "flow_stats":
-		handleFlowStats(callback, bot)
 	case "pocket_get_list_pocket":
 		HandleGetAllPocket(callback, bot)
 	case "pocket_add":
 		HandleAddPocket(callback, bot)
-	case "pocket_stats":
-		handlePocketStats(callback, bot)
 	default:
 		bot.Send(tele_bot.NewMessage(userId, "Unknown option selected."))
 	}
@@ -119,18 +117,4 @@ func handleCallbackQuery(update tele_bot.Update, bot *tele_bot.BotAPI) {
 	// Acknowledge the callback query
 	callbackResponse := tele_bot.NewCallback(callback.ID, "")
 	bot.AnswerCallbackQuery(callbackResponse)
-}
-
-func handleFlowStats(callback *tele_bot.CallbackQuery, bot *tele_bot.BotAPI) {
-	userId := callback.Message.Chat.ID
-	responseText := "Displaying flow stats..."
-	msg := tele_bot.NewMessage(userId, responseText)
-	bot.Send(msg)
-}
-
-func handlePocketStats(callback *tele_bot.CallbackQuery, bot *tele_bot.BotAPI) {
-	userId := callback.Message.Chat.ID
-	responseText := "Displaying pocket stats..."
-	msg := tele_bot.NewMessage(userId, responseText)
-	bot.Send(msg)
 }

@@ -16,6 +16,9 @@ func HandleStartCommand(update tele_bot.Update, bot *tele_bot.BotAPI) {
 		tele_bot.NewInlineKeyboardRow(
 			tele_bot.NewInlineKeyboardButtonData("Pocket", "menu_pocket"),
 		),
+		tele_bot.NewInlineKeyboardRow(
+			tele_bot.NewInlineKeyboardButtonData("Dashboard", "menu_dashboard"),
+		),
 	)
 	bot.Send(msg)
 	bot.Send(tele_bot.NewMessage(userId, "Select what menu do you want to do"))
@@ -31,9 +34,6 @@ func HandleFlowMenu(callback *tele_bot.CallbackQuery, bot *tele_bot.BotAPI) {
 		tele_bot.NewInlineKeyboardRow(
 			tele_bot.NewInlineKeyboardButtonData("Add Flow", "flow_add"),
 		),
-		tele_bot.NewInlineKeyboardRow(
-			tele_bot.NewInlineKeyboardButtonData("See Stats", "flow_stats"),
-		),
 	)
 	bot.Send(msg)
 }
@@ -47,9 +47,6 @@ func HandlePocketMenu(callback *tele_bot.CallbackQuery, bot *tele_bot.BotAPI) {
 		),
 		tele_bot.NewInlineKeyboardRow(
 			tele_bot.NewInlineKeyboardButtonData("Add Pocket", "pocket_add"),
-		),
-		tele_bot.NewInlineKeyboardRow(
-			tele_bot.NewInlineKeyboardButtonData("See Stats", "pocket_stats"),
 		),
 	)
 	bot.Send(msg)
