@@ -105,6 +105,8 @@ func handleCallbackQuery(update tele_bot.Update, bot *tele_bot.BotAPI) {
 		HandleGetAllFlow(callback, bot)
 	case "flow_get_daily_flow":
 		HandleGetDailyFlow(callback, bot)
+	case "flow_export":
+		HandleFlowExport(callback, bot)
 	case "flow_add":
 		HandleAddFlow(callback, bot)
 	case "flows_category_income", "flows_category_spending":

@@ -35,6 +35,9 @@ func HandleFlowMenu(callback *tele_bot.CallbackQuery, bot *tele_bot.BotAPI) {
 			tele_bot.NewInlineKeyboardButtonData("See Daily Flow", "flow_get_daily_flow"),
 		),
 		tele_bot.NewInlineKeyboardRow(
+			tele_bot.NewInlineKeyboardButtonData("Export", "flow_export"),
+		),
+		tele_bot.NewInlineKeyboardRow(
 			tele_bot.NewInlineKeyboardButtonData("Add Flow", "flow_add"),
 		),
 	)
@@ -47,6 +50,9 @@ func HandlePocketMenu(callback *tele_bot.CallbackQuery, bot *tele_bot.BotAPI) {
 	msg.ReplyMarkup = tele_bot.NewInlineKeyboardMarkup(
 		tele_bot.NewInlineKeyboardRow(
 			tele_bot.NewInlineKeyboardButtonData("See All Pocket", "pocket_get_list_pocket"),
+		),
+		tele_bot.NewInlineKeyboardRow(
+			tele_bot.NewInlineKeyboardButtonData("Export", "pocket_export"),
 		),
 		tele_bot.NewInlineKeyboardRow(
 			tele_bot.NewInlineKeyboardButtonData("Add Pocket", "pocket_add"),
