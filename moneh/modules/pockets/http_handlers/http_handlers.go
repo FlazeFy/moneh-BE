@@ -20,6 +20,15 @@ func GetAllPocketHeaders(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetAllPocketExport(c echo.Context) error {
+	result, err := repositories.GetAllPocketExport()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
 func PostPocket(c echo.Context) error {
 	var obj models.GetPocketHeaders
 

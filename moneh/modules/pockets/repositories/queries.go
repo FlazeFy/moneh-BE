@@ -1,10 +1,12 @@
 package repositories
 
 import (
+	"database/sql"
 	"math"
 	"moneh/modules/pockets/models"
 	"moneh/packages/builders"
 	"moneh/packages/database"
+	"moneh/packages/helpers/converter"
 	"moneh/packages/helpers/generator"
 	"moneh/packages/helpers/response"
 	"moneh/packages/utils/pagination"
@@ -23,10 +25,13 @@ func GetAllPocketHeaders(page, pageSize int, path string, ord string) (response.
 	// Converted Column
 	var PocketsLimit string
 
+	// Nullable column
+	var UpdatedAt sql.NullString
+
 	// Query builder
 	order := builders.GetTemplateOrder("dynamic_data", baseTable, "pockets_name", ord)
 
-	sqlStatement = "SELECT id, pockets_name, pockets_desc, pockets_type, pockets_limit " +
+	sqlStatement = "SELECT id, pockets_name, pockets_desc, pockets_type, pockets_limit, created_at, updated_at " +
 		"FROM " + baseTable + " " +
 		"ORDER BY " + order + " " +
 		"LIMIT ? OFFSET ?"
@@ -49,6 +54,8 @@ func GetAllPocketHeaders(page, pageSize int, path string, ord string) (response.
 			&obj.PocketsDesc,
 			&obj.PocketsType,
 			&PocketsLimit,
+			&obj.CreatedAt,
+			&UpdatedAt,
 		)
 
 		if err != nil {
@@ -62,6 +69,7 @@ func GetAllPocketHeaders(page, pageSize int, path string, ord string) (response.
 		}
 
 		obj.PocketsLimit = intPocketsLimit
+		obj.UpdatedAt = converter.CheckNullString(UpdatedAt)
 
 		arrobj = append(arrobj, obj)
 	}
@@ -97,6 +105,63 @@ func GetAllPocketHeaders(page, pageSize int, path string, ord string) (response.
 			"total":          total,
 		}
 	}
+
+	return res, nil
+}
+
+func GetAllPocketExport() (response.Response, error) {
+	// Declaration
+	var obj models.GetPocketExport
+	var arrobj []models.GetPocketExport
+	var res response.Response
+	var baseTable = "pockets"
+	var sqlStatement string
+
+	// Converted Column
+	var PocketsLimit string
+
+	sqlStatement = "SELECT pockets_name, pockets_desc, pockets_type, pockets_limit, created_at " +
+		"FROM " + baseTable + " " +
+		"ORDER BY pockets_limit DESC"
+
+	// Exec
+	con := database.CreateCon()
+	rows, err := con.Query(sqlStatement)
+	defer rows.Close()
+
+	if err != nil {
+		return res, err
+	}
+
+	// Map
+	for rows.Next() {
+		err = rows.Scan(
+			&obj.PocketsName,
+			&obj.PocketsDesc,
+			&obj.PocketsType,
+			&PocketsLimit,
+			&obj.CreatedAt,
+		)
+
+		if err != nil {
+			return res, err
+		}
+
+		// Converted
+		intPocketsLimit, err := strconv.Atoi(PocketsLimit)
+		if err != nil {
+			return res, err
+		}
+
+		obj.PocketsLimit = intPocketsLimit
+
+		arrobj = append(arrobj, obj)
+	}
+
+	// Response
+	res.Status = http.StatusOK
+	res.Message = generator.GenerateQueryMsg(baseTable, len(arrobj))
+	res.Data = arrobj
 
 	return res, nil
 }

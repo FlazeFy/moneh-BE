@@ -25,7 +25,7 @@ func main() {
 	go func() {
 		defer wg.Done()
 		e := routes.InitV1()
-		if err := e.Start(":1324"); err != nil {
+		if err := e.Start(":1323"); err != nil {
 			e.Logger.Fatal(err)
 		}
 	}()

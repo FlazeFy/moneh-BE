@@ -10,6 +10,16 @@ type (
 		FlowsAmmount  int    `json:"flows_ammount"`
 		FlowsTag      string `json:"flows_tag"`
 		IsShared      int    `json:"is_shared"`
+		CreatedAt     string `json:"created_at"`
+		UpdatedAt     string `json:"updated_at"`
+	}
+	GetFlowExport struct {
+		FlowsType     string `json:"flows_type"`
+		FlowsCategory string `json:"flows_category"`
+		FlowsName     string `json:"flows_name"`
+		FlowsDesc     string `json:"flows_desc"`
+		FlowsAmmount  int    `json:"flows_ammount"`
+		CreatedAt     string `json:"created_at"`
 	}
 	GetSummaryByType struct {
 		Average      int `json:"average"`

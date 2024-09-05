@@ -126,16 +126,16 @@ func GetDashboard() (response.Response, error) {
 	var baseTable = "flows"
 
 	// Converted column
-	var lastIncomeVal string
-	var lastSpendingVal string
-	var mostExpensiveSpendingVal string
-	var mostHighestIncomeVal string
-	var totalItemIncome string
-	var totalItemSpending string
-	var myBalance string
-
-	// Nullable column
 	var LastSpending sql.NullString
+	var LastIncome sql.NullString
+	var MostHighestIncome sql.NullString
+	var lastIncomeVal sql.NullString
+	var lastSpendingVal sql.NullString
+	var mostExpensiveSpendingVal sql.NullString
+	var mostHighestIncomeVal sql.NullString
+	var totalItemIncome sql.NullString
+	var totalItemSpending sql.NullString
+	var myBalance sql.NullString
 
 	// Query builder
 	lastIncomeQueryRaw := map[string]string{
@@ -239,10 +239,10 @@ func GetDashboard() (response.Response, error) {
 	// Map
 	for rows.Next() {
 		err = rows.Scan(
-			&obj.LastIncome,
+			&LastIncome,
 			&LastSpending,
 			&obj.MostExpensiveSpending,
-			&obj.MostHighestIncome,
+			&MostHighestIncome,
 			&lastIncomeVal,
 			&lastSpendingVal,
 			&mostExpensiveSpendingVal,
@@ -257,13 +257,13 @@ func GetDashboard() (response.Response, error) {
 		}
 
 		// Converted
-		lastIncomeValInt, err := strconv.Atoi(lastIncomeVal)
-		lastSpendingValInt, err := strconv.Atoi(lastSpendingVal)
-		mostExpensiveSpendingValInt, err := strconv.Atoi(mostExpensiveSpendingVal)
-		mostHighestIncomeValInt, err := strconv.Atoi(mostHighestIncomeVal)
-		totalItemIncomeInt, err := strconv.Atoi(totalItemIncome)
-		totalItemSpendingInt, err := strconv.Atoi(totalItemSpending)
-		myBalanceInt, err := strconv.Atoi(myBalance)
+		lastIncomeValInt, err := converter.ConvertNullStringToInt(lastIncomeVal)
+		lastSpendingValInt, err := converter.ConvertNullStringToInt(lastSpendingVal)
+		mostExpensiveSpendingValInt, err := converter.ConvertNullStringToInt(mostExpensiveSpendingVal)
+		mostHighestIncomeValInt, err := converter.ConvertNullStringToInt(mostHighestIncomeVal)
+		totalItemIncomeInt, err := converter.ConvertNullStringToInt(totalItemIncome)
+		totalItemSpendingInt, err := converter.ConvertNullStringToInt(totalItemSpending)
+		myBalanceInt, err := converter.ConvertNullStringToInt(myBalance)
 		if err != nil {
 			return res, err
 		}
@@ -278,6 +278,8 @@ func GetDashboard() (response.Response, error) {
 
 		// Nullable Converter
 		obj.LastSpending = converter.CheckNullString(LastSpending)
+		obj.LastIncome = converter.CheckNullString(LastIncome)
+		obj.MostHighestIncome = converter.CheckNullString(MostHighestIncome)
 
 		arrobj = append(arrobj, obj)
 	}

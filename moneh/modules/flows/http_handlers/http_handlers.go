@@ -20,6 +20,15 @@ func GetAllFlow(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+func GetAllFlowExport(c echo.Context) error {
+	result, err := repositories.GetAllFlowExport()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
 func GetSummaryByType(c echo.Context) error {
 	types := c.Param("type")
 	result, err := repositories.GetSummaryByType("api/v1/flows/summary/"+types, types)
@@ -63,6 +72,7 @@ func PostFlow(c echo.Context) error {
 	obj.FlowsAmmount = flowAmmountInt
 	obj.FlowsTag = c.FormValue("flows_tag")
 	obj.IsShared = isSharedInt
+	obj.CreatedAt = c.FormValue("created_at")
 
 	result, err := repositories.PostFlow(obj)
 	if err != nil {

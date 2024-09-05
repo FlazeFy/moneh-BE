@@ -27,12 +27,13 @@ func GetAllFlow(page, pageSize int, path string, ord string) (response.Response,
 
 	// Nullable Column
 	var FlowsTag sql.NullString
+	var UpdatedAt sql.NullString
 
 	// Query builder
 	activeTemplate := builders.GetTemplateLogic("active")
 	order := builders.GetTemplateOrder("dynamic_data", baseTable, "flows_name", ord)
 
-	sqlStatement = "SELECT id, flows_type, flows_category, flows_name, flows_desc, flows_ammount, flows_tag, is_shared " +
+	sqlStatement = "SELECT id, flows_type, flows_category, flows_name, flows_desc, flows_ammount, flows_tag, is_shared, created_at, updated_at " +
 		"FROM " + baseTable + " " +
 		"WHERE " + activeTemplate + " " +
 		"ORDER BY " + order + " " +
@@ -59,6 +60,8 @@ func GetAllFlow(page, pageSize int, path string, ord string) (response.Response,
 			&FlowsAmmount,
 			&FlowsTag,
 			&obj.IsShared,
+			&obj.CreatedAt,
+			&UpdatedAt,
 		)
 
 		if err != nil {
@@ -73,6 +76,7 @@ func GetAllFlow(page, pageSize int, path string, ord string) (response.Response,
 
 		obj.FlowsAmmount = intFlowAmmount
 		obj.FlowsTag = converter.CheckNullString(FlowsTag)
+		obj.UpdatedAt = converter.CheckNullString(UpdatedAt)
 
 		arrobj = append(arrobj, obj)
 	}
@@ -378,6 +382,68 @@ func GetMonthlyFlowTotal(mon, year, types string) (response.Response, error) {
 	} else {
 		res.Data = arrobj
 	}
+
+	return res, nil
+}
+
+func GetAllFlowExport() (response.Response, error) {
+	// Declaration
+	var obj models.GetFlowExport
+	var arrobj []models.GetFlowExport
+	var res response.Response
+	var baseTable = "flows"
+	var sqlStatement string
+
+	// Converted Column
+	var FlowsAmmount string
+
+	// Query builder
+	activeTemplate := builders.GetTemplateLogic("active")
+
+	sqlStatement = "SELECT flows_type, flows_category, flows_name, flows_desc, flows_ammount, created_at " +
+		"FROM " + baseTable + " " +
+		"WHERE " + activeTemplate + " " +
+		"ORDER BY created_at DESC "
+
+	// Exec
+	con := database.CreateCon()
+	rows, err := con.Query(sqlStatement)
+	defer rows.Close()
+
+	if err != nil {
+		return res, err
+	}
+
+	// Map
+	for rows.Next() {
+		err = rows.Scan(
+			&obj.FlowsType,
+			&obj.FlowsCategory,
+			&obj.FlowsName,
+			&obj.FlowsDesc,
+			&FlowsAmmount,
+			&obj.CreatedAt,
+		)
+
+		if err != nil {
+			return res, err
+		}
+
+		// Converted
+		intFlowAmmount, err := strconv.Atoi(FlowsAmmount)
+		if err != nil {
+			return res, err
+		}
+
+		obj.FlowsAmmount = intFlowAmmount
+
+		arrobj = append(arrobj, obj)
+	}
+
+	// Response
+	res.Status = http.StatusOK
+	res.Message = generator.GenerateQueryMsg(baseTable, len(arrobj))
+	res.Data = arrobj
 
 	return res, nil
 }

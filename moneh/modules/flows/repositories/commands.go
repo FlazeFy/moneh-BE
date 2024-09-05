@@ -90,7 +90,13 @@ func PostFlow(d models.GetFlow) (response.Response, error) {
 	var res response.Response
 	var baseTable = "flows"
 	var sqlStatement string
-	dt := time.Now().Format("2006-01-02 15:04:05")
+	var dt string
+
+	if d.CreatedAt != "" {
+		dt = d.CreatedAt
+	} else {
+		dt = time.Now().Format("2006-01-02 15:04:05")
+	}
 
 	// Data
 	id := uuid.Must(uuid.NewRandom())

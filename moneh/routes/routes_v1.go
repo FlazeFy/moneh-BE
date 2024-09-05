@@ -45,6 +45,7 @@ func InitV1() *echo.Echo {
 
 	// Flows
 	e.GET("api/v1/flows/:ord", flwhandlers.GetAllFlow)
+	e.GET("api/v2/flows", flwhandlers.GetAllFlowExport)
 	e.GET("api/v1/flows/month_item/:mon/:year/:type", flwhandlers.GetMonthlyFlowItem)
 	e.GET("api/v1/flows/month_total/:mon/:year/:type", flwhandlers.GetMonthlyFlowTotal)
 	e.GET("api/v1/flows/summary/:type", flwhandlers.GetSummaryByType)
@@ -55,6 +56,7 @@ func InitV1() *echo.Echo {
 
 	// Pockets
 	e.GET("api/v1/pockets/headers/:ord", pckhandlers.GetAllPocketHeaders)
+	e.GET("api/v2/pockets", pckhandlers.GetAllPocketExport)
 	e.POST("api/v1/pockets", pckhandlers.PostPocket)
 	e.PUT("api/v1/pockets/by/:id", pckhandlers.UpdatePocket)
 	e.DELETE("api/v1/pockets/destroy/:id", pckhandlers.HardDelPocketById)
