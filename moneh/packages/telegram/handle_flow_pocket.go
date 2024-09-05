@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/csv"
 	"encoding/json"
-	"moneh/modules/flows/models"
+	"moneh/modules/pockets/models"
 	"net/http"
 	"os"
 	"strconv"
@@ -13,21 +13,21 @@ import (
 	tele_bot "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
-type APIResponse struct {
-	Status  int                    `json:"status"`
-	Message string                 `json:"message"`
-	Data    []models.GetFlowExport `json:"data"`
+type APIResponsePocket struct {
+	Status  int                      `json:"status"`
+	Message string                   `json:"message"`
+	Data    []models.GetPocketExport `json:"data"`
 }
 
-func HandleFlowExport(callback *tele_bot.CallbackQuery, bot *tele_bot.BotAPI) {
-	resp, err := http.Get("http://127.0.0.1:1323/api/v2/flows")
+func HandlePocketExport(callback *tele_bot.CallbackQuery, bot *tele_bot.BotAPI) {
+	resp, err := http.Get("http://127.0.0.1:1323/api/v2/pockets")
 	if err != nil {
 		bot.Send(tele_bot.NewMessage(callback.Message.Chat.ID, "Something is wrong : failed to fetch data "+err.Error()))
 		return
 	}
 	defer resp.Body.Close()
 
-	var res APIResponse
+	var res APIResponsePocket
 	err = json.NewDecoder(resp.Body).Decode(&res)
 	if err != nil {
 		bot.Send(tele_bot.NewMessage(callback.Message.Chat.ID, "Something is wrong : failed to parse API response "+err.Error()))
@@ -36,15 +36,14 @@ func HandleFlowExport(callback *tele_bot.CallbackQuery, bot *tele_bot.BotAPI) {
 
 	var csvBuffer bytes.Buffer
 	writer := csv.NewWriter(&csvBuffer)
-	writer.Write([]string{"Type", "Category", "Flows Name", "Description", "Amount", "Created At"})
+	writer.Write([]string{"Pocket Name", "Description", "Type", "Limit", "Created At"})
 
 	for _, data := range res.Data {
 		writer.Write([]string{
-			data.FlowsType,
-			data.FlowsCategory,
-			data.FlowsName,
-			data.FlowsDesc,
-			strconv.Itoa(data.FlowsAmmount),
+			data.PocketsName,
+			data.PocketsDesc,
+			data.PocketsType,
+			strconv.Itoa(data.PocketsLimit),
 			data.CreatedAt,
 		})
 	}
@@ -56,7 +55,7 @@ func HandleFlowExport(callback *tele_bot.CallbackQuery, bot *tele_bot.BotAPI) {
 	}
 
 	dt := time.Now().Format("2006-01-02 15:04:05")
-	csvFile, err := os.CreateTemp("", "flows-export-"+dt+"-*.csv")
+	csvFile, err := os.CreateTemp("", "pockets-export-"+dt+"-*.csv")
 	if err != nil {
 		bot.Send(tele_bot.NewMessage(callback.Message.Chat.ID, "Something is wrong : failed to create temp file "+err.Error()))
 		return
@@ -70,7 +69,7 @@ func HandleFlowExport(callback *tele_bot.CallbackQuery, bot *tele_bot.BotAPI) {
 	csvFile.Close()
 
 	msg := tele_bot.NewDocumentUpload(callback.Message.Chat.ID, csvFile.Name())
-	msg.Caption = "Here is your exported flow in CSV"
+	msg.Caption = "Here is your exported pockets in CSV"
 	if _, err := bot.Send(msg); err != nil {
 		bot.Send(tele_bot.NewMessage(callback.Message.Chat.ID, "Failed to send CSV: "+err.Error()))
 	}

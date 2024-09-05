@@ -117,6 +117,8 @@ func handleCallbackQuery(update tele_bot.Update, bot *tele_bot.BotAPI) {
 		HandlePocketTypeInput(&update, bot, pocketType)
 	case "pocket_get_list_pocket":
 		HandleGetAllPocket(callback, bot)
+	case "pocket_export":
+		HandlePocketExport(callback, bot)
 	case "pocket_add":
 		HandleAddPocket(callback, bot)
 	default:
