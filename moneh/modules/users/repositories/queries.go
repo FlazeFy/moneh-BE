@@ -20,15 +20,16 @@ func GetMyProfile(token string) (response.Response, error) {
 	var sqlStatement string
 	token = strings.Replace(token, "Bearer ", "", -1)
 
-	// Converted Column
+	// Nullable Column
 	var LastName sql.NullString
 	var ImageUrl sql.NullString
 	var AcceptedAt sql.NullString
+	var TelegramUserId sql.NullString
 
 	// Query builder
 	join := builders.GetTemplateJoin("total", baseTable, "id", baseTable+"_tokens", "context_id", false)
 
-	sqlStatement = "SELECT username, first_name, last_name, email, image_url, accepted_at " +
+	sqlStatement = "SELECT " + baseTable + ".id, username, first_name, last_name, email, image_url, telegram_user_id, telegram_is_valid, accepted_at " +
 		"FROM " + baseTable + " " +
 		join + " " +
 		"WHERE token = '" + token + "' " +
@@ -46,11 +47,14 @@ func GetMyProfile(token string) (response.Response, error) {
 	// Map
 	for rows.Next() {
 		err = rows.Scan(
+			&obj.ID,
 			&obj.Username,
 			&obj.FirstName,
 			&LastName,
 			&obj.Email,
 			&ImageUrl,
+			&TelegramUserId,
+			&obj.TelegramIsValid,
 			&AcceptedAt,
 		)
 
@@ -60,6 +64,7 @@ func GetMyProfile(token string) (response.Response, error) {
 		// Nullable check
 		obj.LastName = converter.CheckNullString(LastName)
 		obj.ImageUrl = converter.CheckNullString(ImageUrl)
+		obj.TelegramUserId = converter.CheckNullString(TelegramUserId)
 		obj.AcceptedAt = converter.CheckNullString(AcceptedAt)
 	}
 

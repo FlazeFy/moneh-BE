@@ -89,6 +89,7 @@ func InitV1() *echo.Echo {
 	// =============== Private routes ===============
 	// User
 	e.GET("api/v1/user/my", ushandlers.GetMyProfile, middlewares.CustomJWTAuth)
+	e.PUT("api/v1/user/telegram", ushandlers.UpdateTelegram, middlewares.CustomJWTAuth)
 
 	return e
 }

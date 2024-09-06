@@ -1,8 +1,11 @@
 package telegram
 
 import (
+	"io"
 	"log"
 	"moneh/configs"
+	"net/http"
+	"os"
 	"strings"
 
 	tele_bot "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -88,6 +91,11 @@ func handleMessage(update tele_bot.Update, bot *tele_bot.BotAPI) {
 			}
 		}
 	}
+
+	// Handle photo messages
+	if update.Message.Photo != nil {
+		handlePhoto(update, bot)
+	}
 }
 
 func handleCallbackQuery(update tele_bot.Update, bot *tele_bot.BotAPI) {
@@ -128,4 +136,59 @@ func handleCallbackQuery(update tele_bot.Update, bot *tele_bot.BotAPI) {
 	// Acknowledge the callback query
 	callbackResponse := tele_bot.NewCallback(callback.ID, "")
 	bot.AnswerCallbackQuery(callbackResponse)
+}
+
+func handlePhoto(update tele_bot.Update, bot *tele_bot.BotAPI) {
+	photoSizes := update.Message.Photo
+	if photoSizes == nil {
+		bot.Send(tele_bot.NewMessage(update.Message.Chat.ID, "No photo found in the message"))
+		return
+	}
+
+	photoSizesSlice := *photoSizes
+	if len(photoSizesSlice) == 0 {
+		bot.Send(tele_bot.NewMessage(update.Message.Chat.ID, "No photo sizes available"))
+		return
+	}
+
+	largestPhoto := photoSizesSlice[len(photoSizesSlice)-1]
+	fileID := largestPhoto.FileID
+
+	fileConfig := tele_bot.FileConfig{FileID: fileID}
+	file, err := bot.GetFile(fileConfig)
+	if err != nil {
+		bot.Send(tele_bot.NewMessage(update.Message.Chat.ID, "Failed to get file"))
+		return
+	}
+
+	fileURL := "https://api.telegram.org/file/bot" + bot.Token + "/" + file.FilePath
+
+	resp, err := http.Get(fileURL)
+	if err != nil {
+		bot.Send(tele_bot.NewMessage(update.Message.Chat.ID, "Failed to process file"))
+		return
+	}
+	defer resp.Body.Close()
+
+	outFile, err := os.Create("photo.jpg")
+	if err != nil {
+		bot.Send(tele_bot.NewMessage(update.Message.Chat.ID, "Failed to process file"))
+		return
+	}
+	defer outFile.Close()
+
+	_, err = io.Copy(outFile, resp.Body)
+	if err != nil {
+		bot.Send(tele_bot.NewMessage(update.Message.Chat.ID, "Failed to process file"))
+		return
+	}
+
+	translate, err := DecodeQRCode("photo.jpg")
+	if err != nil {
+		bot.Send(tele_bot.NewMessage(update.Message.Chat.ID, "Failed to decode QR code"))
+		translate = err.Error()
+	}
+
+	msg := tele_bot.NewMessage(update.Message.Chat.ID, "Photo received and being analyzed"+translate)
+	bot.Send(msg)
 }
