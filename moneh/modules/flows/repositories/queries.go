@@ -12,15 +12,17 @@ import (
 	"moneh/packages/utils/pagination"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
-func GetAllFlow(page, pageSize int, path string, ord string) (response.Response, error) {
+func GetAllFlow(page, pageSize int, path string, ord string, token string) (response.Response, error) {
 	// Declaration
 	var obj models.GetFlow
 	var arrobj []models.GetFlow
 	var res response.Response
 	var baseTable = "flows"
 	var sqlStatement string
+	token = strings.Replace(token, "Bearer ", "", -1)
 
 	// Converted Column
 	var FlowsAmmount string
@@ -32,10 +34,13 @@ func GetAllFlow(page, pageSize int, path string, ord string) (response.Response,
 	// Query builder
 	activeTemplate := builders.GetTemplateLogic("active")
 	order := builders.GetTemplateOrder("dynamic_data", baseTable, "flows_name", ord)
+	join := builders.GetTemplateJoin("total", baseTable, "created_by", "users_tokens", "context_id", false)
 
-	sqlStatement = "SELECT id, flows_type, flows_category, flows_name, flows_desc, flows_ammount, flows_tag, is_shared, created_at, updated_at " +
+	sqlStatement = "SELECT " + baseTable + ".id, flows_type, flows_category, flows_name, flows_desc, flows_ammount, flows_tag, is_shared, " + baseTable + ".created_at, updated_at " +
 		"FROM " + baseTable + " " +
+		join + " " +
 		"WHERE " + activeTemplate + " " +
+		"AND token = '" + token + "' " +
 		"ORDER BY " + order + " " +
 		"LIMIT ? OFFSET ?"
 
@@ -116,13 +121,14 @@ func GetAllFlow(page, pageSize int, path string, ord string) (response.Response,
 	return res, nil
 }
 
-func GetSummaryByType(path string, types string) (response.Response, error) {
+func GetSummaryByType(path, types, token string) (response.Response, error) {
 	// Declaration
 	var obj models.GetSummaryByType
 	var arrobj []models.GetSummaryByType
 	var res response.Response
 	var baseTable = "flows"
 	var sqlStatement string
+	token = strings.Replace(token, "Bearer ", "", -1)
 
 	// Converted Column
 	var Average string
@@ -134,12 +140,15 @@ func GetSummaryByType(path string, types string) (response.Response, error) {
 	avgQuery := builders.GetFormulaQuery(&col, "average")
 	totalItemQuery := builders.GetFormulaQuery(nil, "total_item")
 	totalAmmountQuery := builders.GetFormulaQuery(&col, "total_sum")
+	join := builders.GetTemplateJoin("total", baseTable, "created_by", "users_tokens", "context_id", false)
 
 	sqlStatement = "SELECT " + avgQuery + " average, " +
 		totalItemQuery + " total_item, " +
 		totalAmmountQuery + " total_ammount " +
 		"FROM " + baseTable + " " +
-		"WHERE flows_type = '" + types + "' "
+		join + " " +
+		"WHERE flows_type = '" + types + "' " +
+		"AND token = '" + token + "' "
 
 	// Exec
 	con := database.CreateCon()
@@ -195,13 +204,14 @@ func GetSummaryByType(path string, types string) (response.Response, error) {
 	return res, nil
 }
 
-func GetTotalItemAmmountPerDateByType(types, view string) (response.Response, error) {
+func GetTotalItemAmmountPerDateByType(types, view, token string) (response.Response, error) {
 	// Declaration
 	var obj models.GetTotalItemAmmountPerDateByType
 	var arrobj []models.GetTotalItemAmmountPerDateByType
 	var res response.Response
 	var baseTable = "flows"
 	var sqlStatement string
+	token = strings.Replace(token, "Bearer ", "", -1)
 
 	// Converted Column
 	var TotalItem string
@@ -210,15 +220,18 @@ func GetTotalItemAmmountPerDateByType(types, view string) (response.Response, er
 	// Query builder
 	col := map[string]string{
 		"to_count": "flows_ammount",
-		"to_get":   "created_at",
+		"to_get":   baseTable + ".created_at",
 		"view":     view,
 	}
 	query := converter.MapToString(col)
 	queryFinal := builders.GetFormulaQuery(&query, "periodic")
+	join := builders.GetTemplateJoin("total", baseTable, "created_by", "users_tokens", "context_id", false)
 
 	sqlStatement = "SELECT " + queryFinal + " " +
 		"FROM " + baseTable + " " +
+		join + " " +
 		"WHERE flows_type = '" + types + "' " +
+		"AND token = '" + token + "' " +
 		"GROUP BY 2 " +
 		"LIMIT 7"
 
@@ -274,23 +287,27 @@ func GetTotalItemAmmountPerDateByType(types, view string) (response.Response, er
 	return res, nil
 }
 
-func GetMonthlyFlowItem(mon, year, types string) (response.Response, error) {
+func GetMonthlyFlowItem(mon, year, types, token string) (response.Response, error) {
 	// Declaration
 	var obj models.GetMonthlyFlow
 	var arrobj []models.GetMonthlyFlow
 	var res response.Response
 	var baseTable = "flows"
+	token = strings.Replace(token, "Bearer ", "", -1)
 
 	var flowWhere = ""
+	join := builders.GetTemplateJoin("total", baseTable, "created_by", "users_tokens", "context_id", false)
 
 	if types != "all" {
 		flowWhere = "AND flows_type = '" + types + "'"
 	}
 
-	sqlStatement := "SELECT flows_name as title, DATE(created_at) as context " +
+	sqlStatement := "SELECT flows_name as title, DATE(" + baseTable + ".created_at) as context " +
 		"FROM " + baseTable + " " +
-		"WHERE MONTH(created_at) = '" + mon + "' " +
-		"AND YEAR(created_at) = '" + year + "' " +
+		join + " " +
+		"WHERE MONTH(" + baseTable + ".created_at) = '" + mon + "' " +
+		"AND token = '" + token + "' " +
+		"AND YEAR(" + baseTable + ".created_at) = '" + year + "' " +
 		flowWhere + " "
 
 	// Exec
@@ -329,23 +346,27 @@ func GetMonthlyFlowItem(mon, year, types string) (response.Response, error) {
 	return res, nil
 }
 
-func GetMonthlyFlowTotal(mon, year, types string) (response.Response, error) {
+func GetMonthlyFlowTotal(mon, year, types, token string) (response.Response, error) {
 	// Declaration
 	var obj models.GetMonthlyFlowTotal
 	var arrobj []models.GetMonthlyFlowTotal
 	var res response.Response
 	var baseTable = "flows"
+	token = strings.Replace(token, "Bearer ", "", -1)
 
 	var flowWhere = ""
+	join := builders.GetTemplateJoin("total", baseTable, "created_by", "users_tokens", "context_id", false)
 
 	if types != "final_total" {
 		flowWhere = "AND flows_type = '" + types + "'"
 	}
 
-	sqlStatement := "SELECT SUM(flows_ammount) as title, flows_type as type, DATE(created_at) as context " +
+	sqlStatement := "SELECT SUM(flows_ammount) as title, flows_type as type, DATE(" + baseTable + ".created_at) as context " +
 		"FROM " + baseTable + " " +
-		"WHERE MONTH(created_at) = '" + mon + "' " +
-		"AND YEAR(created_at) = '" + year + "' " +
+		join + " " +
+		"WHERE MONTH(" + baseTable + ".created_at) = '" + mon + "' " +
+		"AND token = '" + token + "' " +
+		"AND YEAR(" + baseTable + ".created_at) = '" + year + "' " +
 		flowWhere + " " +
 		"GROUP BY 2"
 

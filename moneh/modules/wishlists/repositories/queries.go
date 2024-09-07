@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"database/sql"
+	"fmt"
 	"math"
 	"moneh/modules/wishlists/models"
 	"moneh/packages/builders"
@@ -12,15 +13,17 @@ import (
 	"moneh/packages/utils/pagination"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
-func GetAllWishlistHeaders(page, pageSize int, path string, ord string) (response.Response, error) {
+func GetAllWishlistHeaders(page, pageSize int, path string, ord string, token string) (response.Response, error) {
 	// Declaration
 	var obj models.GetWishlistHeaders
 	var arrobj []models.GetWishlistHeaders
 	var res response.Response
 	var baseTable = "wishlists"
 	var sqlStatement string
+	token = strings.Replace(token, "Bearer ", "", -1)
 
 	// Nullable column
 	var WishlistImgUrl sql.NullString
@@ -31,9 +34,12 @@ func GetAllWishlistHeaders(page, pageSize int, path string, ord string) (respons
 
 	// Query builder
 	order := builders.GetTemplateOrder("dynamic_data", baseTable, "wishlists_name", ord)
+	join := builders.GetTemplateJoin("total", baseTable, "created_by", "users_tokens", "context_id", false)
 
-	sqlStatement = "SELECT id, wishlists_name, wishlists_desc, wishlists_img_url, wishlists_type, wishlists_priority, wishlists_price, is_achieved " +
+	sqlStatement = "SELECT " + baseTable + ".id, wishlists_name, wishlists_desc, wishlists_img_url, wishlists_type, wishlists_priority, wishlists_price, is_achieved, " + baseTable + ".created_at " +
 		"FROM " + baseTable + " " +
+		join + " " +
+		"WHERE token = '" + token + "' " +
 		"ORDER BY " + order + " " +
 		"LIMIT ? OFFSET ?"
 
@@ -58,6 +64,7 @@ func GetAllWishlistHeaders(page, pageSize int, path string, ord string) (respons
 			&obj.WishlistPriority,
 			&WishlistPrice,
 			&IsAchieved,
+			&obj.CreatedAt,
 		)
 
 		if err != nil {
@@ -115,13 +122,14 @@ func GetAllWishlistHeaders(page, pageSize int, path string, ord string) (respons
 	return res, nil
 }
 
-func GetSummary(path string) (response.Response, error) {
+func GetSummary(path, token string) (response.Response, error) {
 	// Declaration
 	var obj models.GetSummary
 	var arrobj []models.GetSummary
 	var res response.Response
 	var baseTable = "wishlists"
 	var sqlStatement string
+	token = strings.Replace(token, "Bearer ", "", -1)
 
 	// Converted Column
 	var Average string
@@ -135,10 +143,14 @@ func GetSummary(path string) (response.Response, error) {
 	col := "wishlists_price"
 	col2 := "is_achieved = 1"
 	col3 := "wishlists_type"
+	join := builders.GetTemplateJoin("total", baseTable, "created_by", "users_tokens", "context_id", false)
+	tokenWhere := "WHERE token = '" + token + "' "
 	col4 := map[string]string{
 		"to_count":   "wishlists_price",
 		"to_get":     "wishlists_name",
 		"from_table": "wishlists",
+		"join":       join,
+		"where":      tokenWhere,
 	}
 	stringCol4 := converter.MapToString(col4)
 
@@ -161,7 +173,11 @@ func GetSummary(path string) (response.Response, error) {
 		mostType + " most_type, " +
 		expName + " most_expensive_name, " +
 		chpName + " cheapest_name " +
-		"FROM " + baseTable
+		"FROM " + baseTable + " " +
+		join + " " +
+		tokenWhere
+
+	fmt.Println(sqlStatement)
 
 	// Exec
 	con := database.CreateCon()

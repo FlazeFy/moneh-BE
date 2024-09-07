@@ -12,15 +12,17 @@ import (
 	"moneh/packages/utils/pagination"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
-func GetAllPocketHeaders(page, pageSize int, path string, ord string) (response.Response, error) {
+func GetAllPocketHeaders(page, pageSize int, path string, ord string, token string) (response.Response, error) {
 	// Declaration
 	var obj models.GetPocketHeaders
 	var arrobj []models.GetPocketHeaders
 	var res response.Response
 	var baseTable = "pockets"
 	var sqlStatement string
+	token = strings.Replace(token, "Bearer ", "", -1)
 
 	// Converted Column
 	var PocketsLimit string
@@ -30,9 +32,12 @@ func GetAllPocketHeaders(page, pageSize int, path string, ord string) (response.
 
 	// Query builder
 	order := builders.GetTemplateOrder("dynamic_data", baseTable, "pockets_name", ord)
+	join := builders.GetTemplateJoin("total", baseTable, "created_by", "users_tokens", "context_id", false)
 
-	sqlStatement = "SELECT id, pockets_name, pockets_desc, pockets_type, pockets_limit, created_at, updated_at " +
+	sqlStatement = "SELECT " + baseTable + ".id, pockets_name, pockets_desc, pockets_type, pockets_limit, " + baseTable + ".created_at, updated_at " +
 		"FROM " + baseTable + " " +
+		join + " " +
+		"WHERE token = '" + token + "' " +
 		"ORDER BY " + order + " " +
 		"LIMIT ? OFFSET ?"
 

@@ -12,7 +12,8 @@ import (
 func GetAllPocketHeaders(c echo.Context) error {
 	page, _ := strconv.Atoi(c.QueryParam("page"))
 	ord := c.Param("ord")
-	result, err := repositories.GetAllPocketHeaders(page, 10, "api/v1/pockets/"+ord, ord)
+	token := c.Request().Header.Get("Authorization")
+	result, err := repositories.GetAllPocketHeaders(page, 10, "api/v1/pockets/"+ord, ord, token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}

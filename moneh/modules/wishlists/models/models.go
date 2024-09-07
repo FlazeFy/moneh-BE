@@ -10,6 +10,7 @@ type (
 		WishlistPriority string `json:"wishlists_priority"`
 		WishlistPrice    int    `json:"wishlists_price"`
 		IsAchieved       int    `json:"is_achieved"`
+		CreatedAt        string `json:"created_at"`
 	}
 	GetSummary struct {
 		Average           int    `json:"average"`

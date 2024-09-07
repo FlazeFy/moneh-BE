@@ -44,18 +44,18 @@ func InitV1() *echo.Echo {
 	e.GET("api/v2/tag/:ord", syshandlers.GetAllTagsFirebase)
 
 	// Flows
-	e.GET("api/v1/flows/:ord", flwhandlers.GetAllFlow)
+	e.GET("api/v1/flows/:ord", flwhandlers.GetAllFlow, middlewares.CustomJWTAuth)
 	e.GET("api/v2/flows", flwhandlers.GetAllFlowExport)
-	e.GET("api/v1/flows/month_item/:mon/:year/:type", flwhandlers.GetMonthlyFlowItem)
-	e.GET("api/v1/flows/month_total/:mon/:year/:type", flwhandlers.GetMonthlyFlowTotal)
-	e.GET("api/v1/flows/summary/:type", flwhandlers.GetSummaryByType)
-	e.GET("api/v1/flows/dateammount/:type/:view", flwhandlers.GetTotalItemAmmountPerDateByType)
+	e.GET("api/v1/flows/month_item/:mon/:year/:type", flwhandlers.GetMonthlyFlowItem, middlewares.CustomJWTAuth)
+	e.GET("api/v1/flows/month_total/:mon/:year/:type", flwhandlers.GetMonthlyFlowTotal, middlewares.CustomJWTAuth)
+	e.GET("api/v1/flows/summary/:type", flwhandlers.GetSummaryByType, middlewares.CustomJWTAuth)
+	e.GET("api/v1/flows/dateammount/:type/:view", flwhandlers.GetTotalItemAmmountPerDateByType, middlewares.CustomJWTAuth)
 	e.POST("api/v1/flows", flwhandlers.PostFlow)
 	e.DELETE("api/v1/flows/destroy/:id", flwhandlers.HardDelFlowById)
 	e.DELETE("api/v1/flows/by/:id", flwhandlers.SoftDelFlowById)
 
 	// Pockets
-	e.GET("api/v1/pockets/headers/:ord", pckhandlers.GetAllPocketHeaders)
+	e.GET("api/v1/pockets/headers/:ord", pckhandlers.GetAllPocketHeaders, middlewares.CustomJWTAuth)
 	e.GET("api/v2/pockets", pckhandlers.GetAllPocketExport)
 	e.POST("api/v1/pockets", pckhandlers.PostPocket)
 	e.PUT("api/v1/pockets/by/:id", pckhandlers.UpdatePocket)
@@ -66,11 +66,11 @@ func InitV1() *echo.Echo {
 	e.GET("api/v1/feedbacks/:ord_obj/:ord", syshandlers.GetAllFeedback)
 
 	// Wishlists
-	e.GET("api/v1/wishlists/headers/:ord", wshhandlers.GetAllWishlistHeaders)
+	e.GET("api/v1/wishlists/headers/:ord", wshhandlers.GetAllWishlistHeaders, middlewares.CustomJWTAuth)
 	e.POST("api/v1/wishlists", wshhandlers.PostWishlist)
 	e.DELETE("api/v1/wishlists/destroy/:id", wshhandlers.HardDelWishlistById)
 	e.DELETE("api/v1/wishlists/by/:id", wshhandlers.SoftDelWishlistById)
-	e.GET("api/v1/wishlists/summary", wshhandlers.GetSummary)
+	e.GET("api/v1/wishlists/summary", wshhandlers.GetSummary, middlewares.CustomJWTAuth)
 
 	// Stats
 	e.GET("api/v1/stats/flowtype/:ord", stshandlers.GetTotalFlowByType)

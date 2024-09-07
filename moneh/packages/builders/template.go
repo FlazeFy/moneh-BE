@@ -126,6 +126,9 @@ func GetFormulaQuery(colTarget *string, name string) string {
 		return "MIN(" + *colTarget + ") AS "
 	} else if name == "max_object" || name == "min_object" || name == "total_sum_case" || name == "periodic" {
 		prop, err := converter.StringToMap(*colTarget)
+		var finalFormulaQuery string
+		var whereCount string
+
 		if err != nil {
 			fmt.Println("Error:", err)
 			return ""
@@ -134,12 +137,13 @@ func GetFormulaQuery(colTarget *string, name string) string {
 		toCount, _ := prop["to_count"]
 		toGet, _ := prop["to_get"]
 		fromTable, _ := prop["from_table"]
+		whereSyntax, _ := prop["where"]
+		joinSyntax, _ := prop["join"]
 
 		finalCount := strings.Split(toCount, " ")
 		remainCount := strings.Split(toCount, " AND ")
 
 		var count string = finalCount[0]
-		var whereCount string
 		whereCount = " WHERE " + remainCount[0]
 
 		if len(finalCount) > 1 {
@@ -147,15 +151,42 @@ func GetFormulaQuery(colTarget *string, name string) string {
 		}
 
 		if name == "max_object" {
-
-			return "(SELECT " + toGet + " FROM " + fromTable + " WHERE " + toCount + " = (SELECT MAX(" + count + ") FROM " + fromTable + " " + whereCount + ") limit 1) AS "
+			finalFormulaQuery = "(SELECT " + toGet + " FROM " + fromTable
+			if joinSyntax != "" {
+				finalFormulaQuery += " " + joinSyntax
+			}
+			finalFormulaQuery += " WHERE " + toCount + " = (SELECT MAX(" + count + ") FROM " + fromTable
+			if joinSyntax != "" {
+				finalFormulaQuery += " " + joinSyntax
+			}
+			if whereSyntax != "" {
+				finalFormulaQuery += " " + whereSyntax + " AND " + whereCount
+			} else {
+				finalFormulaQuery += " " + whereCount
+			}
+			finalFormulaQuery += ") limit 1) AS "
 		} else if name == "min_object" {
-			return "(SELECT " + toGet + " FROM " + fromTable + " WHERE " + toCount + " = (SELECT MIN(" + count + ") FROM " + fromTable + " " + whereCount + ") limit 1) AS "
+			finalFormulaQuery = "(SELECT " + toGet + " FROM " + fromTable
+			if joinSyntax != "" {
+				finalFormulaQuery += " " + joinSyntax
+			}
+			finalFormulaQuery += " WHERE " + toCount + " = (SELECT MIN(" + count + ") FROM " + fromTable
+			if joinSyntax != "" {
+				finalFormulaQuery += " " + joinSyntax
+			}
+			if whereSyntax != "" {
+				finalFormulaQuery += " " + whereSyntax + " AND " + whereCount
+			} else {
+				finalFormulaQuery += " " + whereCount
+			}
+			finalFormulaQuery += ") limit 1) AS "
 		} else if name == "total_sum_case" {
-			return "SUM(CASE WHEN " + toGet + " THEN " + toCount + " ELSE 0 END) "
+			finalFormulaQuery = "SUM(CASE WHEN " + toGet + " THEN " + toCount + " ELSE 0 END) "
 		} else if name == "periodic" {
-			return "COUNT(1) as total_item, " + prop["view"] + "(" + toGet + ") as context, SUM(" + toCount + ") as total_ammount"
+			finalFormulaQuery = "COUNT(1) as total_item, " + prop["view"] + "(" + toGet + ") as context, SUM(" + toCount + ") as total_ammount"
 		}
+
+		return finalFormulaQuery
 	}
 	return ""
 }

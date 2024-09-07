@@ -12,7 +12,8 @@ import (
 func GetAllWishlistHeaders(c echo.Context) error {
 	page, _ := strconv.Atoi(c.QueryParam("page"))
 	ord := c.Param("ord")
-	result, err := repositories.GetAllWishlistHeaders(page, 10, "api/v1/wishlists/headers/"+ord, ord)
+	token := c.Request().Header.Get("Authorization")
+	result, err := repositories.GetAllWishlistHeaders(page, 10, "api/v1/wishlists/headers/"+ord, ord, token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -21,7 +22,8 @@ func GetAllWishlistHeaders(c echo.Context) error {
 }
 
 func GetSummary(c echo.Context) error {
-	result, err := repositories.GetSummary("api/v1/wishlists/summary")
+	token := c.Request().Header.Get("Authorization")
+	result, err := repositories.GetSummary("api/v1/wishlists/summary", token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}

@@ -12,7 +12,8 @@ import (
 func GetAllFlow(c echo.Context) error {
 	page, _ := strconv.Atoi(c.QueryParam("page"))
 	ord := c.Param("ord")
-	result, err := repositories.GetAllFlow(page, 10, "api/v1/flows/"+ord, ord)
+	token := c.Request().Header.Get("Authorization")
+	result, err := repositories.GetAllFlow(page, 10, "api/v1/flows/"+ord, ord, token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -31,7 +32,8 @@ func GetAllFlowExport(c echo.Context) error {
 
 func GetSummaryByType(c echo.Context) error {
 	types := c.Param("type")
-	result, err := repositories.GetSummaryByType("api/v1/flows/summary/"+types, types)
+	token := c.Request().Header.Get("Authorization")
+	result, err := repositories.GetSummaryByType("api/v1/flows/summary/"+types, types, token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -85,7 +87,8 @@ func PostFlow(c echo.Context) error {
 func GetTotalItemAmmountPerDateByType(c echo.Context) error {
 	types := c.Param("type")
 	view := c.Param("view")
-	result, err := repositories.GetTotalItemAmmountPerDateByType(types, view)
+	token := c.Request().Header.Get("Authorization")
+	result, err := repositories.GetTotalItemAmmountPerDateByType(types, view, token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -97,8 +100,9 @@ func GetMonthlyFlowItem(c echo.Context) error {
 	mon := c.Param("mon")
 	year := c.Param("year")
 	types := c.Param("type")
+	token := c.Request().Header.Get("Authorization")
 
-	result, err := repositories.GetMonthlyFlowItem(mon, year, types)
+	result, err := repositories.GetMonthlyFlowItem(mon, year, types, token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -110,8 +114,9 @@ func GetMonthlyFlowTotal(c echo.Context) error {
 	mon := c.Param("mon")
 	year := c.Param("year")
 	types := c.Param("type")
+	token := c.Request().Header.Get("Authorization")
 
-	result, err := repositories.GetMonthlyFlowTotal(mon, year, types)
+	result, err := repositories.GetMonthlyFlowTotal(mon, year, types, token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
