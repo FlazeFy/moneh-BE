@@ -148,7 +148,6 @@ func HardDelPocketById(id, token string) (response.Response, error) {
 	}
 
 	if validateOwner {
-
 		// Command builder
 		sqlStatement = builders.GetTemplateCommand("hard_delete", baseTable, "id")
 

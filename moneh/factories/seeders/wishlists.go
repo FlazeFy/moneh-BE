@@ -15,6 +15,7 @@ import (
 
 func SeedWishlists(total int, showRes bool) {
 	rand.Seed(time.Now().UnixNano())
+	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjY3NzQ1NDc5MTIsImxldmVsIjoiYXBwbGljYXRpb24iLCJ1c2VybmFtZSI6InRlc3RlcnVzZXIifQ.pJv9kjPbUp78-0McyOCJyB9raL0V2nR-jjYVnKlT_7s"
 
 	var obj models.PostWishlist
 	idx := 0
@@ -30,7 +31,7 @@ func SeedWishlists(total int, showRes bool) {
 		obj.WishlistPriority = dummies.DummyPriority()
 		obj.IsAchieved = int(rand.Float64())
 
-		result, err := repositories.PostWishlist(obj)
+		result, err := repositories.PostWishlist(obj, token)
 		if err != nil {
 			fmt.Println(err.Error())
 		}

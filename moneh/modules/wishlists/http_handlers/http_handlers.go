@@ -33,7 +33,8 @@ func GetSummary(c echo.Context) error {
 
 func HardDelWishlistById(c echo.Context) error {
 	id := c.Param("id")
-	result, err := repositories.HardDelWishlistById(id)
+	token := c.Request().Header.Get("Authorization")
+	result, err := repositories.HardDelWishlistById(id, token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -43,7 +44,8 @@ func HardDelWishlistById(c echo.Context) error {
 
 func SoftDelWishlistById(c echo.Context) error {
 	id := c.Param("id")
-	result, err := repositories.SoftDelWishlistById(id)
+	token := c.Request().Header.Get("Authorization")
+	result, err := repositories.SoftDelWishlistById(id, token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -53,6 +55,7 @@ func SoftDelWishlistById(c echo.Context) error {
 
 func PostWishlist(c echo.Context) error {
 	var obj models.PostWishlist
+	token := c.Request().Header.Get("Authorization")
 
 	// Converted
 	WishlistPriceInt, _ := strconv.Atoi(c.FormValue("wishlists_price"))
@@ -66,7 +69,7 @@ func PostWishlist(c echo.Context) error {
 	obj.WishlistPrice = WishlistPriceInt
 	obj.IsAchieved = IsAchievedInt
 
-	result, err := repositories.PostWishlist(obj)
+	result, err := repositories.PostWishlist(obj, token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}

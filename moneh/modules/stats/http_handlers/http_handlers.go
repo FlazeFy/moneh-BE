@@ -125,7 +125,8 @@ func GetTotalDictionaryToModule(c echo.Context) error {
 }
 
 func GetDashboard(c echo.Context) error {
-	result, err := repositories.GetDashboard()
+	token := c.Request().Header.Get("Authorization")
+	result, err := repositories.GetDashboard(token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}

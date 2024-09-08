@@ -10,6 +10,7 @@ import (
 	"moneh/packages/helpers/response"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 func GetTotalStats(ord string, view string, table string, typeStats string, extraTotal *string) (response.Response, error) {
@@ -30,10 +31,10 @@ func GetTotalStats(ord string, view string, table string, typeStats string, extr
 	// Exec
 	con := database.CreateCon()
 	rows, err := con.Query(sqlStatement)
-	defer rows.Close()
-
 	if err != nil {
 		return res, err
+	} else {
+		defer rows.Close()
 	}
 
 	// Map
@@ -83,10 +84,10 @@ func GetTotalDictionaryToModule(table string, col string) (response.Response, er
 	// Exec
 	con := database.CreateCon()
 	rows, err := con.Query(sqlStatement)
-	defer rows.Close()
-
 	if err != nil {
 		return res, err
+	} else {
+		defer rows.Close()
 	}
 
 	// Map
@@ -117,13 +118,14 @@ func GetTotalDictionaryToModule(table string, col string) (response.Response, er
 	return res, nil
 }
 
-func GetDashboard() (response.Response, error) {
+func GetDashboard(token string) (response.Response, error) {
 	// Declaration
 	var obj models.GetDashboard
 	var arrobj []models.GetDashboard
 	var res response.Response
 	var sqlStatement string
 	var baseTable = "flows"
+	token = strings.Replace(token, "Bearer ", "", -1)
 
 	// Converted column
 	var LastSpending sql.NullString
@@ -138,6 +140,7 @@ func GetDashboard() (response.Response, error) {
 	var myBalance sql.NullString
 
 	// Query builder
+	join := builders.GetTemplateJoin("total", baseTable, "created_by", "users_tokens", "context_id", false)
 	lastIncomeQueryRaw := map[string]string{
 		"to_count":   "flows_type = 'income' AND created_at",
 		"to_get":     "flows_name",
@@ -225,15 +228,18 @@ func GetDashboard() (response.Response, error) {
 		mostHighestIncomeValSql + " most_highest_income_value, " +
 		totalItemIncomeSql + " total_item_income, " +
 		totalItemSpendingSql + " total_item_spending, " +
-		myBalanceSql + " my_balance FROM " + baseTable + " limit 1"
+		myBalanceSql + " my_balance FROM " + baseTable + " " +
+		join + " " +
+		"WHERE token = '" + token + "' " +
+		" limit 1"
 
 	// Exec
 	con := database.CreateCon()
 	rows, err := con.Query(sqlStatement)
-	defer rows.Close()
-
 	if err != nil {
 		return res, err
+	} else {
+		defer rows.Close()
 	}
 
 	// Map
@@ -258,11 +264,29 @@ func GetDashboard() (response.Response, error) {
 
 		// Converted
 		lastIncomeValInt, err := converter.ConvertNullStringToInt(lastIncomeVal)
+		if err != nil {
+			return res, err
+		}
 		lastSpendingValInt, err := converter.ConvertNullStringToInt(lastSpendingVal)
+		if err != nil {
+			return res, err
+		}
 		mostExpensiveSpendingValInt, err := converter.ConvertNullStringToInt(mostExpensiveSpendingVal)
+		if err != nil {
+			return res, err
+		}
 		mostHighestIncomeValInt, err := converter.ConvertNullStringToInt(mostHighestIncomeVal)
+		if err != nil {
+			return res, err
+		}
 		totalItemIncomeInt, err := converter.ConvertNullStringToInt(totalItemIncome)
+		if err != nil {
+			return res, err
+		}
 		totalItemSpendingInt, err := converter.ConvertNullStringToInt(totalItemSpending)
+		if err != nil {
+			return res, err
+		}
 		myBalanceInt, err := converter.ConvertNullStringToInt(myBalance)
 		if err != nil {
 			return res, err

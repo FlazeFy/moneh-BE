@@ -28,7 +28,7 @@ func InitV1() *echo.Echo {
 	// Auth
 	e.POST("api/v1/login", authhandlers.PostLoginUser)
 	e.POST("api/v1/register", authhandlers.PostRegister)
-	e.POST("api/v1/logout", authhandlers.SignOut)
+	e.POST("api/v1/logout", authhandlers.SignOut, middlewares.CustomJWTAuth)
 
 	// Dictionary
 	e.GET("api/v1/dct/:type", syshandlers.GetDictionaryByType)
@@ -67,9 +67,9 @@ func InitV1() *echo.Echo {
 
 	// Wishlists
 	e.GET("api/v1/wishlists/headers/:ord", wshhandlers.GetAllWishlistHeaders, middlewares.CustomJWTAuth)
-	e.POST("api/v1/wishlists", wshhandlers.PostWishlist)
-	e.DELETE("api/v1/wishlists/destroy/:id", wshhandlers.HardDelWishlistById)
-	e.DELETE("api/v1/wishlists/by/:id", wshhandlers.SoftDelWishlistById)
+	e.POST("api/v1/wishlists", wshhandlers.PostWishlist, middlewares.CustomJWTAuth)
+	e.DELETE("api/v1/wishlists/destroy/:id", wshhandlers.HardDelWishlistById, middlewares.CustomJWTAuth)
+	e.DELETE("api/v1/wishlists/by/:id", wshhandlers.SoftDelWishlistById, middlewares.CustomJWTAuth)
 	e.GET("api/v1/wishlists/summary", wshhandlers.GetSummary, middlewares.CustomJWTAuth)
 
 	// Stats
@@ -84,7 +84,7 @@ func InitV1() *echo.Echo {
 	e.GET("api/v1/stats/dctmod/:table/:col", stshandlers.GetTotalDictionaryToModule)
 
 	// Dashboard
-	e.GET("api/v1/dashboard", stshandlers.GetDashboard)
+	e.GET("api/v1/dashboard", stshandlers.GetDashboard, middlewares.CustomJWTAuth)
 
 	// =============== Private routes ===============
 	// User
