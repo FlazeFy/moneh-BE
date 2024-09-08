@@ -145,7 +145,7 @@ func SubmitFlow(update tele_bot.Update, bot *tele_bot.BotAPI) {
 	obj.FlowsTag = "null"
 	obj.IsShared = 0
 
-	result, err := repositories.PostFlow(obj)
+	result, err := repositories.PostFlow(obj, fmt.Sprintf("%d", userId))
 	if err != nil {
 		bot.Send(tele_bot.NewMessage(userId, err.Error()))
 		return

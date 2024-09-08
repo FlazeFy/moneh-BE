@@ -43,7 +43,8 @@ func GetSummaryByType(c echo.Context) error {
 
 func HardDelFlowById(c echo.Context) error {
 	id := c.Param("id")
-	result, err := repositories.HardDelFlowById(id)
+	token := c.Request().Header.Get("Authorization")
+	result, err := repositories.HardDelFlowById(id, token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -53,7 +54,8 @@ func HardDelFlowById(c echo.Context) error {
 
 func SoftDelFlowById(c echo.Context) error {
 	id := c.Param("id")
-	result, err := repositories.SoftDelFlowById(id)
+	token := c.Request().Header.Get("Authorization")
+	result, err := repositories.SoftDelFlowById(id, token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -63,6 +65,7 @@ func SoftDelFlowById(c echo.Context) error {
 
 func PostFlow(c echo.Context) error {
 	var obj models.GetFlow
+	token := c.Request().Header.Get("Authorization")
 
 	flowAmmountInt, _ := strconv.Atoi(c.FormValue("flows_ammount"))
 	isSharedInt, _ := strconv.Atoi(c.FormValue("is_shared"))
@@ -76,7 +79,7 @@ func PostFlow(c echo.Context) error {
 	obj.IsShared = isSharedInt
 	obj.CreatedAt = c.FormValue("created_at")
 
-	result, err := repositories.PostFlow(obj)
+	result, err := repositories.PostFlow(obj, token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}

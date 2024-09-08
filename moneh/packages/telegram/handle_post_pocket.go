@@ -115,7 +115,7 @@ func SubmitPocket(update tele_bot.Update, bot *tele_bot.BotAPI) {
 	obj.PocketsDesc = UserInputs[userId]["pockets_desc"]
 	obj.PocketsLimit = intLimit
 
-	result, err := repositories.PostPocket(obj)
+	result, err := repositories.PostPocket(obj, fmt.Sprintf("%d", userId))
 	if err != nil {
 		bot.Send(tele_bot.NewMessage(userId, err.Error()))
 		return

@@ -50,16 +50,16 @@ func InitV1() *echo.Echo {
 	e.GET("api/v1/flows/month_total/:mon/:year/:type", flwhandlers.GetMonthlyFlowTotal, middlewares.CustomJWTAuth)
 	e.GET("api/v1/flows/summary/:type", flwhandlers.GetSummaryByType, middlewares.CustomJWTAuth)
 	e.GET("api/v1/flows/dateammount/:type/:view", flwhandlers.GetTotalItemAmmountPerDateByType, middlewares.CustomJWTAuth)
-	e.POST("api/v1/flows", flwhandlers.PostFlow)
-	e.DELETE("api/v1/flows/destroy/:id", flwhandlers.HardDelFlowById)
-	e.DELETE("api/v1/flows/by/:id", flwhandlers.SoftDelFlowById)
+	e.POST("api/v1/flows", flwhandlers.PostFlow, middlewares.CustomJWTAuth)
+	e.DELETE("api/v1/flows/destroy/:id", flwhandlers.HardDelFlowById, middlewares.CustomJWTAuth)
+	e.DELETE("api/v1/flows/by/:id", flwhandlers.SoftDelFlowById, middlewares.CustomJWTAuth)
 
 	// Pockets
 	e.GET("api/v1/pockets/headers/:ord", pckhandlers.GetAllPocketHeaders, middlewares.CustomJWTAuth)
 	e.GET("api/v2/pockets", pckhandlers.GetAllPocketExport)
-	e.POST("api/v1/pockets", pckhandlers.PostPocket)
-	e.PUT("api/v1/pockets/by/:id", pckhandlers.UpdatePocket)
-	e.DELETE("api/v1/pockets/destroy/:id", pckhandlers.HardDelPocketById)
+	e.POST("api/v1/pockets", pckhandlers.PostPocket, middlewares.CustomJWTAuth)
+	e.PUT("api/v1/pockets/by/:id", pckhandlers.UpdatePocket, middlewares.CustomJWTAuth)
+	e.DELETE("api/v1/pockets/destroy/:id", pckhandlers.HardDelPocketById, middlewares.CustomJWTAuth)
 
 	// Feedbacks
 	e.POST("api/v1/feedbacks", syshandlers.PostFeedback)

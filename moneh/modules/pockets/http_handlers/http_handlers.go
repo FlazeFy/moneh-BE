@@ -32,6 +32,7 @@ func GetAllPocketExport(c echo.Context) error {
 
 func PostPocket(c echo.Context) error {
 	var obj models.GetPocketHeaders
+	token := c.Request().Header.Get("Authorization")
 
 	pocketLimitInt, _ := strconv.Atoi(c.FormValue("pockets_limit"))
 
@@ -40,7 +41,7 @@ func PostPocket(c echo.Context) error {
 	obj.PocketsType = c.FormValue("pockets_type")
 	obj.PocketsLimit = pocketLimitInt
 
-	result, err := repositories.PostPocket(obj)
+	result, err := repositories.PostPocket(obj, token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -50,7 +51,9 @@ func PostPocket(c echo.Context) error {
 
 func UpdatePocket(c echo.Context) error {
 	id := c.Param("id")
-	result, err := repositories.UpdatePocket(c, id)
+	token := c.Request().Header.Get("Authorization")
+
+	result, err := repositories.UpdatePocket(c, id, token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -60,7 +63,9 @@ func UpdatePocket(c echo.Context) error {
 
 func HardDelPocketById(c echo.Context) error {
 	id := c.Param("id")
-	result, err := repositories.HardDelPocketById(id)
+	token := c.Request().Header.Get("Authorization")
+
+	result, err := repositories.HardDelPocketById(id, token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
