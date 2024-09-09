@@ -24,7 +24,7 @@ var _ = Describe("Moneh API Testing - Auth", func() {
 	It(fmt.Sprintf("%s - Login", method), func() {
 		body := map[string]string{
 			"username": "flazefy",
-			"password": "nopass123",
+			"password": "test123",
 		}
 
 		client := resty.New()
