@@ -92,7 +92,7 @@ func GetWhereMine(token string) string {
 }
 
 // Stats
-func GetTemplateStats(ctx, firstTable, name string, ord string, joinArgs *string) string {
+func GetTemplateStats(ctx, firstTable, name string, ord string, joinArgs, token *string) string {
 	// Nullable args
 	var args string
 	if joinArgs == nil {
@@ -102,10 +102,12 @@ func GetTemplateStats(ctx, firstTable, name string, ord string, joinArgs *string
 	}
 	// Notes :
 	// Full query
+	joinAuth := GetTemplateJoin("total", firstTable, "created_by", "users_tokens", "context_id", false)
+
 	if name == "most_appear" {
-		return "SELECT " + ctx + " as context, " + GetFormulaQuery(nil, "total_item") + " total FROM " + firstTable + " " + args + " GROUP BY " + ctx + " ORDER BY total " + ord
+		return "SELECT " + ctx + " as context, " + GetFormulaQuery(nil, "total_item") + " total FROM " + firstTable + " " + joinAuth + " " + args + " GROUP BY " + ctx + " ORDER BY total " + ord
 	} else if name == "total_ammount" {
-		return "SELECT " + ctx + " as context, " + GetFormulaQuery(joinArgs, "total_sum") + " total FROM " + firstTable + " " + args + " GROUP BY " + ctx + " ORDER BY total " + ord
+		return "SELECT " + ctx + " as context, " + GetFormulaQuery(joinArgs, "total_sum") + " total FROM " + firstTable + " " + joinAuth + " " + args + " GROUP BY " + ctx + " ORDER BY total " + ord
 	}
 	return ""
 }

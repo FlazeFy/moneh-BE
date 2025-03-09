@@ -5,6 +5,12 @@ type (
 		Context string `json:"context"`
 		Total   int    `json:"total"`
 	}
+	GetSummaryAppsModel struct {
+		TotalUser     int `json:"total_user"`
+		TotalWishlist int `json:"total_wishlist"`
+		TotalPocket   int `json:"total_pockets"`
+		TotalFlow     int `json:"total_flows"`
+	}
 	GetDashboard struct {
 		LastIncome               string `json:"last_income"`
 		LastSpending             string `json:"last_spending"`

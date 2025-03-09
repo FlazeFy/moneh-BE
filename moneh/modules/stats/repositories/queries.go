@@ -13,7 +13,38 @@ import (
 	"strings"
 )
 
-func GetTotalStats(ord string, view string, table string, typeStats string, extraTotal *string) (response.Response, error) {
+func GetSummaryAppsRepo() (response.Response, error) {
+	// Declaration
+	var obj models.GetSummaryAppsModel
+	var res response.Response
+
+	// Query builder
+	count := builders.GetFormulaQuery(nil, "total_item")
+	sqlStatement := "SELECT " +
+		"(SELECT " + count + " total FROM users) AS total_user, " +
+		"(SELECT " + count + " total FROM wishlists) AS total_wishlist, " +
+		"(SELECT " + count + " total FROM pockets) AS total_pockets, " +
+		"(SELECT " + count + " total FROM flows) AS total_flows"
+
+	// Exec
+	con := database.CreateCon()
+	row := con.QueryRow(sqlStatement)
+
+	// Map
+	err := row.Scan(&obj.TotalUser, &obj.TotalWishlist, &obj.TotalPocket, &obj.TotalFlow)
+	if err != nil {
+		return res, err
+	}
+
+	// Response
+	res.Status = http.StatusOK
+	res.Message = generator.GenerateQueryMsg("Stats", 1)
+	res.Data = obj
+
+	return res, nil
+}
+
+func GetTotalStatsRepo(ord string, view string, table string, typeStats string, extraTotal, token *string) (response.Response, error) {
 	// Declaration
 	var obj models.GetMostAppear
 	var arrobj []models.GetMostAppear
@@ -22,11 +53,16 @@ func GetTotalStats(ord string, view string, table string, typeStats string, extr
 	var mainCol = view
 	var sqlStatement string
 
+	if token != nil {
+		tokenStr := strings.Replace(*token, "Bearer ", "", -1)
+		token = &tokenStr
+	}
+
 	// Converted column
 	var totalStr string
 
 	// Query builder
-	sqlStatement = builders.GetTemplateStats(mainCol, baseTable, typeStats, ord, extraTotal)
+	sqlStatement = builders.GetTemplateStats(mainCol, baseTable, typeStats, ord, extraTotal, token)
 
 	// Exec
 	con := database.CreateCon()
@@ -65,60 +101,7 @@ func GetTotalStats(ord string, view string, table string, typeStats string, extr
 	return res, nil
 }
 
-func GetTotalDictionaryToModule(table string, col string) (response.Response, error) {
-	// Declaration
-	var obj models.GetMostAppear
-	var arrobj []models.GetMostAppear
-	var res response.Response
-	var baseTable string = "dictionaries"
-	var sqlStatement string
-	var extraStatement string = "JOIN " + table + " ON dictionaries.dictionaries_name = " + table + "." + col + " " +
-		"WHERE dictionaries_type = '" + col + "'"
-
-	// Converted column
-	var totalStr string
-
-	// Query builder
-	sqlStatement = builders.GetTemplateStats(col, baseTable, "most_appear", "desc", &extraStatement)
-
-	// Exec
-	con := database.CreateCon()
-	rows, err := con.Query(sqlStatement)
-	if err != nil {
-		return res, err
-	} else {
-		defer rows.Close()
-	}
-
-	// Map
-	for rows.Next() {
-		err = rows.Scan(
-			&obj.Context,
-			&totalStr)
-
-		if err != nil {
-			return res, err
-		}
-
-		// Converted
-		totalInt, err := strconv.Atoi(totalStr)
-		if err != nil {
-			return res, err
-		}
-
-		obj.Total = totalInt
-		arrobj = append(arrobj, obj)
-	}
-
-	// Response
-	res.Status = http.StatusOK
-	res.Message = generator.GenerateQueryMsg("Stats", 1)
-	res.Data = arrobj
-
-	return res, nil
-}
-
-func GetDashboard(token string) (response.Response, error) {
+func GetDashboardRepo(token string) (response.Response, error) {
 	// Declaration
 	var obj models.GetDashboard
 	var arrobj []models.GetDashboard

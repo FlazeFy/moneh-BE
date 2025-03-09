@@ -7,12 +7,22 @@ import (
 	"github.com/labstack/echo"
 )
 
+func GetSummaryApps(c echo.Context) error {
+	result, err := repositories.GetSummaryAppsRepo()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
 func GetTotalFlowByType(c echo.Context) error {
 	ord := c.Param("ord")
 	view := "flows_type"
 	table := "flows"
+	token := c.Request().Header.Get("Authorization")
 
-	result, err := repositories.GetTotalStats(ord, view, table, "most_appear", nil)
+	result, err := repositories.GetTotalStatsRepo(ord, view, table, "most_appear", nil, &token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -24,21 +34,9 @@ func GetTotalFlowByCat(c echo.Context) error {
 	ord := c.Param("ord")
 	view := "flows_category"
 	table := "flows"
+	token := c.Request().Header.Get("Authorization")
 
-	result, err := repositories.GetTotalStats(ord, view, table, "most_appear", nil)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
-	}
-
-	return c.JSON(http.StatusOK, result)
-}
-
-func GetTotalDctByType(c echo.Context) error {
-	ord := c.Param("ord")
-	view := "dictionaries_type"
-	table := "dictionaries"
-
-	result, err := repositories.GetTotalStats(ord, view, table, "most_appear", nil)
+	result, err := repositories.GetTotalStatsRepo(ord, view, table, "most_appear", nil, &token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -50,8 +48,9 @@ func GetTotalPocketByType(c echo.Context) error {
 	ord := c.Param("ord")
 	view := "pockets_type"
 	table := "pockets"
+	token := c.Request().Header.Get("Authorization")
 
-	result, err := repositories.GetTotalStats(ord, view, table, "most_appear", nil)
+	result, err := repositories.GetTotalStatsRepo(ord, view, table, "most_appear", nil, &token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -64,8 +63,9 @@ func GetTotalAmmountFlowByType(c echo.Context) error {
 	view := "flows_type"
 	table := "flows"
 	ext := "flows_ammount"
+	token := c.Request().Header.Get("Authorization")
 
-	result, err := repositories.GetTotalStats(ord, view, table, "total_ammount", &ext)
+	result, err := repositories.GetTotalStatsRepo(ord, view, table, "total_ammount", &ext, &token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -77,8 +77,9 @@ func GetTotalWishlistType(c echo.Context) error {
 	ord := c.Param("ord")
 	view := "wishlists_type"
 	table := "wishlists"
+	token := c.Request().Header.Get("Authorization")
 
-	result, err := repositories.GetTotalStats(ord, view, table, "most_appear", nil)
+	result, err := repositories.GetTotalStatsRepo(ord, view, table, "most_appear", nil, &token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -90,8 +91,9 @@ func GetTotalWishlistPriority(c echo.Context) error {
 	ord := c.Param("ord")
 	view := "wishlists_priority"
 	table := "wishlists"
+	token := c.Request().Header.Get("Authorization")
 
-	result, err := repositories.GetTotalStats(ord, view, table, "most_appear", nil)
+	result, err := repositories.GetTotalStatsRepo(ord, view, table, "most_appear", nil, &token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -103,20 +105,9 @@ func GetTotalWishlistIsAchieved(c echo.Context) error {
 	ord := c.Param("ord")
 	view := "is_achieved"
 	table := "wishlists"
+	token := c.Request().Header.Get("Authorization")
 
-	result, err := repositories.GetTotalStats(ord, view, table, "most_appear", nil)
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
-	}
-
-	return c.JSON(http.StatusOK, result)
-}
-
-func GetTotalDictionaryToModule(c echo.Context) error {
-	table := c.Param("table")
-	col := c.Param("col")
-
-	result, err := repositories.GetTotalDictionaryToModule(table, col)
+	result, err := repositories.GetTotalStatsRepo(ord, view, table, "most_appear", nil, &token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
@@ -126,7 +117,7 @@ func GetTotalDictionaryToModule(c echo.Context) error {
 
 func GetDashboard(c echo.Context) error {
 	token := c.Request().Header.Get("Authorization")
-	result, err := repositories.GetDashboard(token)
+	result, err := repositories.GetDashboardRepo(token)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}

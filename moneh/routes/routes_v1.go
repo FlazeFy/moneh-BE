@@ -73,15 +73,14 @@ func InitV1() *echo.Echo {
 	e.GET("api/v1/wishlists/summary", wshhandlers.GetSummary, middlewares.CustomJWTAuth)
 
 	// Stats
-	e.GET("api/v1/stats/flowtype/:ord", stshandlers.GetTotalFlowByType)
-	e.GET("api/v1/stats/flowcat/:ord", stshandlers.GetTotalFlowByCat)
-	e.GET("api/v1/stats/pockettype/:ord", stshandlers.GetTotalPocketByType)
-	e.GET("api/v1/stats/ammountflowtype/:ord", stshandlers.GetTotalAmmountFlowByType)
-	e.GET("api/v1/stats/dcttype/:ord", stshandlers.GetTotalDctByType)
-	e.GET("api/v1/stats/wishlisttype/:ord", stshandlers.GetTotalWishlistType)
-	e.GET("api/v1/stats/wishlistpriority/:ord", stshandlers.GetTotalWishlistPriority)
-	e.GET("api/v1/stats/wishlistisachieved/:ord", stshandlers.GetTotalWishlistIsAchieved)
-	e.GET("api/v1/stats/dctmod/:table/:col", stshandlers.GetTotalDictionaryToModule)
+	e.GET("api/v1/stats/summary/apps", stshandlers.GetSummaryApps)
+	e.GET("api/v1/stats/flowtype/:ord", stshandlers.GetTotalFlowByType, middlewares.CustomJWTAuth)
+	e.GET("api/v1/stats/flowcat/:ord", stshandlers.GetTotalFlowByCat, middlewares.CustomJWTAuth)
+	e.GET("api/v1/stats/pockettype/:ord", stshandlers.GetTotalPocketByType, middlewares.CustomJWTAuth)
+	e.GET("api/v1/stats/ammountflowtype/:ord", stshandlers.GetTotalAmmountFlowByType, middlewares.CustomJWTAuth)
+	e.GET("api/v1/stats/wishlisttype/:ord", stshandlers.GetTotalWishlistType, middlewares.CustomJWTAuth)
+	e.GET("api/v1/stats/wishlistpriority/:ord", stshandlers.GetTotalWishlistPriority, middlewares.CustomJWTAuth)
+	e.GET("api/v1/stats/wishlistisachieved/:ord", stshandlers.GetTotalWishlistIsAchieved, middlewares.CustomJWTAuth)
 
 	// Dashboard
 	e.GET("api/v1/dashboard", stshandlers.GetDashboard, middlewares.CustomJWTAuth)
