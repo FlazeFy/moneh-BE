@@ -104,7 +104,6 @@ func GetTotalStatsRepo(ord string, view string, table string, typeStats string, 
 func GetDashboardRepo(token string) (response.Response, error) {
 	// Declaration
 	var obj models.GetDashboard
-	var arrobj []models.GetDashboard
 	var res response.Response
 	var sqlStatement string
 	var baseTable = "flows"
@@ -287,14 +286,12 @@ func GetDashboardRepo(token string) (response.Response, error) {
 		obj.LastSpending = converter.CheckNullString(LastSpending)
 		obj.LastIncome = converter.CheckNullString(LastIncome)
 		obj.MostHighestIncome = converter.CheckNullString(MostHighestIncome)
-
-		arrobj = append(arrobj, obj)
 	}
 
 	// Response
 	res.Status = http.StatusOK
 	res.Message = generator.GenerateQueryMsg("Stats", 1)
-	res.Data = arrobj
+	res.Data = obj
 
 	return res, nil
 }

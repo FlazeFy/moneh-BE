@@ -162,7 +162,7 @@ func GetFormulaQuery(colTarget *string, name string) string {
 				finalFormulaQuery += " " + joinSyntax
 			}
 			if whereSyntax != "" {
-				finalFormulaQuery += " " + whereSyntax + " AND " + whereCount
+				finalFormulaQuery += " " + whereSyntax
 			} else {
 				finalFormulaQuery += " " + whereCount
 			}
@@ -177,7 +177,7 @@ func GetFormulaQuery(colTarget *string, name string) string {
 				finalFormulaQuery += " " + joinSyntax
 			}
 			if whereSyntax != "" {
-				finalFormulaQuery += " " + whereSyntax + " AND " + whereCount
+				finalFormulaQuery += " " + whereSyntax
 			} else {
 				finalFormulaQuery += " " + whereCount
 			}
