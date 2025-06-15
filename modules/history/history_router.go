@@ -18,6 +18,7 @@ func SetUpRoutes(r *gin.Engine, db *gorm.DB) {
 		{
 			history.GET("/all", historyController.GetAllHistory)
 			history.GET("/my", historyController.GetMyHistory)
+			history.DELETE("/:id", historyController.DeleteHistoryById)
 		}
 	}
 }

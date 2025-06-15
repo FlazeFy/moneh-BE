@@ -11,6 +11,7 @@ import (
 type HistoryService interface {
 	GetAllHistory(pagination utils.Pagination) ([]models.AllHistory, int64, error)
 	GetMyHistory(pagination utils.Pagination, id uuid.UUID, typeUser string) ([]models.History, int64, error)
+	DeleteHistoryById(id uuid.UUID) error
 }
 
 type historyService struct {
@@ -47,4 +48,17 @@ func (s *historyService) GetMyHistory(pagination utils.Pagination, id uuid.UUID,
 	}
 
 	return history, total, nil
+}
+
+func (s *historyService) DeleteHistoryById(id uuid.UUID) error {
+	// Repo : Get My History
+	affected_row, err := s.historyRepo.DeleteById(id)
+	if err != nil {
+		return err
+	}
+	if affected_row == 0 {
+		return errors.New("history not found")
+	}
+
+	return nil
 }

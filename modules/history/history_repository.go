@@ -13,6 +13,7 @@ import (
 type HistoryRepository interface {
 	FindAll(pagination utils.Pagination) ([]models.AllHistory, int64, error)
 	FindMy(pagination utils.Pagination, id uuid.UUID, typeUser string) ([]models.History, int64, error)
+	DeleteById(id uuid.UUID) (int64, error)
 }
 
 type historyRepository struct {
@@ -82,4 +83,17 @@ func (r *historyRepository) FindMy(pagination utils.Pagination, id uuid.UUID, ty
 	}
 
 	return history, total, err
+}
+
+func (r *historyRepository) DeleteById(id uuid.UUID) (int64, error) {
+	// Models
+	var history models.History
+
+	// Query
+	result := r.db.Unscoped().Where("id = ?", id).Delete(&history)
+	if result.Error != nil {
+		return 0, result.Error
+	}
+
+	return result.RowsAffected, nil
 }

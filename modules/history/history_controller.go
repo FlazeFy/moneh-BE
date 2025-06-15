@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type HistoryController struct {
@@ -99,5 +100,54 @@ func (rc *HistoryController) GetMyHistory(c *gin.Context) {
 			"limit":       pagination.Limit,
 			"total_pages": totalPages,
 		},
+	})
+}
+
+func (rc *HistoryController) DeleteHistoryById(c *gin.Context) {
+	// Get Role
+	role, err := utils.GetCurrentRole(c)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+			"status":  "failed",
+		})
+		return
+	}
+
+	if role != "admin" {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"message": "role not permission",
+			"status":  "failed",
+		})
+		return
+	}
+
+	// Param
+	id := c.Param("id")
+
+	// Parse Id
+	historyID, err := uuid.Parse(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Invalid UUID format",
+			"status":  "failed",
+		})
+		return
+	}
+
+	// Service: Delete History By Id
+	err = rc.HistoryService.DeleteHistoryById(historyID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+			"status":  "failed",
+		})
+		return
+	}
+
+	// Response
+	c.JSON(http.StatusOK, gin.H{
+		"message": "history deleted",
+		"status":  "success",
 	})
 }
