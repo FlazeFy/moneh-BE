@@ -52,10 +52,15 @@ func main() {
 
 func MigrateAll(db *gorm.DB) {
 	err := db.AutoMigrate(
+		&models.Error{},
+		&models.Dictionary{},
 		&models.User{},
 		&models.Admin{},
 		&models.History{},
 		&models.Feedback{},
+		&models.Pocket{},
+		&models.Flow{},
+		&models.FlowRelation{},
 	)
 
 	if err != nil {
