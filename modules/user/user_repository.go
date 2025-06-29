@@ -15,6 +15,9 @@ type UserRepository interface {
 	FindByEmail(email string) (*models.User, error)
 	FindById(id, role string) (*models.MyProfile, error)
 	CreateUser(user *models.User) (*models.User, error)
+
+	// For Seeder
+	DeleteAll() error
 }
 
 type userRepository struct {
@@ -83,4 +86,9 @@ func (r *userRepository) CreateUser(user *models.User) (*models.User, error) {
 	}
 
 	return user, nil
+}
+
+// For Seeder
+func (r *userRepository) DeleteAll() error {
+	return r.db.Where("1 = 1").Delete(&models.User{}).Error
 }
