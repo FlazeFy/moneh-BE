@@ -5,6 +5,7 @@ import (
 	"log"
 	"moneh/config"
 	"moneh/models"
+	"moneh/modules"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -38,6 +39,9 @@ func main() {
 
 	// Setup Gin
 	router := gin.Default()
+	redisClient := config.InitRedis()
+
+	modules.SetUpDependency(router, db, redisClient)
 
 	// Run server
 	port := os.Getenv("PORT")

@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"moneh/config"
 	"moneh/models"
 	"moneh/utils"
 	"net/http"
@@ -38,6 +39,11 @@ func (c *AuthController) BasicRegister(ctx *gin.Context) {
 	}
 	if req.Email == "" {
 		utils.BuildResponseMessage(ctx, "failed", "register", "email is required", http.StatusBadRequest, nil, nil)
+		return
+	}
+	// Validator Contain : Currency
+	if !utils.Contains(config.Currencies, req.Currency) {
+		utils.BuildResponseMessage(ctx, "failed", "register", "currency is not valid", http.StatusBadRequest, nil, nil)
 		return
 	}
 

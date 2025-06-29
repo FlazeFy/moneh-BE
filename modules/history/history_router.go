@@ -2,15 +2,9 @@ package history
 
 import (
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-func SetUpRoutes(r *gin.Engine, db *gorm.DB) {
-	// History Module
-	historyRepo := NewHistoryRepository(db)
-	historyService := NewHistoryService(historyRepo)
-	historyController := NewHistoryController(historyService)
-
+func HistoryRouter(r *gin.Engine, historyController HistoryController) {
 	api := r.Group("/api/v1")
 	{
 		// Public Routes
