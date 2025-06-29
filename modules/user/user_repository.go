@@ -1,10 +1,12 @@
-package auth
+package user
 
 import (
 	"errors"
 	"fmt"
 	"moneh/models"
+	"time"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -12,7 +14,7 @@ type UserRepository interface {
 	FindByUsernameOrEmail(username, email string) (*models.User, error)
 	FindByEmail(email string) (*models.User, error)
 	FindById(id, role string) (*models.MyProfile, error)
-	Create(user *models.User) error
+	CreateUser(user *models.User) (*models.User, error)
 }
 
 type userRepository struct {
@@ -70,7 +72,15 @@ func (r *userRepository) FindById(id, role string) (*models.MyProfile, error) {
 	return &user, err
 }
 
-func (r *userRepository) Create(user *models.User) error {
+func (r *userRepository) CreateUser(user *models.User) (*models.User, error) {
+	user.ID = uuid.New()
+	user.CreatedAt = time.Now()
+	user.TelegramIsValid = false
+
 	// Query
-	return r.db.Create(user).Error
+	if err := r.db.Create(user).Error; err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }

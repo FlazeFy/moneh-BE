@@ -5,112 +5,102 @@ import (
 	"errors"
 	"moneh/config"
 	"moneh/models"
+	"moneh/modules/admin"
+	"moneh/modules/user"
 	"moneh/utils"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
 )
 
 type AuthService interface {
-	Register(user *models.User) (string, error)
-	Login(email, password string) (string, string, error)
-	SignOut(token string) error
+	BasicRegister(userReq models.User) (*string, error)
+	BasicSignOut(token string) error
+	BasicLogin(loginReq models.UserAuth) (*string, error)
 }
 
 type authService struct {
-	userRepo    UserRepository
+	userRepo    user.UserRepository
+	adminRepo   admin.AdminRepository
 	redisClient *redis.Client
 }
 
-func NewAuthService(userRepo UserRepository, redisClient *redis.Client) AuthService {
+func NewAuthService(userRepo user.UserRepository, adminRepo admin.AdminRepository, redisClient *redis.Client) AuthService {
 	return &authService{
 		userRepo:    userRepo,
+		adminRepo:   adminRepo,
 		redisClient: redisClient,
 	}
 }
 
-func (s *authService) Register(user *models.User) (string, error) {
-	// Check duplicate
-	existing, err := s.userRepo.FindByUsernameOrEmail(user.Username, user.Email)
-	if err != nil {
-		return "", err
-	}
-	if existing != nil {
-		return "", errors.New("username or email has already been used")
-	}
-
-	// Utils : Hash Password
-	if err := utils.HashPassword(user, user.Password); err != nil {
-		return "", err
-	}
-
-	// Mapping
-	user.ID = uuid.New()
-	user.CreatedAt = time.Now()
-	user.TelegramIsValid = false
-
-	// Repo : Create Register
-	if err := s.userRepo.Create(user); err != nil {
-		return "", err
-	}
-
-	// Utils : Generate Token
-	token, err := utils.GenerateToken(user.ID, "user")
-	if err != nil {
-		return "", err
-	}
-
-	return token, nil
-}
-
-func (s *authService) Login(email, password string) (string, string, error) {
-	// Model
-	var account models.Account
-	var role string
-
-	// Repo : Check Admin By Email
-	admin, err := s.userRepo.FindByEmail(email)
-	if err != nil {
-		return "", "", err
-	}
-	if admin != nil {
-		account = admin
-		role = "admin"
-	}
-
-	// Repo : Check User (Guest) By Email
-	if account == nil {
-		user, err := s.userRepo.FindByEmail(email)
-		if err != nil {
-			return "", "", err
-		}
+func (s *authService) BasicRegister(userReq models.User) (*string, error) {
+	// Repo : Find By Email
+	user, err := s.userRepo.FindByUsernameOrEmail(userReq.Username, userReq.Email)
+	if user != nil || err != gorm.ErrRecordNotFound {
 		if user != nil {
-			account = user
-			role = "guest"
+			return nil, errors.New("username or email has already been used")
 		}
+
+		return nil, err
 	}
 
-	if account == nil {
-		return "", "", errors.New("account not found")
-	}
-
-	// Utils : Compare Password
-	if err := utils.CheckPassword(account, password); err != nil {
-		return "", "", errors.New("invalid password")
-	}
-
-	// Utils : Generate Token
-	token, err := utils.GenerateToken(account.GetID(), role)
+	// Hashing
+	user, err = utils.HashPassword(userReq, userReq.Password)
 	if err != nil {
-		return "", "", err
+		return nil, errors.New("failed hashing password")
 	}
 
-	return token, role, nil
+	// Service : Create User
+	user, err = s.userRepo.CreateUser(user)
+	if err != nil {
+		return nil, err
+	}
+
+	// JWT Token Generate
+	token, err := utils.GenerateToken(user.ID)
+	if err != nil {
+		return nil, errors.New("failed generating token")
+	}
+
+	return &token, nil
 }
 
-func (s *authService) SignOut(tokenString string) error {
+func (s *authService) BasicLogin(loginReq models.UserAuth) (*string, error) {
+	// Repo : Find By Email
+	user, err := s.userRepo.FindByEmail(loginReq.Email)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.New("account not found")
+		}
+
+		return nil, err
+	}
+
+	// Utils : Check Password
+	if err := utils.CheckPassword(user, loginReq.Password); err != nil {
+		return nil, errors.New("invalid password")
+	}
+
+	// Utils : JWT Token Generate
+	token, err := utils.GenerateToken(user.ID)
+	if err != nil {
+		return nil, errors.New("failed generating token")
+	}
+
+	return &token, nil
+}
+
+func (s *authService) BasicSignOut(authHeader string) error {
+	// Clean Bearer
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	tokenString = strings.TrimSpace(tokenString)
+	if tokenString == "" {
+		return errors.New("invalid authorization header")
+	}
+
 	// Token Parse
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return config.GetJWTSecret(), nil

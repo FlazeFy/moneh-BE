@@ -13,7 +13,7 @@ import (
 )
 
 func initLogging() {
-	f, err := os.OpenFile("pelita.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile("moneh.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatalf("Failed to open log file: %v", err)
 	}
@@ -29,10 +29,8 @@ func main() {
 	// Load Env
 	err := godotenv.Load()
 	if err != nil {
-		panic("error loading ENV")
+		panic("Error loading ENV")
 	}
-
-	config.ConnectDatabase()
 
 	// Connect DB
 	db := config.ConnectDatabase()
@@ -45,12 +43,15 @@ func main() {
 	port := os.Getenv("PORT")
 	router.Run(":" + port)
 
-	log.Printf("Pelita is running on port %s\n", port)
+	log.Printf("Moneh is running on port %s\n", port)
 }
 
 func MigrateAll(db *gorm.DB) {
 	err := db.AutoMigrate(
 		&models.User{},
+		&models.Admin{},
+		&models.History{},
+		&models.Feedback{},
 	)
 
 	if err != nil {

@@ -11,3 +11,4 @@ var ResponseMessages = map[string]string{
 	"sign out":    "signed out",
 	"empty":       "not found",
 }
+var Currencies = []string{"IDR", "USD", "EUR", "JPY", "GBP", "CNY", "CAD", "CHF", "AUD", "HKD", "SGD"}

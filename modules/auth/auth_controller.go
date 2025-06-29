@@ -2,8 +2,8 @@ package auth
 
 import (
 	"moneh/models"
+	"moneh/utils"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,108 +16,87 @@ func NewAuthController(authService AuthService) *AuthController {
 	return &AuthController{AuthService: authService}
 }
 
-func (ac *AuthController) Register(c *gin.Context) {
-	// Model
+// Command
+func (c *AuthController) BasicRegister(ctx *gin.Context) {
+	// Models
 	var req models.User
 
-	// Validator
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-			"status":  "failed",
-		})
+	// Validate JSON
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		utils.BuildResponseMessage(ctx, "failed", "register", "invalid request body", http.StatusBadRequest, nil, nil)
 		return
 	}
 
-	// Register Token
-	token, err := ac.AuthService.Register(&req)
+	// Validate Field
+	if req.Username == "" {
+		utils.BuildResponseMessage(ctx, "failed", "register", "username is required", http.StatusBadRequest, nil, nil)
+		return
+	}
+	if req.Password == "" {
+		utils.BuildResponseMessage(ctx, "failed", "register", "password is required", http.StatusBadRequest, nil, nil)
+		return
+	}
+	if req.Email == "" {
+		utils.BuildResponseMessage(ctx, "failed", "register", "email is required", http.StatusBadRequest, nil, nil)
+		return
+	}
+
+	// Service : Basic Register
+	token, err := c.AuthService.BasicRegister(req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-			"status":  "failed",
-		})
+		if err.Error() == "username or email has already been used" {
+			utils.BuildResponseMessage(ctx, "failed", "register", err.Error(), http.StatusConflict, nil, nil)
+			return
+		}
+
+		utils.BuildErrorMessage(ctx, err.Error())
 		return
 	}
 
 	// Response
-	c.JSON(http.StatusCreated, gin.H{
-		"message": "user registered successfully",
-		"status":  "success",
-		"data": gin.H{
-			"access_token": token,
-		},
-	})
+	utils.BuildResponseMessage(ctx, "success", "user", "register", http.StatusCreated, gin.H{
+		"token": token,
+	}, nil)
 }
 
-func (ac *AuthController) Login(c *gin.Context) {
-	// Model
-	var req *models.UserAuth
+func (c *AuthController) BasicLogin(ctx *gin.Context) {
+	// Models
+	var req models.UserAuth
 
-	// Validator
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-			"status":  "failed",
-		})
+	// Validate JSON
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		utils.BuildResponseMessage(ctx, "failed", "auth", "invalid request body", http.StatusBadRequest, nil, nil)
 		return
 	}
 
-	// Token Generate
-	token, role, err := ac.AuthService.Login(req.Email, req.Password)
+	// Service : Basic Login
+	token, err := c.AuthService.BasicLogin(req)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": err.Error(),
-			"status":  "failed",
-		})
+		utils.BuildResponseMessage(ctx, "failed", "auth", err.Error(), http.StatusBadRequest, nil, nil)
 		return
 	}
 
 	// Response
-	c.JSON(http.StatusOK, gin.H{
-		"message": "user login successfully",
-		"status":  "success",
-		"data": gin.H{
-			"role":         role,
-			"access_token": token,
-		},
-	})
+	utils.BuildResponseMessage(ctx, "success", "user", "login", http.StatusOK, gin.H{
+		"token": token,
+	}, nil)
 }
 
-func (ac *AuthController) SignOut(c *gin.Context) {
+func (c *AuthController) BasicSignOut(ctx *gin.Context) {
 	// Header
-	authHeader := c.GetHeader("Authorization")
+	authHeader := ctx.GetHeader("Authorization")
 	if authHeader == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "missing authorization header",
-			"status":  "failed",
-		})
+		utils.BuildResponseMessage(ctx, "failed", "auth", "missing authorization header", http.StatusBadRequest, nil, nil)
 		return
 	}
 
-	// Clean Bearer
-	token := strings.TrimPrefix(authHeader, "Bearer ")
-	token = strings.TrimSpace(token)
-	if token == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"message": "invalid authorization header",
-			"status":  "failed",
-		})
-		return
-	}
-
-	// Reset Token By Adding Blacklist Redis
-	err := ac.AuthService.SignOut(token)
+	// Service : Basic Sign Out
+	err := c.AuthService.BasicSignOut(authHeader)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-			"status":  "failed",
-		})
+		utils.BuildResponseMessage(ctx, "failed", "auth", err.Error(), http.StatusBadRequest, nil, nil)
 		return
 	}
 
 	// Response
-	c.JSON(http.StatusOK, gin.H{
-		"message": "user signout successfully",
-		"status":  "success",
-	})
+	utils.BuildResponseMessage(ctx, "success", "user", "sign out", http.StatusOK, nil, nil)
 }

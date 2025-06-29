@@ -10,26 +10,25 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func GenerateToken(userId uuid.UUID, role string) (string, error) {
+func GenerateToken(userId uuid.UUID) (string, error) {
 	claims := jwt.MapClaims{
 		"user_id": userId.String(),
-		"role":    role,
 		"exp":     time.Now().Add(config.GetJWTExpirationDuration()).Unix(),
 		"iat":     time.Now().Unix(),
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(config.GetJWTSecret())
 }
 
-func HashPassword(u *models.User, password string) error {
+func HashPassword(user models.User, password string) (*models.User, error) {
 	hashedPass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	u.Password = string(hashedPass)
+	user.Password = string(hashedPass)
 
-	return nil
+	return &user, nil
 }
 
 func CheckPassword(account models.Account, password string) error {

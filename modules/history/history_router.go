@@ -14,11 +14,10 @@ func SetUpRoutes(r *gin.Engine, db *gorm.DB) {
 	api := r.Group("/api/v1")
 	{
 		// Public Routes
-		history := api.Group("/history")
+		history := api.Group("/histories")
 		{
-			history.GET("/all", historyController.GetAllHistory)
 			history.GET("/my", historyController.GetMyHistory)
-			history.DELETE("/:id", historyController.DeleteHistoryById)
+			history.DELETE("/:id", historyController.HardDeleteHistoryById)
 		}
 	}
 }

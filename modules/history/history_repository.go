@@ -1,99 +1,50 @@
 package history
 
 import (
-	"errors"
-	"fmt"
 	"moneh/models"
-	"moneh/utils"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
+// History Interface
 type HistoryRepository interface {
-	FindAll(pagination utils.Pagination) ([]models.AllHistory, int64, error)
-	FindMy(pagination utils.Pagination, id uuid.UUID, typeUser string) ([]models.History, int64, error)
-	DeleteById(id uuid.UUID) (int64, error)
+	FindMyHistory(userID uuid.UUID) ([]models.History, error)
+	HardDeleteHistoryByID(ID, createdBy uuid.UUID) error
 }
 
+// History Struct
 type historyRepository struct {
 	db *gorm.DB
 }
 
+// History Constructor
 func NewHistoryRepository(db *gorm.DB) HistoryRepository {
 	return &historyRepository{db: db}
 }
 
-func (r *historyRepository) FindAll(pagination utils.Pagination) ([]models.AllHistory, int64, error) {
-	var total int64
-
-	// Models
-	var history []models.AllHistory
-
-	// Pagination
-	offset := (pagination.Page - 1) * pagination.Limit
-	r.db.Model(&models.History{}).Count(&total)
+func (r *historyRepository) FindMyHistory(userID uuid.UUID) ([]models.History, error) {
+	// Model
+	var histories []models.History
 
 	// Query
-	err := r.db.Table("histories").
-		Preload("User").
-		Preload("Admin").
-		Order("created_at DESC").
-		Limit(pagination.Limit).
-		Offset(offset).
-		Find(&history).Error
-
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, total, nil
+	if err := r.db.Where("created_by", userID).Find(&histories).Error; err != nil {
+		return nil, err
 	}
 
-	return history, total, nil
+	return histories, nil
 }
 
-func (r *historyRepository) FindMy(pagination utils.Pagination, id uuid.UUID, typeUser string) ([]models.History, int64, error) {
-	var total int64
-
-	// Models
-	var history []models.History
-
+func (r *historyRepository) HardDeleteHistoryByID(ID, createdBy uuid.UUID) error {
 	// Query
-	var targetCol string
-	if typeUser == "admin" {
-		targetCol = "admin_id"
-	} else if typeUser == "user" {
-		targetCol = "user_id"
-	}
-
-	// Pagination
-	offset := (pagination.Page - 1) * pagination.Limit
-	r.db.Model(&models.History{}).
-		Where(fmt.Sprintf("%s = ?", targetCol), id).
-		Where("type_user = ?", typeUser).
-		Count(&total)
-
-	err := r.db.Where(fmt.Sprintf("%s = ?", targetCol), id).
-		Where("type_user = ?", typeUser).
-		Order("created_at DESC").
-		Limit(pagination.Limit).
-		Offset(offset).
-		Find(&history).Error
-
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, 0, nil
-	}
-
-	return history, total, err
-}
-
-func (r *historyRepository) DeleteById(id uuid.UUID) (int64, error) {
-	// Models
-	var history models.History
-
-	// Query
-	result := r.db.Unscoped().Where("id = ?", id).Delete(&history)
+	result := r.db.Unscoped().Where("id = ?", ID).Where("created_by = ?", createdBy).Delete(&models.History{})
 	if result.Error != nil {
-		return 0, result.Error
+		return result.Error
 	}
 
-	return result.RowsAffected, nil
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return nil
 }
