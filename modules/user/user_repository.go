@@ -18,6 +18,7 @@ type UserRepository interface {
 
 	// For Seeder
 	DeleteAll() error
+	FindOneRandom() (*models.User, error)
 }
 
 type userRepository struct {
@@ -91,4 +92,15 @@ func (r *userRepository) CreateUser(user *models.User) (*models.User, error) {
 // For Seeder
 func (r *userRepository) DeleteAll() error {
 	return r.db.Where("1 = 1").Delete(&models.User{}).Error
+}
+
+func (r *userRepository) FindOneRandom() (*models.User, error) {
+	var user models.User
+
+	err := r.db.Order("RANDOM()").Limit(1).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
 }

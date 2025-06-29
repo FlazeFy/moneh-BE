@@ -12,6 +12,9 @@ import (
 type FeedbackRepository interface {
 	CreateFeedback(feedback *models.Feedback, userID uuid.UUID) error
 	FindAllFeedback() ([]models.Feedback, error)
+
+	// For Seeder
+	DeleteAll() error
 }
 
 // Feedback Struct
@@ -47,4 +50,9 @@ func (r *feedbackRepository) CreateFeedback(feedback *models.Feedback, userID uu
 
 	// Query
 	return r.db.Create(feedback).Error
+}
+
+// For Seeder
+func (r *feedbackRepository) DeleteAll() error {
+	return r.db.Where("1 = 1").Delete(&models.Feedback{}).Error
 }
