@@ -2,6 +2,7 @@ package history
 
 import (
 	"moneh/models"
+	"time"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -11,6 +12,10 @@ import (
 type HistoryRepository interface {
 	FindMyHistory(userID uuid.UUID) ([]models.History, error)
 	HardDeleteHistoryByID(ID, createdBy uuid.UUID) error
+
+	// For Seeder
+	CreateHistory(history *models.History, userID uuid.UUID) error
+	DeleteAll() error
 }
 
 // History Struct
@@ -47,4 +52,19 @@ func (r *historyRepository) HardDeleteHistoryByID(ID, createdBy uuid.UUID) error
 	}
 
 	return nil
+}
+
+// For Seeder
+func (r *historyRepository) CreateHistory(history *models.History, userID uuid.UUID) error {
+	// Default
+	history.ID = uuid.New()
+	history.CreatedAt = time.Now()
+	history.CreatedBy = userID
+
+	// Query
+	return r.db.Create(history).Error
+}
+
+func (r *historyRepository) DeleteAll() error {
+	return r.db.Where("1 = 1").Delete(&models.History{}).Error
 }

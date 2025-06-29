@@ -41,4 +41,5 @@ func SetUpDependency(r *gin.Engine, db *gorm.DB, redisClient *redis.Client) {
 	seeders.SeedAdmins(adminRepo, 5)
 	seeders.SeedUsers(userRepo, 20)
 	seeders.SeedFeedbacks(feedbackRepo, userRepo, 10)
+	seeders.SeedHistories(historyRepo, userRepo, 60)
 }
