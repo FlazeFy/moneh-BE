@@ -7,18 +7,24 @@ import (
 	"github.com/google/uuid"
 )
 
-func GetCurrentUserID(c *gin.Context) (uuid.UUID, error) {
-	userIDVal, exists := c.Get("userID")
+func GetUserID(ctx *gin.Context) (*uuid.UUID, error) {
+	userIDValue, exists := ctx.Get("userId")
 	if !exists {
-		return uuid.UUID{}, errors.New("user id not found in context")
+		return nil, errors.New("user not found in context")
 	}
 
-	userID, err := uuid.Parse(userIDVal.(string))
-	if err != nil {
-		return uuid.UUID{}, errors.New("user id is not a valid UUID")
+	switch v := userIDValue.(type) {
+	case string:
+		userID, err := uuid.Parse(v)
+		if err != nil {
+			return nil, err
+		}
+		return &userID, nil
+	case uuid.UUID:
+		return &v, nil
+	default:
+		return nil, errors.New("invalid user id")
 	}
-
-	return userID, nil
 }
 
 func GetCurrentRole(c *gin.Context) (string, error) {

@@ -59,7 +59,7 @@ func (rc *HistoryController) GetMyHistory(c *gin.Context) {
 	pagination := utils.GetPagination(c)
 
 	// Get User Id
-	userId, err := utils.GetCurrentUserID(c)
+	userId, err := utils.GetUserID(c)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -79,7 +79,7 @@ func (rc *HistoryController) GetMyHistory(c *gin.Context) {
 	}
 
 	// Service: Get My History
-	history, total, err := rc.HistoryService.GetMyHistory(pagination, userId, role)
+	history, total, err := rc.HistoryService.GetMyHistory(pagination, *userId, role)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
