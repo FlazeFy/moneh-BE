@@ -12,3 +12,5 @@ var ResponseMessages = map[string]string{
 	"empty":       "not found",
 }
 var Currencies = []string{"IDR", "USD", "EUR", "JPY", "GBP", "CNY", "CAD", "CHF", "AUD", "HKD", "SGD"}
+var FlowTypes = []string{"Income", "Spending"}
+var FlowCategories = []string{"Food & Drink", "Transportation", "Entertainment", "Health", "Shopping", "Bills & Utilities", "Education", "Investment", "Salary", "Gift & Donation", "Travel", "Rent", "Insurance", "Pet Care", "Others"}

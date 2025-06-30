@@ -4,6 +4,7 @@ import (
 	"moneh/modules/admin"
 	"moneh/modules/auth"
 	"moneh/modules/feedback"
+	"moneh/modules/flow"
 	"moneh/modules/history"
 	"moneh/modules/user"
 	"moneh/seeders"
@@ -19,6 +20,7 @@ func SetUpDependency(r *gin.Engine, db *gorm.DB, redisClient *redis.Client) {
 	feedbackRepo := feedback.NewFeedbackRepository(db)
 	historyRepo := history.NewHistoryRepository(db)
 	userRepo := user.NewUserRepository(db)
+	flowRepo := flow.NewFlowRepository(db)
 
 	// Dependency Services
 	// adminService := services.NewAdminService(adminRepo)
@@ -42,4 +44,5 @@ func SetUpDependency(r *gin.Engine, db *gorm.DB, redisClient *redis.Client) {
 	seeders.SeedUsers(userRepo, 20)
 	seeders.SeedFeedbacks(feedbackRepo, userRepo, 10)
 	seeders.SeedHistories(historyRepo, userRepo, 60)
+	seeders.SeedFlows(flowRepo, userRepo, 200)
 }
