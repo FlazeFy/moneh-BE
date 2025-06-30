@@ -46,7 +46,7 @@ func PocketFactory() models.Pocket {
 		PocketType:    gofakeit.RandomString(config.PocketTypes),
 		PocketName:    gofakeit.LoremIpsumSentence(gofakeit.Number(2, 3)),
 		PocketDesc:    &pocketDesc,
-		PocketAmmount: gofakeit.Number(1, 25) * 1000000,
+		PocketAmmount: gofakeit.Number(1, 100) * 1000000,
 		PocketLimit:   pocketLimit,
 		PocketTags:    pocketTag,
 	}

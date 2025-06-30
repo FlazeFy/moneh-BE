@@ -19,6 +19,7 @@ type UserRepository interface {
 	// For Seeder
 	DeleteAll() error
 	FindOneRandom() (*models.User, error)
+	FindOneHasFlowAndPocketRandom() (*models.User, error)
 }
 
 type userRepository struct {
@@ -103,4 +104,20 @@ func (r *userRepository) FindOneRandom() (*models.User, error) {
 	}
 
 	return &user, nil
+}
+
+func (r *userRepository) FindOneHasFlowAndPocketRandom() (*models.User, error) {
+	var users models.User
+
+	err := r.db.Select("users.id, users.username, users.password, users.email, users.telegram_user_id, users.telegram_is_valid, users.created_at").
+		Joins("JOIN flows f ON f.created_by = users.id").
+		Joins("JOIN pockets p ON p.created_by = users.id").
+		Group("users.id").
+		Find(&users).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &users, nil
 }

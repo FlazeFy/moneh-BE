@@ -14,6 +14,7 @@ type PocketRepository interface {
 
 	// For Seeder
 	DeleteAll() error
+	FindOneRandomByUserID(userID uuid.UUID) (*models.Pocket, error)
 }
 
 // Pocket Struct
@@ -40,4 +41,19 @@ func (r *pocketRepository) CreatePocket(pocket *models.Pocket, userID uuid.UUID)
 // For Seeder
 func (r *pocketRepository) DeleteAll() error {
 	return r.db.Where("1 = 1").Delete(&models.Pocket{}).Error
+}
+
+func (r *pocketRepository) FindOneRandomByUserID(userID uuid.UUID) (*models.Pocket, error) {
+	var pocket models.Pocket
+
+	err := r.db.Where("created_by", userID).
+		Where("pocket_limit < pocket_ammount").
+		Order("RANDOM()").
+		Limit(1).
+		First(&pocket).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &pocket, nil
 }

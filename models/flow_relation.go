@@ -9,7 +9,7 @@ import (
 type (
 	FlowRelation struct {
 		ID        uuid.UUID `json:"id" gorm:"type:uuid;primaryKey"`
-		Ammount   *int      `json:"ammount" gorm:"type:int;null"`
+		Ammount   int       `json:"flow_relation_ammount" gorm:"type:int;not null"`
 		CreatedAt time.Time `json:"created_at" gorm:"type:timestamp;not null"`
 		// FK - User
 		CreatedBy uuid.UUID `json:"created_by" gorm:"not null"`
