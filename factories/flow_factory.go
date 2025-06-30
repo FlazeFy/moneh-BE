@@ -16,13 +16,13 @@ func FlowFactory() models.Flow {
 	var flowTag []byte
 	if gofakeit.Bool() {
 		numTags := gofakeit.Number(1, 5)
-		var tags []models.FlowTags
+		var tags []models.FlowPocketTags
 
 		for i := 0; i < numTags; i++ {
 			tagName := utils.Capitalize(gofakeit.VerbAction())
 			tagSlug := strings.ToLower(strings.ReplaceAll(tagName, " ", "_"))
 
-			tags = append(tags, models.FlowTags{
+			tags = append(tags, models.FlowPocketTags{
 				TagName: tagName,
 				TagSlug: tagSlug,
 			})
@@ -39,7 +39,6 @@ func FlowFactory() models.Flow {
 		FlowCategory:  gofakeit.RandomString(config.FlowCategories),
 		FlowName:      gofakeit.LoremIpsumSentence(gofakeit.Number(2, 5)),
 		FlowDesc:      &flowDesc,
-		FlowAmmount:   gofakeit.Number(5000, 2000000),
 		FlowTag:       flowTag,
 		IsSplitBill:   gofakeit.Bool(),
 		IsMultiPocket: gofakeit.Bool(),
