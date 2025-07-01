@@ -34,6 +34,7 @@ func SetUpDependency(r *gin.Engine, db *gorm.DB, redisClient *redis.Client) {
 	historyService := history.NewHistoryService(historyRepo)
 	userService := user.NewUserService(userRepo)
 	dictionaryService := dictionary.NewDictionaryService(dictionaryRepo)
+	pocketService := pocket.NewPocketService(pocketRepo)
 
 	// Dependency Controller
 	authController := auth.NewAuthController(authService)
@@ -41,6 +42,7 @@ func SetUpDependency(r *gin.Engine, db *gorm.DB, redisClient *redis.Client) {
 	historyController := history.NewHistoryController(historyService)
 	userController := user.NewUserController(userService)
 	dictionaryController := dictionary.NewDictionaryController(dictionaryService)
+	pocketController := pocket.NewPocketController(pocketService)
 
 	// Routes Endpoint
 	auth.AuthRouter(r, redisClient, *authController)
@@ -48,6 +50,7 @@ func SetUpDependency(r *gin.Engine, db *gorm.DB, redisClient *redis.Client) {
 	history.HistoryRouter(r, *historyController)
 	user.UserRouter(r, *userController, redisClient)
 	dictionary.DictionaryRouter(r, *dictionaryController, redisClient)
+	pocket.PocketRouter(r, *pocketController, redisClient)
 
 	// Seeder & Factories
 	seeders.SeedAdmins(adminRepo, 5)

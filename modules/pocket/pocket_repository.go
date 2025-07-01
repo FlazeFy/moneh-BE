@@ -2,6 +2,7 @@ package pocket
 
 import (
 	"moneh/models"
+	"moneh/utils"
 	"time"
 
 	"github.com/google/uuid"
@@ -11,6 +12,7 @@ import (
 // Pocket Interface
 type PocketRepository interface {
 	CreatePocket(pocket *models.Pocket, userID uuid.UUID) error
+	FindAllPocket(pagination utils.Pagination, userID uuid.UUID) ([]models.Pocket, int, error)
 
 	// For Seeder
 	DeleteAll() error
@@ -36,6 +38,29 @@ func (r *pocketRepository) CreatePocket(pocket *models.Pocket, userID uuid.UUID)
 
 	// Query
 	return r.db.Create(pocket).Error
+}
+
+func (r *pocketRepository) FindAllPocket(pagination utils.Pagination, userID uuid.UUID) ([]models.Pocket, int, error) {
+	// Model
+	var total int
+	var pockets []models.Pocket
+
+	// Pagination Count
+	offset := (pagination.Page - 1) * pagination.Limit
+
+	// Query
+	err := r.db.Order("pocket_ammount ASC").
+		Order("pocket_name ASC").
+		Limit(pagination.Limit).
+		Offset(offset).
+		Find(&pockets).Error
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	total = len(pockets)
+	return pockets, total, nil
 }
 
 // For Seeder
