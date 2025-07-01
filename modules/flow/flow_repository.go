@@ -2,6 +2,7 @@ package flow
 
 import (
 	"moneh/models"
+	"moneh/utils"
 	"time"
 
 	"github.com/google/uuid"
@@ -11,6 +12,7 @@ import (
 // Flow Interface
 type FlowRepository interface {
 	CreateFlow(flow *models.Flow, userID uuid.UUID) error
+	FindAllFlow(pagination utils.Pagination, userID uuid.UUID) ([]models.Flow, int, error)
 
 	// For Seeder
 	DeleteAll() error
@@ -25,6 +27,30 @@ type flowRepository struct {
 // Flow Constructor
 func NewFlowRepository(db *gorm.DB) FlowRepository {
 	return &flowRepository{db: db}
+}
+
+func (r *flowRepository) FindAllFlow(pagination utils.Pagination, userID uuid.UUID) ([]models.Flow, int, error) {
+	// Model
+	var total int
+	var flows []models.Flow
+
+	// Pagination Count
+	offset := (pagination.Page - 1) * pagination.Limit
+
+	// Query
+	err := r.db.Where("created_by = ? AND deleted_at IS NULL", userID).
+		Order("created_at DESC").
+		Limit(pagination.Limit).
+		Offset(offset).
+		Preload("FlowRelations").
+		Find(&flows).Error
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	total = len(flows)
+	return flows, total, nil
 }
 
 func (r *flowRepository) CreateFlow(flow *models.Flow, userID uuid.UUID) error {

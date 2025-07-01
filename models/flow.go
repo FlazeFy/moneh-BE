@@ -23,6 +23,8 @@ type (
 		// FK - User
 		CreatedBy uuid.UUID `json:"created_by" gorm:"not null"`
 		User      User      `json:"-" gorm:"foreignKey:CreatedBy;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+
+		FlowRelations []FlowRelation `json:"flow_relations" gorm:"foreignKey:flow_id;references:id"`
 	}
 	FlowPocketTags struct {
 		TagName string `json:"tag_name"`

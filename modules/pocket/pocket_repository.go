@@ -49,7 +49,8 @@ func (r *pocketRepository) FindAllPocket(pagination utils.Pagination, userID uui
 	offset := (pagination.Page - 1) * pagination.Limit
 
 	// Query
-	err := r.db.Order("pocket_ammount ASC").
+	err := r.db.Where("created_by", userID).
+		Order("pocket_ammount ASC").
 		Order("pocket_name ASC").
 		Limit(pagination.Limit).
 		Offset(offset).
