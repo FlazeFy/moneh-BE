@@ -51,6 +51,7 @@ func (r *pocketRepository) FindOneRandomByUserID(userID uuid.UUID) (*models.Pock
 		Order("RANDOM()").
 		Limit(1).
 		First(&pocket).Error
+
 	if err != nil {
 		return nil, err
 	}

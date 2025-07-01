@@ -19,7 +19,7 @@ import (
 type AuthService interface {
 	BasicRegister(userReq models.User) (*string, error)
 	BasicSignOut(token string) error
-	BasicLogin(loginReq models.UserAuth) (*string, error)
+	BasicLogin(loginReq models.UserAuth) (*string, *string, error)
 }
 
 type authService struct {
@@ -60,7 +60,7 @@ func (s *authService) BasicRegister(userReq models.User) (*string, error) {
 	}
 
 	// JWT Token Generate
-	token, err := utils.GenerateToken(user.ID)
+	token, err := utils.GenerateToken(user.ID, "user")
 	if err != nil {
 		return nil, errors.New("failed generating token")
 	}
@@ -68,29 +68,32 @@ func (s *authService) BasicRegister(userReq models.User) (*string, error) {
 	return &token, nil
 }
 
-func (s *authService) BasicLogin(loginReq models.UserAuth) (*string, error) {
+func (s *authService) BasicLogin(loginReq models.UserAuth) (*string, *string, error) {
+	var role string
+
 	// Repo : Find By Email
 	user, err := s.userRepo.FindByEmail(loginReq.Email)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("account not found")
+			return nil, nil, errors.New("account not found")
 		}
 
-		return nil, err
+		return nil, nil, err
 	}
+	role = "user"
 
 	// Utils : Check Password
 	if err := utils.CheckPassword(user, loginReq.Password); err != nil {
-		return nil, errors.New("invalid password")
+		return nil, nil, errors.New("invalid password")
 	}
 
 	// Utils : JWT Token Generate
-	token, err := utils.GenerateToken(user.ID)
+	token, err := utils.GenerateToken(user.ID, role)
 	if err != nil {
-		return nil, errors.New("failed generating token")
+		return nil, nil, errors.New("failed generating token")
 	}
 
-	return &token, nil
+	return &token, &role, nil
 }
 
 func (s *authService) BasicSignOut(authHeader string) error {

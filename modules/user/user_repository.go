@@ -1,8 +1,6 @@
 package user
 
 import (
-	"errors"
-	"fmt"
 	"moneh/models"
 	"time"
 
@@ -13,7 +11,7 @@ import (
 type UserRepository interface {
 	FindByUsernameOrEmail(username, email string) (*models.User, error)
 	FindByEmail(email string) (*models.User, error)
-	FindById(id, role string) (*models.MyProfile, error)
+	FindById(ID uuid.UUID) (*models.MyProfile, error)
 	CreateUser(user *models.User) (*models.User, error)
 
 	// For Seeder
@@ -36,8 +34,8 @@ func (r *userRepository) FindByUsernameOrEmail(username, email string) (*models.
 
 	// Query
 	err := r.db.Where("username = ? OR email = ?", username, email).First(&user).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, nil
+	if err != nil {
+		return nil, err
 	}
 
 	return &user, err
@@ -49,29 +47,25 @@ func (r *userRepository) FindByEmail(email string) (*models.User, error) {
 
 	// Query
 	err := r.db.Where("email = ?", email).First(&user).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, nil
+	if err != nil {
+		return nil, err
 	}
 
 	return &user, err
 }
 
-func (r *userRepository) FindById(id, role string) (*models.MyProfile, error) {
+func (r *userRepository) FindById(ID uuid.UUID) (*models.MyProfile, error) {
 	// Models
 	var user models.MyProfile
-	var tableName = fmt.Sprintf("%ss", role)
-	if role == "guest" {
-		tableName = "users"
-	}
 
 	// Query
-	err := r.db.Table(tableName).
+	err := r.db.Table("users").
 		Select("username, email, telegram_is_valid, telegram_user_id, created_at").
-		Where("id = ?", id).
+		Where("id = ?", ID).
 		First(&user).Error
 
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return nil, nil
+	if err != nil {
+		return nil, err
 	}
 
 	return &user, err

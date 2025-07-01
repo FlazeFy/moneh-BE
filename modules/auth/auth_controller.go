@@ -71,12 +71,12 @@ func (c *AuthController) BasicLogin(ctx *gin.Context) {
 
 	// Validate JSON
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		utils.BuildResponseMessage(ctx, "failed", "auth", "invalid request body", http.StatusBadRequest, nil, nil)
+		utils.BuildResponseMessage(ctx, "failed", "auth", err.Error(), http.StatusBadRequest, nil, nil)
 		return
 	}
 
 	// Service : Basic Login
-	token, err := c.AuthService.BasicLogin(req)
+	token, role, err := c.AuthService.BasicLogin(req)
 	if err != nil {
 		utils.BuildResponseMessage(ctx, "failed", "auth", err.Error(), http.StatusBadRequest, nil, nil)
 		return
@@ -85,6 +85,7 @@ func (c *AuthController) BasicLogin(ctx *gin.Context) {
 	// Response
 	utils.BuildResponseMessage(ctx, "success", "user", "login", http.StatusOK, gin.H{
 		"token": token,
+		"role":  role,
 	}, nil)
 }
 
