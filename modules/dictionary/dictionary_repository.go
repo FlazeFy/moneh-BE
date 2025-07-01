@@ -2,6 +2,7 @@ package dictionary
 
 import (
 	"moneh/models"
+	"moneh/utils"
 	"time"
 
 	"github.com/google/uuid"
@@ -11,6 +12,7 @@ import (
 // Dictionary Interface
 type DictionaryRepository interface {
 	CreateDictionary(dictionary *models.Dictionary) error
+	FindAllDictionary(pagination utils.Pagination) ([]models.Dictionary, int, error)
 
 	// For Seeder
 	DeleteAll() error
@@ -33,6 +35,29 @@ func (r *dictionaryRepository) CreateDictionary(dictionary *models.Dictionary) e
 
 	// Query
 	return r.db.Create(dictionary).Error
+}
+
+func (r *dictionaryRepository) FindAllDictionary(pagination utils.Pagination) ([]models.Dictionary, int, error) {
+	// Model
+	var total int
+	var dictionaries []models.Dictionary
+
+	// Pagination Count
+	offset := (pagination.Page - 1) * pagination.Limit
+
+	// Query
+	err := r.db.Order("dictionary_type ASC").
+		Order("dictionary_name ASC").
+		Limit(pagination.Limit).
+		Offset(offset).
+		Find(&dictionaries).Error
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	total = len(dictionaries)
+	return dictionaries, total, nil
 }
 
 // For Seeder

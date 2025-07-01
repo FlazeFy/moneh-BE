@@ -33,18 +33,21 @@ func SetUpDependency(r *gin.Engine, db *gorm.DB, redisClient *redis.Client) {
 	feedbackService := feedback.NewFeedbackService(feedbackRepo)
 	historyService := history.NewHistoryService(historyRepo)
 	userService := user.NewUserService(userRepo)
+	dictionaryService := dictionary.NewDictionaryService(dictionaryRepo)
 
 	// Dependency Controller
 	authController := auth.NewAuthController(authService)
 	feedbackController := feedback.NewFeedbackController(feedbackService)
 	historyController := history.NewHistoryController(historyService)
 	userController := user.NewUserController(userService)
+	dictionaryController := dictionary.NewDictionaryController(dictionaryService)
 
 	// Routes Endpoint
 	auth.AuthRouter(r, redisClient, *authController)
 	feedback.FeedbackRouter(r, *feedbackController)
 	history.HistoryRouter(r, *historyController)
 	user.UserRouter(r, *userController, redisClient)
+	dictionary.DictionaryRouter(r, *dictionaryController, redisClient)
 
 	// Seeder & Factories
 	seeders.SeedAdmins(adminRepo, 5)

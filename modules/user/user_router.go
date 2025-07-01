@@ -12,7 +12,7 @@ func UserRouter(r *gin.Engine, userController UserController, redisClient *redis
 	{
 		// Private Routes
 		protected_user := api.Group("/users")
-		protected_user.Use(middlewares.AuthMiddleware(redisClient, "user"))
+		protected_user.Use(middlewares.AuthMiddleware(redisClient, "user", "admin"))
 		{
 			protected_user.GET("/my", userController.GetMyProfile)
 		}
