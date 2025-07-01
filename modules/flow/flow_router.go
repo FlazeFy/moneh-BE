@@ -15,6 +15,7 @@ func FlowRouter(r *gin.Engine, flowController FlowController, redisClient *redis
 		protected_flow.Use(middlewares.AuthMiddleware(redisClient, "user"))
 		{
 			protected_flow.GET("/", flowController.GetAllFlow)
+			protected_flow.DELETE("/:id", flowController.SoftDeleteById)
 		}
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -51,4 +52,37 @@ func (c *FlowController) GetAllFlow(ctx *gin.Context) {
 		"total_pages": totalPages,
 	}
 	utils.BuildResponseMessage(ctx, "success", "flow", "get", http.StatusOK, flow, metadata)
+}
+
+func (c *FlowController) SoftDeleteById(ctx *gin.Context) {
+	// Param
+	id := ctx.Param("id")
+
+	// Get User ID
+	userID, err := utils.GetUserID(ctx)
+	if err != nil {
+		utils.BuildResponseMessage(ctx, "failed", "flow", err.Error(), http.StatusBadRequest, nil, nil)
+		return
+	}
+
+	// Parse Param UUID
+	flowID, err := uuid.Parse(id)
+	if err != nil {
+		utils.BuildResponseMessage(ctx, "failed", "flow", "invalid id", http.StatusBadRequest, nil, nil)
+		return
+	}
+
+	err = c.FlowService.SoftDeleteFlowById(*userID, flowID)
+	if err != nil {
+		switch {
+		case errors.Is(err, gorm.ErrRecordNotFound):
+			utils.BuildResponseMessage(ctx, "failed", "flow", "empty", http.StatusNotFound, nil, nil)
+		default:
+			utils.BuildErrorMessage(ctx, err.Error())
+		}
+		return
+	}
+
+	// Response
+	utils.BuildResponseMessage(ctx, "success", "flow", "soft delete", http.StatusOK, nil, nil)
 }

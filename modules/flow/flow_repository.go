@@ -13,6 +13,8 @@ import (
 type FlowRepository interface {
 	CreateFlow(flow *models.Flow, userID uuid.UUID) error
 	FindAllFlow(pagination utils.Pagination, userID uuid.UUID) ([]models.Flow, int, error)
+	FindFlowById(ID uuid.UUID) (*models.Flow, error)
+	UpdateFlowById(flow *models.Flow, ID uuid.UUID) error
 
 	// For Seeder
 	DeleteAll() error
@@ -27,6 +29,33 @@ type flowRepository struct {
 // Flow Constructor
 func NewFlowRepository(db *gorm.DB) FlowRepository {
 	return &flowRepository{db: db}
+}
+
+func (r *flowRepository) FindFlowById(ID uuid.UUID) (*models.Flow, error) {
+	// Model
+	var flow models.Flow
+
+	// Query
+	result := r.db.Unscoped().Where("id = ?", ID).First(&flow)
+
+	// Response
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &flow, nil
+}
+
+func (r *flowRepository) UpdateFlowById(flow *models.Flow, ID uuid.UUID) error {
+	now := time.Now()
+	flow.ID = ID
+	flow.UpdatedAt = &now
+
+	if err := r.db.Save(flow).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *flowRepository) FindAllFlow(pagination utils.Pagination, userID uuid.UUID) ([]models.Flow, int, error) {
