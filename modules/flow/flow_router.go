@@ -10,12 +10,12 @@ import (
 func FlowRouter(r *gin.Engine, flowController FlowController, redisClient *redis.Client) {
 	api := r.Group("/api/v1")
 	{
-		// Private Routes
-		protected_flow := api.Group("/flows")
-		protected_flow.Use(middlewares.AuthMiddleware(redisClient, "user"))
+		// Private Routes - All Roles
+		protected_flow_all := api.Group("/flows")
+		protected_flow_all.Use(middlewares.AuthMiddleware(redisClient, "user", "admin"))
 		{
-			protected_flow.GET("/", flowController.GetAllFlow)
-			protected_flow.DELETE("/:id", flowController.SoftDeleteById)
+			protected_flow_all.GET("/", flowController.GetAllFlow)
+			protected_flow_all.DELETE("/:id", flowController.SoftDeleteById)
 		}
 	}
 }

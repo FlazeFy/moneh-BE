@@ -10,11 +10,11 @@ import (
 func PocketRouter(r *gin.Engine, pocketController PocketController, redisClient *redis.Client) {
 	api := r.Group("/api/v1")
 	{
-		// Private Routes
-		protected_pocket := api.Group("/pockets")
-		protected_pocket.Use(middlewares.AuthMiddleware(redisClient, "user"))
+		// Private Routes - All Roles
+		protected_pocket_all := api.Group("/pockets")
+		protected_pocket_all.Use(middlewares.AuthMiddleware(redisClient, "user", "admin"))
 		{
-			protected_pocket.GET("/", pocketController.GetAllPocket)
+			protected_pocket_all.GET("/", pocketController.GetAllPocket)
 		}
 	}
 }

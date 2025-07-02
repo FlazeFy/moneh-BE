@@ -48,8 +48,8 @@ func SetUpDependency(r *gin.Engine, db *gorm.DB, redisClient *redis.Client) {
 
 	// Routes Endpoint
 	auth.AuthRouter(r, redisClient, *authController)
-	feedback.FeedbackRouter(r, *feedbackController)
-	history.HistoryRouter(r, *historyController)
+	feedback.FeedbackRouter(r, *feedbackController, redisClient)
+	history.HistoryRouter(r, *historyController, redisClient)
 	user.UserRouter(r, *userController, redisClient)
 	dictionary.DictionaryRouter(r, *dictionaryController, redisClient)
 	pocket.PocketRouter(r, *pocketController, redisClient)
