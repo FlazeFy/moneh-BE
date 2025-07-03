@@ -10,7 +10,7 @@ import (
 
 // Flow Relation Interface
 type FlowRelationRepository interface {
-	CreateFlowRelation(flowRelation *models.FlowRelation, userID uuid.UUID) error
+	CreateFlowRelation(flowRelation *models.FlowRelation, userID uuid.UUID) (*models.FlowRelation, error)
 
 	// For Seeder
 	DeleteAll() error
@@ -26,14 +26,18 @@ func NewFlowRelationRepository(db *gorm.DB) FlowRelationRepository {
 	return &flowRelationRepository{db: db}
 }
 
-func (r *flowRelationRepository) CreateFlowRelation(flowRelation *models.FlowRelation, userID uuid.UUID) error {
+func (r *flowRelationRepository) CreateFlowRelation(flowRelation *models.FlowRelation, userID uuid.UUID) (*models.FlowRelation, error) {
 	// Default
 	flowRelation.ID = uuid.New()
 	flowRelation.CreatedAt = time.Now()
 	flowRelation.CreatedBy = userID
 
 	// Query
-	return r.db.Create(flowRelation).Error
+	if err := r.db.Create(flowRelation).Error; err != nil {
+		return nil, err
+	}
+
+	return flowRelation, nil
 }
 
 // For Seeder

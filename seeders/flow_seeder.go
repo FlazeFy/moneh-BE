@@ -20,7 +20,7 @@ func SeedFlows(repo flow.FlowRepository, userRepo user.UserRepository, count int
 			log.Printf("failed to seed flow %d: %v\n", i, err)
 		}
 
-		err = repo.CreateFlow(&flow, user.ID)
+		_, err = repo.CreateFlow(&flow, user.ID)
 		if err != nil {
 			log.Printf("failed to seed flow %d: %v\n", i, err)
 		}

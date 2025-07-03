@@ -17,5 +17,12 @@ func FlowRouter(r *gin.Engine, flowController FlowController, redisClient *redis
 			protected_flow_all.GET("/", flowController.GetAllFlow)
 			protected_flow_all.DELETE("/:id", flowController.SoftDeleteById)
 		}
+
+		// Private Routes - User
+		protected_flow_user := api.Group("/flows")
+		protected_flow_user.Use(middlewares.AuthMiddleware(redisClient, "user"))
+		{
+			protected_flow_user.POST("/", flowController.CreateFlow)
+		}
 	}
 }

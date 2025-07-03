@@ -2,7 +2,9 @@ package flow
 
 import (
 	"errors"
+	"fmt"
 	"math"
+	"moneh/models"
 	"moneh/utils"
 	"net/http"
 
@@ -52,6 +54,50 @@ func (c *FlowController) GetAllFlow(ctx *gin.Context) {
 		"total_pages": totalPages,
 	}
 	utils.BuildResponseMessage(ctx, "success", "flow", "get", http.StatusOK, flow, metadata)
+}
+
+func (c *FlowController) CreateFlow(ctx *gin.Context) {
+	// Models
+	var req models.Flow
+
+	// Validate
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		utils.BuildResponseMessage(ctx, "failed", "flow", err.Error(), http.StatusBadRequest, nil, nil)
+		return
+	}
+
+	// Validate Flow Relations
+	if len(req.FlowRelations) == 0 {
+		utils.BuildResponseMessage(ctx, "failed", "flow", "flow_relations must contain at least one item", http.StatusBadRequest, nil, nil)
+		return
+	}
+	for i, rel := range req.FlowRelations {
+		if rel.Ammount == 0 {
+			utils.BuildResponseMessage(ctx, "failed", "flow", fmt.Sprintf("flow_relation_ammount at index %d is required and must be greater than 0", i), http.StatusBadRequest, nil, nil)
+			return
+		}
+		if rel.PocketId == uuid.Nil {
+			utils.BuildResponseMessage(ctx, "failed", "flow", fmt.Sprintf("pocket_id at index %d is required", i), http.StatusBadRequest, nil, nil)
+			return
+		}
+	}
+
+	// Get User ID
+	fmt.Println(req.FlowRelations)
+	userID, err := utils.GetUserID(ctx)
+	if err != nil {
+		utils.BuildResponseMessage(ctx, "failed", "flow", err.Error(), http.StatusBadRequest, nil, nil)
+		return
+	}
+
+	// Service : Create Flow
+	flow, err := c.FlowService.CreateFlow(&req, *userID)
+	if err != nil {
+		utils.BuildErrorMessage(ctx, err.Error())
+		return
+	}
+
+	utils.BuildResponseMessage(ctx, "success", "flow", "post", http.StatusCreated, flow, nil)
 }
 
 func (c *FlowController) SoftDeleteById(ctx *gin.Context) {

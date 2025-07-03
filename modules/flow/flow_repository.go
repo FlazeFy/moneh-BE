@@ -11,7 +11,7 @@ import (
 
 // Flow Interface
 type FlowRepository interface {
-	CreateFlow(flow *models.Flow, userID uuid.UUID) error
+	CreateFlow(flow *models.Flow, userID uuid.UUID) (*models.Flow, error)
 	FindAllFlow(pagination utils.Pagination, userID uuid.UUID) ([]models.Flow, int, error)
 	FindFlowById(ID uuid.UUID) (*models.Flow, error)
 	UpdateFlowById(flow *models.Flow, ID uuid.UUID) error
@@ -82,16 +82,25 @@ func (r *flowRepository) FindAllFlow(pagination utils.Pagination, userID uuid.UU
 	return flows, total, nil
 }
 
-func (r *flowRepository) CreateFlow(flow *models.Flow, userID uuid.UUID) error {
+func (r *flowRepository) CreateFlow(flow *models.Flow, userID uuid.UUID) (*models.Flow, error) {
+	flowRelationTemp := flow.FlowRelations
+
 	// Default
 	flow.ID = uuid.New()
 	flow.CreatedAt = time.Now()
 	flow.CreatedBy = userID
 	flow.UpdatedAt = nil
 	flow.DeletedAt = nil
+	flow.FlowRelations = nil
 
 	// Query
-	return r.db.Create(flow).Error
+	if err := r.db.Create(flow).Error; err != nil {
+		return nil, err
+	}
+
+	flow.FlowRelations = flowRelationTemp
+
+	return flow, nil
 }
 
 // For Seeder

@@ -85,7 +85,7 @@ func SeedFlowRelations(repo flow.FlowRelationRepository, userRepo user.UserRepos
 
 func addFlowRelation(repo flow.FlowRelationRepository, flowID, pocketID, userID uuid.UUID, ammount, idx int) error {
 	flowRelation := factories.FlowRelationFactory(ammount, flowID, pocketID)
-	err := repo.CreateFlowRelation(&flowRelation, userID)
+	_, err := repo.CreateFlowRelation(&flowRelation, userID)
 	if err != nil {
 		log.Printf("failed to seed flow relation %d: %v\n", idx, err)
 		return err
