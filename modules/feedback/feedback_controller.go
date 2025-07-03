@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -62,4 +63,29 @@ func (c *FeedbackController) CreateFeedback(ctx *gin.Context) {
 	}
 
 	utils.BuildResponseMessage(ctx, "success", "feedback", "post", http.StatusCreated, nil, nil)
+}
+
+func (c *FeedbackController) HardDeleteFeedbackById(ctx *gin.Context) {
+	// Params
+	id := ctx.Param("id")
+
+	// Parse Param UUID
+	feedbackID, err := uuid.Parse(id)
+	if err != nil {
+		utils.BuildResponseMessage(ctx, "failed", "feedback", "invalid id", http.StatusBadRequest, nil, nil)
+		return
+	}
+
+	// Service : Hard Delete Feedback By ID
+	err = c.FeedbackService.HardDeleteFeedbackByID(feedbackID)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		utils.BuildResponseMessage(ctx, "failed", "feedback", "empty", http.StatusNotFound, nil, nil)
+		return
+	}
+	if err != nil {
+		utils.BuildErrorMessage(ctx, err.Error())
+		return
+	}
+
+	utils.BuildResponseMessage(ctx, "success", "feedback", "hard delete", http.StatusOK, nil, nil)
 }

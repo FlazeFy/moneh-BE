@@ -12,6 +12,7 @@ import (
 type FeedbackRepository interface {
 	CreateFeedback(feedback *models.Feedback, userID uuid.UUID) error
 	FindAllFeedback() ([]models.Feedback, error)
+	HardDeleteFeedbackByID(ID uuid.UUID) error
 
 	// For Seeder
 	DeleteAll() error
@@ -50,6 +51,20 @@ func (r *feedbackRepository) CreateFeedback(feedback *models.Feedback, userID uu
 
 	// Query
 	return r.db.Create(feedback).Error
+}
+
+func (r *feedbackRepository) HardDeleteFeedbackByID(ID uuid.UUID) error {
+	// Query
+	result := r.db.Unscoped().Where("id = ?", ID).Delete(&models.Feedback{})
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return nil
 }
 
 // For Seeder
