@@ -26,6 +26,13 @@ func (c *FlowController) GetAllFlow(ctx *gin.Context) {
 	// Pagination
 	pagination := utils.GetPagination(ctx)
 
+	// Currency
+	currency, exist := ctx.Get("currency")
+	if !exist {
+		utils.BuildResponseMessage(ctx, "failed", "flow", "currency not available", http.StatusBadRequest, nil, nil)
+		return
+	}
+
 	// Get User ID
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
@@ -44,6 +51,16 @@ func (c *FlowController) GetAllFlow(ctx *gin.Context) {
 			utils.BuildErrorMessage(ctx, err.Error())
 		}
 		return
+	}
+
+	// Currency Conversion
+	for i := range flow {
+		for j := range flow[i].FlowRelations {
+			convertedAmount, err := utils.ConvertFromIDR(flow[i].FlowRelations[j].Ammount, currency.(string))
+			if err == nil {
+				flow[i].FlowRelations[j].Ammount = int(convertedAmount)
+			}
+		}
 	}
 
 	totalPages := int(math.Ceil(float64(total) / float64(pagination.Limit)))

@@ -24,6 +24,13 @@ func (c *PocketController) GetAllPocket(ctx *gin.Context) {
 	// Pagination
 	pagination := utils.GetPagination(ctx)
 
+	// Currency
+	currency, exist := ctx.Get("currency")
+	if !exist {
+		utils.BuildResponseMessage(ctx, "failed", "pocket", "currency not available", http.StatusBadRequest, nil, nil)
+		return
+	}
+
 	// Get User ID
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
@@ -42,6 +49,22 @@ func (c *PocketController) GetAllPocket(ctx *gin.Context) {
 			utils.BuildErrorMessage(ctx, err.Error())
 		}
 		return
+	}
+
+	// Currency Conversion
+	for i := range pocket {
+		convertedAmount, err := utils.ConvertFromIDR(pocket[i].PocketAmmount, currency.(string))
+		if err == nil {
+			pocket[i].PocketAmmount = int(convertedAmount)
+		}
+
+		if pocket[i].PocketLimit != nil {
+			convertedLimit, err := utils.ConvertFromIDR(*pocket[i].PocketLimit, currency.(string))
+			if err == nil {
+				intConvertedLimit := int(convertedLimit)
+				pocket[i].PocketLimit = &intConvertedLimit
+			}
+		}
 	}
 
 	totalPages := int(math.Ceil(float64(total) / float64(pagination.Limit)))

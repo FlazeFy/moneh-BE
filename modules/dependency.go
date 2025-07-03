@@ -1,6 +1,7 @@
 package modules
 
 import (
+	"moneh/middlewares/business"
 	"moneh/modules/admin"
 	"moneh/modules/auth"
 	"moneh/modules/dictionary"
@@ -46,14 +47,17 @@ func SetUpDependency(r *gin.Engine, db *gorm.DB, redisClient *redis.Client) {
 	pocketController := pocket.NewPocketController(pocketService)
 	flowController := flow.NewFlowController(flowService)
 
+	// Other Middleware
+	currencyMiddleware := business.NewCurrencyMiddleware(userService)
+
 	// Routes Endpoint
 	auth.AuthRouter(r, redisClient, *authController)
 	feedback.FeedbackRouter(r, *feedbackController, redisClient)
 	history.HistoryRouter(r, *historyController, redisClient)
 	user.UserRouter(r, *userController, redisClient)
 	dictionary.DictionaryRouter(r, *dictionaryController, redisClient)
-	pocket.PocketRouter(r, *pocketController, redisClient)
-	flow.FlowRouter(r, *flowController, redisClient)
+	pocket.PocketRouter(r, *pocketController, redisClient, currencyMiddleware)
+	flow.FlowRouter(r, *flowController, redisClient, currencyMiddleware)
 
 	// Seeder & Factories
 	seeders.SeedAdmins(adminRepo, 5)

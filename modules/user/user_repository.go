@@ -60,7 +60,7 @@ func (r *userRepository) FindById(ID uuid.UUID) (*models.MyProfile, error) {
 
 	// Query
 	err := r.db.Table("users").
-		Select("username, email, telegram_is_valid, telegram_user_id, created_at").
+		Select("username, email, telegram_is_valid, telegram_user_id, currency, created_at").
 		Where("id = ?", ID).
 		First(&user).Error
 
