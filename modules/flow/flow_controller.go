@@ -117,7 +117,7 @@ func (c *FlowController) CreateFlow(ctx *gin.Context) {
 	utils.BuildResponseMessage(ctx, "success", "flow", "post", http.StatusCreated, flow, nil)
 }
 
-func (c *FlowController) SoftDeleteById(ctx *gin.Context) {
+func (c *FlowController) SoftDeleteFlowById(ctx *gin.Context) {
 	// Param
 	id := ctx.Param("id")
 

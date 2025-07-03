@@ -5,9 +5,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
 )
 
-func HistoryRouter(r *gin.Engine, historyController HistoryController, redisClient *redis.Client) {
+func HistoryRouter(r *gin.Engine, historyController HistoryController, redisClient *redis.Client, db *gorm.DB) {
 	api := r.Group("/api/v1")
 	{
 		// Private Routes - All Roles
@@ -21,7 +22,7 @@ func HistoryRouter(r *gin.Engine, historyController HistoryController, redisClie
 		protected_history_user := api.Group("/histories")
 		protected_history_user.Use(middlewares.AuthMiddleware(redisClient, "user"))
 		{
-			protected_history_user.DELETE("/:id", historyController.HardDeleteHistoryById)
+			protected_history_user.DELETE("/:id", historyController.HardDeleteHistoryById, middlewares.AuditTrailMiddleware(db, "hard_delete_history_by_id"))
 		}
 	}
 }

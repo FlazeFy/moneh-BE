@@ -5,9 +5,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
 )
 
-func DictionaryRouter(r *gin.Engine, dictionaryController DictionaryController, redisClient *redis.Client) {
+func DictionaryRouter(r *gin.Engine, dictionaryController DictionaryController, redisClient *redis.Client, db *gorm.DB) {
 	api := r.Group("/api/v1")
 	{
 		// Private Routes - All Roles
@@ -21,7 +22,7 @@ func DictionaryRouter(r *gin.Engine, dictionaryController DictionaryController, 
 		protected_dictionary_admin := api.Group("/dictionaries")
 		protected_dictionary_admin.Use(middlewares.AuthMiddleware(redisClient, "admin"))
 		{
-			protected_dictionary_admin.POST("/", dictionaryController.CreateDictionary)
+			protected_dictionary_admin.POST("/", dictionaryController.CreateDictionary, middlewares.AuditTrailMiddleware(db, "post_create_dictionary"))
 		}
 	}
 }
