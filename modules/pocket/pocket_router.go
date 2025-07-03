@@ -16,5 +16,12 @@ func PocketRouter(r *gin.Engine, pocketController PocketController, redisClient 
 		{
 			protected_pocket_all.GET("/", pocketController.GetAllPocket)
 		}
+
+		// Private Routes - User
+		protected_pocket_user := api.Group("/pockets")
+		protected_pocket_user.Use(middlewares.AuthMiddleware(redisClient, "user"))
+		{
+			protected_pocket_user.POST("/", pocketController.CreatePocket)
+		}
 	}
 }

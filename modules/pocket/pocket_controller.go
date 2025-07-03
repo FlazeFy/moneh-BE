@@ -3,6 +3,7 @@ package pocket
 import (
 	"errors"
 	"math"
+	"moneh/models"
 	"moneh/utils"
 	"net/http"
 
@@ -51,4 +52,31 @@ func (c *PocketController) GetAllPocket(ctx *gin.Context) {
 		"total_pages": totalPages,
 	}
 	utils.BuildResponseMessage(ctx, "success", "pocket", "get", http.StatusOK, pocket, metadata)
+}
+
+func (c *PocketController) CreatePocket(ctx *gin.Context) {
+	// Models
+	var req models.Pocket
+
+	// Validate
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		utils.BuildResponseMessage(ctx, "failed", "pocket", err.Error(), http.StatusBadRequest, nil, nil)
+		return
+	}
+
+	// Get User ID
+	userID, err := utils.GetUserID(ctx)
+	if err != nil {
+		utils.BuildResponseMessage(ctx, "failed", "pocket", err.Error(), http.StatusBadRequest, nil, nil)
+		return
+	}
+
+	// Service : Create Pocket
+	pocket, err := c.PocketService.CreatePocket(&req, *userID)
+	if err != nil {
+		utils.BuildErrorMessage(ctx, err.Error())
+		return
+	}
+
+	utils.BuildResponseMessage(ctx, "success", "pocket", "post", http.StatusCreated, pocket, nil)
 }

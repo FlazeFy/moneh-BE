@@ -34,7 +34,7 @@ func SetUpDependency(r *gin.Engine, db *gorm.DB, redisClient *redis.Client) {
 	historyService := history.NewHistoryService(historyRepo)
 	userService := user.NewUserService(userRepo)
 	dictionaryService := dictionary.NewDictionaryService(dictionaryRepo)
-	pocketService := pocket.NewPocketService(pocketRepo)
+	pocketService := pocket.NewPocketService(pocketRepo, historyRepo)
 	flowService := flow.NewFlowService(flowRepo)
 
 	// Dependency Controller

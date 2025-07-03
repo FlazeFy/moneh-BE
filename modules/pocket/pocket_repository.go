@@ -11,8 +11,9 @@ import (
 
 // Pocket Interface
 type PocketRepository interface {
-	CreatePocket(pocket *models.Pocket, userID uuid.UUID) error
+	CreatePocket(pocket *models.Pocket, userID uuid.UUID) (*models.Pocket, error)
 	FindAllPocket(pagination utils.Pagination, userID uuid.UUID) ([]models.Pocket, int, error)
+	CheckPocketByName(pocketName string, userID uuid.UUID) (bool, error)
 
 	// For Seeder
 	DeleteAll() error
@@ -29,7 +30,7 @@ func NewPocketRepository(db *gorm.DB) PocketRepository {
 	return &pocketRepository{db: db}
 }
 
-func (r *pocketRepository) CreatePocket(pocket *models.Pocket, userID uuid.UUID) error {
+func (r *pocketRepository) CreatePocket(pocket *models.Pocket, userID uuid.UUID) (*models.Pocket, error) {
 	// Default
 	pocket.ID = uuid.New()
 	pocket.CreatedAt = time.Now()
@@ -37,7 +38,11 @@ func (r *pocketRepository) CreatePocket(pocket *models.Pocket, userID uuid.UUID)
 	pocket.UpdatedAt = nil
 
 	// Query
-	return r.db.Create(pocket).Error
+	if err := r.db.Create(pocket).Error; err != nil {
+		return nil, err
+	}
+
+	return pocket, nil
 }
 
 func (r *pocketRepository) FindAllPocket(pagination utils.Pagination, userID uuid.UUID) ([]models.Pocket, int, error) {
@@ -62,6 +67,24 @@ func (r *pocketRepository) FindAllPocket(pagination utils.Pagination, userID uui
 
 	total = len(pockets)
 	return pockets, total, nil
+}
+
+func (r *pocketRepository) CheckPocketByName(pocketName string, userID uuid.UUID) (bool, error) {
+	// Model
+	var pocket models.Pocket
+
+	// Query
+	result := r.db.Unscoped().Where("LOWER(pocket_name) = LOWER(?) AND created_by = ?", pocketName, userID).First(&pocket)
+
+	// Response
+	if result.Error != nil {
+		return false, result.Error
+	}
+	if pocket.ID == uuid.Nil {
+		return false, nil
+	}
+
+	return true, nil
 }
 
 // For Seeder

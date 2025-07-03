@@ -20,7 +20,7 @@ func SeedPockets(repo pocket.PocketRepository, userRepo user.UserRepository, cou
 			log.Printf("failed to seed pocket %d: %v\n", i, err)
 		}
 
-		err = repo.CreatePocket(&pocket, user.ID)
+		_, err = repo.CreatePocket(&pocket, user.ID)
 		if err != nil {
 			log.Printf("failed to seed pocket %d: %v\n", i, err)
 		}
