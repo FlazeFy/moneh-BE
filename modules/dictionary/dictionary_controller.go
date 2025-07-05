@@ -55,7 +55,7 @@ func (c *DictionaryController) CreateDictionary(ctx *gin.Context) {
 	// Validate
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		formattedErrors := utils.BuildValidationError(err)
-		utils.BuildResponseMessage(ctx, "failed", "question", formattedErrors, http.StatusBadRequest, nil, nil)
+		utils.BuildResponseMessage(ctx, "failed", "dictionary", formattedErrors, http.StatusBadRequest, nil, nil)
 		return
 	}
 

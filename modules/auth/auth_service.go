@@ -69,18 +69,33 @@ func (s *authService) BasicRegister(userReq models.User) (*string, error) {
 }
 
 func (s *authService) BasicLogin(loginReq models.UserAuth) (*string, *string, error) {
+	// Model
 	var role string
+	var account models.Account
 
-	// Repo : Find By Email
+	// Repo : Find User By Email
 	user, err := s.userRepo.FindByEmail(loginReq.Email)
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, nil, errors.New("account not found")
-		}
-
+	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, nil, err
 	}
-	role = "user"
+	if user != nil {
+		role = "user"
+		account = user
+	}
+
+	if account == nil {
+		// Repo : Find Admin By Email
+		admin, err := s.adminRepo.FindByEmail(loginReq.Email)
+		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return nil, nil, errors.New("account not found")
+			}
+
+			return nil, nil, err
+		}
+		role = "admin"
+		account = admin
+	}
 
 	// Utils : Check Password
 	if err := utils.CheckPassword(user, loginReq.Password); err != nil {
