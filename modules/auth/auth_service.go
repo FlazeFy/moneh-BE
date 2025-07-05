@@ -98,12 +98,12 @@ func (s *authService) BasicLogin(loginReq models.UserAuth) (*string, *string, er
 	}
 
 	// Utils : Check Password
-	if err := utils.CheckPassword(user, loginReq.Password); err != nil {
+	if err := utils.CheckPassword(account, loginReq.Password); err != nil {
 		return nil, nil, errors.New("invalid password")
 	}
 
 	// Utils : JWT Token Generate
-	token, err := utils.GenerateToken(user.ID, role)
+	token, err := utils.GenerateToken(account.GetID(), role)
 	if err != nil {
 		return nil, nil, errors.New("failed generating token")
 	}

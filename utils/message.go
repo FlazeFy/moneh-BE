@@ -22,11 +22,7 @@ func BuildResponseMessage(c *gin.Context, typeResponse, contextKey string, metho
 		}
 
 		var message string
-		if typeResponse == "success" {
-			message = fmt.Sprintf("%s %s", contextKey, wording)
-		} else {
-			message = fmt.Sprintf("Failed to %s %s", contextKey, wording)
-		}
+		message = fmt.Sprintf("%s %s", contextKey, wording)
 
 		response = gin.H{
 			"message": Capitalize(message),

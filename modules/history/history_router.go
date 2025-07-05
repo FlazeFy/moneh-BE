@@ -22,7 +22,7 @@ func HistoryRouter(r *gin.Engine, historyController HistoryController, redisClie
 		protected_history_user := api.Group("/histories")
 		protected_history_user.Use(middlewares.AuthMiddleware(redisClient, "user"))
 		{
-			protected_history_user.DELETE("/:id", historyController.HardDeleteHistoryById, middlewares.AuditTrailMiddleware(db, "hard_delete_history_by_id"))
+			protected_history_user.DELETE("/destroy/:id", historyController.HardDeleteHistoryById, middlewares.AuditTrailMiddleware(db, "hard_delete_history_by_id"))
 		}
 	}
 }

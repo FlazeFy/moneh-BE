@@ -9,6 +9,8 @@ import (
 )
 
 type AdminRepository interface {
+	FindByEmail(email string) (*models.Admin, error)
+
 	// For Seeder
 	CreateAdmin(admin *models.Admin) error
 	DeleteAll() error
@@ -20,6 +22,19 @@ type adminRepository struct {
 
 func NewAdminRepository(db *gorm.DB) AdminRepository {
 	return &adminRepository{db: db}
+}
+
+func (r *adminRepository) FindByEmail(email string) (*models.Admin, error) {
+	// Models
+	var admin models.Admin
+
+	// Query
+	err := r.db.Where("email = ?", email).First(&admin).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &admin, nil
 }
 
 // For Seeder
