@@ -79,7 +79,8 @@ func (c *FlowController) CreateFlow(ctx *gin.Context) {
 
 	// Validate
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		utils.BuildResponseMessage(ctx, "failed", "flow", err.Error(), http.StatusBadRequest, nil, nil)
+		formattedErrors := utils.BuildValidationError(err)
+		utils.BuildResponseMessage(ctx, "failed", "flow", formattedErrors, http.StatusBadRequest, nil, nil)
 		return
 	}
 

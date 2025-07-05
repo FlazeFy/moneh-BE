@@ -83,7 +83,8 @@ func (c *PocketController) CreatePocket(ctx *gin.Context) {
 
 	// Validate
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		utils.BuildResponseMessage(ctx, "failed", "pocket", err.Error(), http.StatusBadRequest, nil, nil)
+		formattedErrors := utils.BuildValidationError(err)
+		utils.BuildResponseMessage(ctx, "failed", "pocket", formattedErrors, http.StatusBadRequest, nil, nil)
 		return
 	}
 
