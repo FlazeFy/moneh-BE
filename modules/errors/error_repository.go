@@ -1,0 +1,62 @@
+package errors
+
+import (
+	"moneh/models"
+	"moneh/utils"
+
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+)
+
+// Error Interface
+type ErrorRepository interface {
+	FindAllError(pagination utils.Pagination) ([]models.ErrorAudit, int64, error)
+}
+
+// Error Struct
+type errorRepository struct {
+	db *gorm.DB
+}
+
+// Error Constructor
+func NewErrorRepository(db *gorm.DB) ErrorRepository {
+	return &errorRepository{db: db}
+}
+
+func (r *errorRepository) FindAllError(pagination utils.Pagination) ([]models.ErrorAudit, int64, error) {
+	// Model
+	var errorsList []models.ErrorAudit
+	var total int64
+
+	// Pagination Count
+	offset := (pagination.Page - 1) * pagination.Limit
+	countQuery := r.db.Model(&models.Error{}).
+		Group("message")
+	if err := countQuery.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Query
+	result := r.db.Table("errors").
+		Select("message, string_agg(created_at::text, ', ') as created_at, COUNT(1) as total").
+		Group("message").
+		Order(clause.OrderBy{
+			Columns: []clause.OrderByColumn{
+				{Column: clause.Column{Name: "total"}, Desc: true},
+				{Column: clause.Column{Name: "message"}, Desc: false},
+				{Column: clause.Column{Name: "created_at"}, Desc: false},
+			},
+		}).
+		Limit(pagination.Limit).
+		Offset(offset).
+		Find(&errorsList)
+
+	if len(errorsList) == 0 {
+		return nil, 0, gorm.ErrRecordNotFound
+	}
+	if result.Error != nil {
+		return nil, 0, result.Error
+	}
+
+	return errorsList, total, nil
+}

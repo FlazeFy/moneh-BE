@@ -5,6 +5,7 @@ import (
 	"moneh/modules/admin"
 	"moneh/modules/auth"
 	"moneh/modules/dictionary"
+	"moneh/modules/errors"
 	"moneh/modules/feedback"
 	"moneh/modules/flow"
 	"moneh/modules/history"
@@ -27,6 +28,7 @@ func SetUpDependency(r *gin.Engine, db *gorm.DB, redisClient *redis.Client) {
 	pocketRepo := pocket.NewPocketRepository(db)
 	flowRelationRepo := flow.NewFlowRelationRepository(db)
 	dictionaryRepo := dictionary.NewDictionaryRepository(db)
+	errorRepo := errors.NewErrorRepository(db)
 
 	// Dependency Services
 	// adminService := services.NewAdminService(adminRepo)
@@ -37,6 +39,7 @@ func SetUpDependency(r *gin.Engine, db *gorm.DB, redisClient *redis.Client) {
 	dictionaryService := dictionary.NewDictionaryService(dictionaryRepo)
 	pocketService := pocket.NewPocketService(pocketRepo, historyRepo)
 	flowService := flow.NewFlowService(flowRepo, historyRepo, flowRelationRepo)
+	errorService := errors.NewErrorService(errorRepo)
 
 	// Dependency Controller
 	authController := auth.NewAuthController(authService)
@@ -46,6 +49,7 @@ func SetUpDependency(r *gin.Engine, db *gorm.DB, redisClient *redis.Client) {
 	dictionaryController := dictionary.NewDictionaryController(dictionaryService)
 	pocketController := pocket.NewPocketController(pocketService)
 	flowController := flow.NewFlowController(flowService)
+	errorController := errors.NewErrorController(errorService)
 
 	// Other Middleware
 	currencyMiddleware := business.NewCurrencyMiddleware(userService)
@@ -58,6 +62,7 @@ func SetUpDependency(r *gin.Engine, db *gorm.DB, redisClient *redis.Client) {
 	dictionary.DictionaryRouter(r, *dictionaryController, redisClient, db)
 	pocket.PocketRouter(r, *pocketController, redisClient, currencyMiddleware, db)
 	flow.FlowRouter(r, *flowController, redisClient, currencyMiddleware, db)
+	errors.ErrorRouter(r, *errorController, redisClient, db)
 
 	// Seeder & Factories
 	seeders.SeedAdmins(adminRepo, 5)

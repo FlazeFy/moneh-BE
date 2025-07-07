@@ -16,4 +16,9 @@ type (
 		IsFixed    bool      `json:"is_fixed" gorm:"not null"`
 		CreatedAt  time.Time `json:"created_at" gorm:"type:timestamp;not null"`
 	}
+	ErrorAudit struct {
+		Message   string `json:"message"`
+		CreatedAt string `json:"created_at"`
+		Total     int    `json:"total"`
+	}
 )
