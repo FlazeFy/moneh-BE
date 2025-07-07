@@ -73,4 +73,5 @@ func SetUpDependency(r *gin.Engine, db *gorm.DB, redisClient *redis.Client) {
 	seeders.SeedPockets(pocketRepo, userRepo, 60)
 	seeders.SeedFlowRelations(flowRelationRepo, userRepo, flowRepo, pocketRepo, 3)
 	seeders.SeedDictionaries(dictionaryRepo)
+	seeders.SeedErrors(errorRepo, 25)
 }

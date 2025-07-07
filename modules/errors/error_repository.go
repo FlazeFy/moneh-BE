@@ -3,7 +3,9 @@ package errors
 import (
 	"moneh/models"
 	"moneh/utils"
+	"time"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -11,6 +13,10 @@ import (
 // Error Interface
 type ErrorRepository interface {
 	FindAllError(pagination utils.Pagination) ([]models.ErrorAudit, int64, error)
+
+	// For Seeder
+	CreateError(errData *models.Error) error
+	DeleteAll() error
 }
 
 // Error Struct
@@ -59,4 +65,19 @@ func (r *errorRepository) FindAllError(pagination utils.Pagination) ([]models.Er
 	}
 
 	return errorsList, total, nil
+}
+
+// For Seeder
+func (r *errorRepository) CreateError(errData *models.Error) error {
+	// Default
+	errData.ID = uuid.New()
+	errData.CreatedAt = time.Now()
+	errData.IsFixed = false
+
+	// Query
+	return r.db.Create(errData).Error
+}
+
+func (r *errorRepository) DeleteAll() error {
+	return r.db.Where("1 = 1").Delete(&models.Error{}).Error
 }
