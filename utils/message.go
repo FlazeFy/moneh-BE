@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"moneh/config"
 
@@ -22,7 +23,19 @@ func BuildResponseMessage(c *gin.Context, typeResponse, contextKey string, metho
 		}
 
 		var message string
-		message = fmt.Sprintf("%s %s", contextKey, wording)
+		if typeResponse == "success" {
+			message = fmt.Sprintf("%s %s", contextKey, wording)
+		} else {
+			if methodStr, ok := method.(string); ok {
+				if value, exists := config.ResponseMessages[methodStr]; exists {
+					message = fmt.Sprintf("%s %s", contextKey, value)
+				} else {
+					message = strings.ReplaceAll(methodStr, "_", " ")
+				}
+			} else {
+				message = fmt.Sprintf("%v, %s", method, wording)
+			}
+		}
 
 		response = gin.H{
 			"message": Capitalize(message),
