@@ -3,7 +3,9 @@ package pocket
 import (
 	"errors"
 	"math"
+	"moneh/config"
 	"moneh/models"
+	"moneh/modules/stats"
 	"moneh/utils"
 	"net/http"
 
@@ -13,10 +15,14 @@ import (
 
 type PocketController struct {
 	PocketService PocketService
+	StatsService  stats.StatsService
 }
 
-func NewPocketController(pocketService PocketService) *PocketController {
-	return &PocketController{PocketService: pocketService}
+func NewPocketController(pocketService PocketService, statsService stats.StatsService) *PocketController {
+	return &PocketController{
+		PocketService: pocketService,
+		StatsService:  statsService,
+	}
 }
 
 // Queries
@@ -103,4 +109,36 @@ func (c *PocketController) CreatePocket(ctx *gin.Context) {
 	}
 
 	utils.BuildResponseMessage(ctx, "success", "pocket", "post", http.StatusCreated, pocket, nil)
+}
+
+func (c *PocketController) GetMostContextPocket(ctx *gin.Context) {
+	// Param
+	targetCol := ctx.Param("target_col")
+
+	// Validator : Target Column Validator
+	if !utils.Contains(config.StatsPocketField, targetCol) {
+		utils.BuildResponseMessage(ctx, "failed", "pocket", "target_col is not valid", http.StatusBadRequest, nil, nil)
+		return
+	}
+
+	// Get User ID
+	userID, err := utils.GetUserID(ctx)
+	if err != nil {
+		utils.BuildResponseMessage(ctx, "failed", "pocket", err.Error(), http.StatusBadRequest, nil, nil)
+		return
+	}
+
+	// Service: Get Most Context
+	pocket, err := c.StatsService.GetMostUsedContext("pockets", targetCol, *userID)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		utils.BuildResponseMessage(ctx, "failed", "pocket", "empty", http.StatusNotFound, nil, nil)
+		return
+	}
+	if err != nil {
+		utils.BuildErrorMessage(ctx, err.Error())
+		return
+	}
+
+	// Response
+	utils.BuildResponseMessage(ctx, "success", "pocket", "get", http.StatusOK, pocket, nil)
 }

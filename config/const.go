@@ -31,6 +31,7 @@ var CurrencyRates = map[string]float64{
 var RedisTime = 10 * time.Minute
 
 var StatsFlowField = []string{"flow_type", "flow_category"}
+var StatsPocketField = []string{"pocket_type"}
 
 var Currencies = []string{"IDR", "USD", "EUR", "JPY", "GBP", "CNY", "CAD", "CHF", "AUD", "HKD", "SGD"}
 var FlowTypes = []string{"Income", "Spending"}

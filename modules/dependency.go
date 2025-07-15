@@ -53,7 +53,7 @@ func SetUpDependency(r *gin.Engine, db *gorm.DB, redisClient *redis.Client) {
 	historyController := history.NewHistoryController(historyService)
 	userController := user.NewUserController(userService)
 	dictionaryController := dictionary.NewDictionaryController(dictionaryService)
-	pocketController := pocket.NewPocketController(pocketService)
+	pocketController := pocket.NewPocketController(pocketService, statsService)
 	flowController := flow.NewFlowController(flowService, statsService)
 	errorController := errors.NewErrorController(errorService)
 

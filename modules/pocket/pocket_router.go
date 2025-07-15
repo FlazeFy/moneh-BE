@@ -25,6 +25,7 @@ func PocketRouter(r *gin.Engine, pocketController PocketController, redisClient 
 		protected_pocket_user.Use(middlewares.AuthMiddleware(redisClient, "user"))
 		{
 			protected_pocket_user.POST("/", pocketController.CreatePocket, middlewares.AuditTrailMiddleware(db, "post_create_pocket"))
+			protected_pocket_user.GET("/most_context/:target_col", pocketController.GetMostContextPocket)
 		}
 	}
 }
