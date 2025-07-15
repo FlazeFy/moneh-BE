@@ -4,7 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"moneh/config"
 	"moneh/models"
+	"moneh/modules/stats"
 	"moneh/utils"
 	"net/http"
 
@@ -14,11 +16,15 @@ import (
 )
 
 type FlowController struct {
-	FlowService FlowService
+	FlowService  FlowService
+	StatsService stats.StatsService
 }
 
-func NewFlowController(flowService FlowService) *FlowController {
-	return &FlowController{FlowService: flowService}
+func NewFlowController(flowService FlowService, statsService stats.StatsService) *FlowController {
+	return &FlowController{
+		FlowService:  flowService,
+		StatsService: statsService,
+	}
 }
 
 // Queries
@@ -149,4 +155,36 @@ func (c *FlowController) SoftDeleteFlowById(ctx *gin.Context) {
 
 	// Response
 	utils.BuildResponseMessage(ctx, "success", "flow", "soft delete", http.StatusOK, nil, nil)
+}
+
+func (c *FlowController) GetMostContextFlow(ctx *gin.Context) {
+	// Param
+	targetCol := ctx.Param("target_col")
+
+	// Validator : Target Column Validator
+	if !utils.Contains(config.StatsFlowField, targetCol) {
+		utils.BuildResponseMessage(ctx, "failed", "flow", "target_col is not valid", http.StatusBadRequest, nil, nil)
+		return
+	}
+
+	// Get User ID
+	userID, err := utils.GetUserID(ctx)
+	if err != nil {
+		utils.BuildResponseMessage(ctx, "failed", "flow", err.Error(), http.StatusBadRequest, nil, nil)
+		return
+	}
+
+	// Service: Get Most Context
+	flow, err := c.StatsService.GetMostUsedContext("flows", targetCol, *userID)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		utils.BuildResponseMessage(ctx, "failed", "flow", "empty", http.StatusNotFound, nil, nil)
+		return
+	}
+	if err != nil {
+		utils.BuildErrorMessage(ctx, err.Error())
+		return
+	}
+
+	// Response
+	utils.BuildResponseMessage(ctx, "success", "flow", "get", http.StatusOK, flow, nil)
 }

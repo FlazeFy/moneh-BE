@@ -1,5 +1,7 @@
 package config
 
+import "time"
+
 var ResponseMessages = map[string]string{
 	"post":        "created",
 	"put":         "updated",
@@ -24,6 +26,12 @@ var CurrencyRates = map[string]float64{
 	"HKD": 0.00051,
 	"SGD": 0.000087,
 }
+
+// Rules
+var RedisTime = 10 * time.Minute
+
+var StatsFlowField = []string{"flow_type", "flow_category"}
+
 var Currencies = []string{"IDR", "USD", "EUR", "JPY", "GBP", "CNY", "CAD", "CHF", "AUD", "HKD", "SGD"}
 var FlowTypes = []string{"Income", "Spending"}
 var FlowCategories = []string{"Food & Drink", "Transportation", "Entertainment", "Health", "Shopping", "Bills & Utilities", "Education", "Investment", "Salary", "Gift & Donation", "Travel", "Rent", "Insurance", "Pet Care", "Others"}
