@@ -13,6 +13,7 @@ import (
 // Error Interface
 type ErrorRepository interface {
 	FindAllError(pagination utils.Pagination) ([]models.ErrorAudit, int64, error)
+	HardDeleteErrorByID(ID uuid.UUID) error
 
 	// For Seeder
 	CreateError(errData *models.Error) error
@@ -65,6 +66,20 @@ func (r *errorRepository) FindAllError(pagination utils.Pagination) ([]models.Er
 	}
 
 	return errorsList, total, nil
+}
+
+func (r *errorRepository) HardDeleteErrorByID(ID uuid.UUID) error {
+	// Query
+	result := r.db.Unscoped().Where("id = ?", ID).Delete(&models.Error{})
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return nil
 }
 
 // For Seeder

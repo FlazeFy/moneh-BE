@@ -16,6 +16,7 @@ func ErrorRouter(r *gin.Engine, errorController ErrorController, redisClient *re
 		protected_error_admin.Use(middlewares.AuthMiddleware(redisClient, "admin"))
 		{
 			protected_error_admin.GET("/", errorController.GetAllError)
+			protected_error_admin.DELETE("/destroy/:id", errorController.HardDeleteErrorById)
 		}
 	}
 }
