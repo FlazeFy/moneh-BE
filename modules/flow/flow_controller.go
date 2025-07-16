@@ -9,6 +9,7 @@ import (
 	"moneh/modules/stats"
 	"moneh/utils"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -176,6 +177,39 @@ func (c *FlowController) GetMostContextFlow(ctx *gin.Context) {
 
 	// Service: Get Most Context
 	flow, err := c.StatsService.GetMostUsedContext("flows", targetCol, *userID)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		utils.BuildResponseMessage(ctx, "failed", "flow", "empty", http.StatusNotFound, nil, nil)
+		return
+	}
+	if err != nil {
+		utils.BuildErrorMessage(ctx, err.Error())
+		return
+	}
+
+	// Response
+	utils.BuildResponseMessage(ctx, "success", "flow", "get", http.StatusOK, flow, nil)
+}
+
+func (c *FlowController) GetMonthlyFlow(ctx *gin.Context) {
+	// Param
+	yearStr := ctx.Param("year")
+
+	// Get User ID
+	userID, err := utils.GetUserID(ctx)
+	if err != nil {
+		utils.BuildResponseMessage(ctx, "failed", "flow", err.Error(), http.StatusBadRequest, nil, nil)
+		return
+	}
+
+	// Validator Year
+	year, err := strconv.Atoi(yearStr)
+	if err != nil {
+		utils.BuildResponseMessage(ctx, "failed", "flow", "invalid year", http.StatusBadRequest, nil, nil)
+		return
+	}
+
+	// Service: Get Most Context
+	flow, err := c.StatsService.GetMonthlyFlow(year, *userID)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		utils.BuildResponseMessage(ctx, "failed", "flow", "empty", http.StatusNotFound, nil, nil)
 		return

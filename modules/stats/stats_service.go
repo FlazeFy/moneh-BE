@@ -11,6 +11,7 @@ import (
 // Stats Interface
 type StatsService interface {
 	GetMostUsedContext(tableName, targetCol string, userId uuid.UUID) ([]models.StatsContextTotal, error)
+	GetMonthlyFlow(year int, userId uuid.UUID) ([]models.StatsFlowMonthly, error)
 }
 
 // Stats Struct
@@ -46,7 +47,29 @@ func (s *statsService) GetMostUsedContext(tableName, targetCol string, userId uu
 
 	// Cache : Store Redis
 	jsonData, _ := json.Marshal(stats)
-	s.statsCache.SetStatsMostUsedContext(s.redisClient, cacheKey, jsonData)
+	s.statsCache.SetStatsCache(s.redisClient, cacheKey, jsonData)
+
+	return stats, nil
+}
+
+func (s *statsService) GetMonthlyFlow(year int, userId uuid.UUID) ([]models.StatsFlowMonthly, error) {
+	// Cache : Get Key
+	cacheKey := s.statsCache.StatsKeyMonthlyFlow(year, userId)
+	// Cache : Temp Stats
+	stats, err := s.statsCache.GetStatsMonthlyFlow(s.redisClient, cacheKey)
+	if err == nil {
+		return stats, nil
+	}
+
+	// Repo : Find Most Used Context
+	stats, err = s.statsRepo.FindMonthlyFlow(year, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	// Cache : Store Redis
+	jsonData, _ := json.Marshal(stats)
+	s.statsCache.SetStatsCache(s.redisClient, cacheKey, jsonData)
 
 	return stats, nil
 }
