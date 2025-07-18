@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"errors"
 	"moneh/models"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 
 type AdminRepository interface {
 	FindByEmail(email string) (*models.Admin, error)
+	FindAllAdminContact() ([]models.UserContact, error)
 
 	// For Seeder
 	CreateAdmin(admin *models.Admin) error
@@ -35,6 +37,26 @@ func (r *adminRepository) FindByEmail(email string) (*models.Admin, error) {
 	}
 
 	return &admin, nil
+}
+
+// For Task Scheduler
+func (r *adminRepository) FindAllAdminContact() ([]models.UserContact, error) {
+	// Model
+	var contact []models.UserContact
+
+	// Query
+	result := r.db.Table("admins").
+		Select("username, email, telegram_user_id, telegram_is_valid").
+		Find(&contact)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) || len(contact) == 0 {
+		return nil, errors.New("admin contact not found")
+	}
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return contact, nil
 }
 
 // For Seeder

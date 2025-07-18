@@ -1,7 +1,7 @@
 package seeders
 
 import (
-	"fmt"
+	"log"
 	"moneh/factories/dummies"
 	"moneh/modules/systems/models"
 	"moneh/modules/systems/repositories"
@@ -23,11 +23,11 @@ func SeedDictionaries(total int, showRes bool) {
 
 		result, err := repositories.PostDictionary(obj)
 		if err != nil {
-			fmt.Println(err.Error())
+			log.Println(err.Error())
 		}
 
 		if showRes {
-			fmt.Println(result.Data)
+			log.Println(result.Data)
 			if strData, ok := result.Data.(string); ok {
 				logs += strData + "\n"
 			}

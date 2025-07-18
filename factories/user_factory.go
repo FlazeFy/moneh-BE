@@ -8,7 +8,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func UserFactory(username, email, telegramUserId, password *string) models.User {
+func UserFactory(username, email, telegramUserId, password *string, isValid bool) models.User {
 	var finalUsername string
 	if username != nil && *username != "" {
 		finalUsername = *username
@@ -42,7 +42,7 @@ func UserFactory(username, email, telegramUserId, password *string) models.User 
 		Username:        finalUsername,
 		Password:        string(hashedPass),
 		TelegramUserId:  finalTelegramUserId,
-		TelegramIsValid: false,
+		TelegramIsValid: isValid,
 		Email:           finalEmail,
 		Currency:        gofakeit.RandomString(config.Currencies),
 	}

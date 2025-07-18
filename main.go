@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"moneh/config"
 	"moneh/models"
 	"moneh/modules"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -14,7 +14,10 @@ import (
 )
 
 func initLogging() {
-	f, err := os.OpenFile("moneh.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	now := time.Now()
+	logFileName := "logs/moneh-" + now.Format("January-2006") + ".log"
+
+	f, err := os.OpenFile(logFileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatalf("Failed to open log file: %v", err)
 	}
@@ -67,5 +70,5 @@ func MigrateAll(db *gorm.DB) {
 		panic(err.Error())
 	}
 
-	fmt.Println("Migrate Success!")
+	log.Println("Migrate Success!")
 }

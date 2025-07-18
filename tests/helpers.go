@@ -3,8 +3,8 @@ package tests
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
+	"log"
 	"moneh/models"
 	"net/http"
 	"os"
@@ -44,7 +44,7 @@ func TemplatePostBasicLogin(t *testing.T, email, password *string, roleAccount s
 		"email":    emailTest,
 		"password": passwordTest,
 	}
-	fmt.Println(payload)
+	log.Println(payload)
 	jsonPayload, _ := json.Marshal(payload)
 
 	url := "http://127.0.0.1:9000/api/v1/auths/login"

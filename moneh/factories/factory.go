@@ -2,6 +2,7 @@ package factories
 
 import (
 	"fmt"
+	"log"
 	"moneh/factories/seeders"
 	"strconv"
 	"strings"
@@ -14,7 +15,7 @@ func Factory() {
 	var isPrint bool
 	msgFailed := "Failed to generate"
 
-	fmt.Println("\nWelcome to Moneh Data Factories\n ")
+	log.Println("\nWelcome to Moneh Data Factories\n ")
 
 	fmt.Print("Factories Name : ")
 	fmt.Scanln(&purpose)
@@ -48,24 +49,24 @@ func Factory() {
 				seeders.SeedWishlists(total, isPrint)
 				// ID is empty after run
 			default:
-				fmt.Println("\n" + msgFailed + " : Invalid module")
+				log.Println("\n" + msgFailed + " : Invalid module")
 			}
 
 			if total > 0 && total <= 100 {
-				fmt.Println("\nSuccess run : ", purpose)
+				log.Println("\nSuccess run : ", purpose)
 				num := strconv.Itoa(total)
-				fmt.Println("With " + num + " data created")
+				log.Println("With " + num + " data created")
 			} else {
 				if total <= 0 {
-					fmt.Println("\n" + msgFailed + " : Total is invalid")
+					log.Println("\n" + msgFailed + " : Total is invalid")
 				} else {
-					fmt.Println("\n" + msgFailed + " : Data too many")
+					log.Println("\n" + msgFailed + " : Data too many")
 				}
 			}
 		} else {
-			fmt.Println("\n" + msgFailed + " : Command not valid")
+			log.Println("\n" + msgFailed + " : Command not valid")
 		}
 	} else {
-		fmt.Println("\n" + msgFailed + " : Factories name cant be empty")
+		log.Println("\n" + msgFailed + " : Factories name cant be empty")
 	}
 }

@@ -1,7 +1,7 @@
 package business
 
 import (
-	"fmt"
+	"log"
 	"moneh/modules/user"
 	"moneh/utils"
 	"net/http"
@@ -34,7 +34,7 @@ func (m *CurrencyMiddleware) CurrencyMiddleware() gin.HandlerFunc {
 			utils.BuildResponseMessage(c, "failed", "auth", "user not found", http.StatusNotFound, nil, nil)
 			return
 		}
-		fmt.Println(user.Currency)
+		log.Println(user.Currency)
 
 		c.Set("currency", user.Currency)
 		c.Next()

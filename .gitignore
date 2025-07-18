@@ -4,3 +4,4 @@ moneh/docs/test_audit.csv
 moneh/configs/telegram.json
 .env
 moneh.log
+/logs

@@ -3,6 +3,7 @@ package flow
 import (
 	"errors"
 	"fmt"
+	"log"
 	"math"
 	"moneh/config"
 	"moneh/models"
@@ -108,7 +109,7 @@ func (c *FlowController) CreateFlow(ctx *gin.Context) {
 	}
 
 	// Get User ID
-	fmt.Println(req.FlowRelations)
+	log.Println(req.FlowRelations)
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
 		utils.BuildResponseMessage(ctx, "failed", "flow", err.Error(), http.StatusBadRequest, nil, nil)

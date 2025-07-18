@@ -36,7 +36,7 @@ func SetUpDependency(r *gin.Engine, db *gorm.DB, redisClient *redis.Client) {
 	statsRepo := stats.NewStatsRepository(db)
 
 	// Dependency Services
-	// adminService := services.NewAdminService(adminRepo)
+	adminService := admin.NewAdminService(adminRepo)
 	authService := auth.NewAuthService(userRepo, adminRepo, redisClient)
 	feedbackService := feedback.NewFeedbackService(feedbackRepo)
 	historyService := history.NewHistoryService(historyRepo)
@@ -80,4 +80,7 @@ func SetUpDependency(r *gin.Engine, db *gorm.DB, redisClient *redis.Client) {
 	seeders.SeedFlowRelations(flowRelationRepo, userRepo, flowRepo, pocketRepo, 3)
 	seeders.SeedDictionaries(dictionaryRepo)
 	seeders.SeedErrors(errorRepo, 25)
+
+	// Task Scheduler
+	SetUpScheduler(adminService)
 }
