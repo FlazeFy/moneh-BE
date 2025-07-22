@@ -16,6 +16,7 @@ type FlowService interface {
 	GetAllFlow(pagination utils.Pagination, userID uuid.UUID) ([]models.Flow, int, error)
 	CreateFlow(flow *models.Flow, userID uuid.UUID) (*models.Flow, error)
 	SoftDeleteFlowById(userID, flowID uuid.UUID) error
+	HardDeleteFlowById(userID, flowID uuid.UUID) error
 }
 
 // Flow Struct
@@ -55,6 +56,22 @@ func (s *flowService) SoftDeleteFlowById(userID, flowID uuid.UUID) error {
 	// Repo : Update Flow By Id
 	err = s.flowRepo.UpdateFlowById(flow, flowID)
 	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *flowService) HardDeleteFlowById(userID, flowID uuid.UUID) error {
+	// Service : Hard Delete Flow By Id
+	err := s.flowRepo.HardDeleteFlowById(flowID, userID)
+	if err != nil {
+		return err
+	}
+
+	// Service : Hard Delete Flow Relation By Flow Id
+	err = s.flowRelationRepo.HardDeleteFlowRelationByFlowId(flowID, userID)
+	if err != nil && err != gorm.ErrRecordNotFound {
 		return err
 	}
 

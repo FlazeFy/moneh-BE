@@ -29,6 +29,7 @@ func FlowRouter(r *gin.Engine, flowController FlowController, redisClient *redis
 			protected_flow_user.POST("/", flowController.CreateFlow, middlewares.AuditTrailMiddleware(db, "post_create_flow"))
 			protected_flow_user.GET("/most_context/:target_col", flowController.GetMostContextFlow)
 			protected_flow_user.GET("/monthly/:year", flowController.GetMonthlyFlow)
+			protected_flow_user.DELETE("/destroy/:id", flowController.HardDeleteFlowById, middlewares.AuditTrailMiddleware(db, "hard_delete_flow_by_id"))
 		}
 	}
 }

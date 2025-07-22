@@ -15,6 +15,7 @@ type FlowRepository interface {
 	FindAllFlow(pagination utils.Pagination, userID uuid.UUID) ([]models.Flow, int, error)
 	FindFlowById(ID uuid.UUID) (*models.Flow, error)
 	UpdateFlowById(flow *models.Flow, ID uuid.UUID) error
+	HardDeleteFlowById(id, createdBy uuid.UUID) error
 
 	// For Seeder
 	DeleteAll() error
@@ -101,6 +102,20 @@ func (r *flowRepository) CreateFlow(flow *models.Flow, userID uuid.UUID) (*model
 	flow.FlowRelations = flowRelationTemp
 
 	return flow, nil
+}
+
+func (r *flowRepository) HardDeleteFlowById(id, createdBy uuid.UUID) error {
+	// Query
+	result := r.db.Unscoped().Where("id = ? AND created_by = ? AND deleted_at IS NOT NULL", id, createdBy).Delete(&models.Flow{})
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+
+	return nil
 }
 
 // For Seeder
