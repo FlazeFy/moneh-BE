@@ -2,6 +2,7 @@ package history
 
 import (
 	"errors"
+	"math"
 	"moneh/utils"
 	"net/http"
 
@@ -27,8 +28,15 @@ func (c *HistoryController) GetMyHistory(ctx *gin.Context) {
 		return
 	}
 
+	// Pagination
+	pagination, err := utils.GetPagination(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
 	// Service : Get My History
-	history, err := c.HistoryService.GetMyHistory(*userID)
+	history, total, err := c.HistoryService.GetMyHistory(*userID, pagination)
 
 	if err != nil {
 		switch {
@@ -40,7 +48,14 @@ func (c *HistoryController) GetMyHistory(ctx *gin.Context) {
 		return
 	}
 
-	utils.BuildResponseMessage(ctx, "success", "history", "get", http.StatusOK, history, nil)
+	totalPages := int(math.Ceil(float64(total) / float64(pagination.Limit)))
+	metadata := gin.H{
+		"total":       total,
+		"page":        pagination.Page,
+		"limit":       pagination.Limit,
+		"total_pages": totalPages,
+	}
+	utils.BuildResponseMessage(ctx, "success", "history", "get", http.StatusOK, history, metadata)
 }
 
 // Command

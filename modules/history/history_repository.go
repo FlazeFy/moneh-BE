@@ -2,6 +2,7 @@ package history
 
 import (
 	"moneh/models"
+	"moneh/utils"
 	"time"
 
 	"github.com/google/uuid"
@@ -10,7 +11,7 @@ import (
 
 // History Interface
 type HistoryRepository interface {
-	FindMyHistory(userID uuid.UUID) ([]models.History, error)
+	FindMyHistory(userID uuid.UUID, pagination utils.Pagination) ([]models.AllHistory, int, error)
 	HardDeleteHistoryByID(ID, createdBy uuid.UUID) error
 
 	// For Seeder
@@ -28,16 +29,29 @@ func NewHistoryRepository(db *gorm.DB) HistoryRepository {
 	return &historyRepository{db: db}
 }
 
-func (r *historyRepository) FindMyHistory(userID uuid.UUID) ([]models.History, error) {
+func (r *historyRepository) FindMyHistory(userID uuid.UUID, pagination utils.Pagination) ([]models.AllHistory, int, error) {
 	// Model
-	var histories []models.History
+	var total int
+	var histories []models.AllHistory
+
+	// Pagination Count
+	offset := (pagination.Page - 1) * pagination.Limit
 
 	// Query
-	if err := r.db.Where("created_by", userID).Find(&histories).Error; err != nil {
-		return nil, err
+	err := r.db.Table("histories").
+		Select("id", "history_type", "history_context", "created_at").
+		Order("created_at ASC").
+		Where("created_by", userID).
+		Limit(pagination.Limit).
+		Offset(offset).
+		Find(&histories).Error
+
+	if err != nil {
+		return nil, 0, err
 	}
 
-	return histories, nil
+	total = len(histories)
+	return histories, total, nil
 }
 
 func (r *historyRepository) HardDeleteHistoryByID(ID, createdBy uuid.UUID) error {

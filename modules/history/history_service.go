@@ -2,13 +2,14 @@ package history
 
 import (
 	"moneh/models"
+	"moneh/utils"
 
 	"github.com/google/uuid"
 )
 
 // History Interface
 type HistoryService interface {
-	GetMyHistory(userID uuid.UUID) ([]models.History, error)
+	GetMyHistory(userID uuid.UUID, pagination utils.Pagination) ([]models.AllHistory, int, error)
 	HardDeleteHistoryByID(ID, createdBy uuid.UUID) error
 }
 
@@ -24,8 +25,8 @@ func NewHistoryService(historyRepo HistoryRepository) HistoryService {
 	}
 }
 
-func (r *historyService) GetMyHistory(userID uuid.UUID) ([]models.History, error) {
-	return r.historyRepo.FindMyHistory(userID)
+func (r *historyService) GetMyHistory(userID uuid.UUID, pagination utils.Pagination) ([]models.AllHistory, int, error) {
+	return r.historyRepo.FindMyHistory(userID, pagination)
 }
 
 func (r *historyService) HardDeleteHistoryByID(ID, createdBy uuid.UUID) error {

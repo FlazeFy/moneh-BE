@@ -15,3 +15,10 @@ type History struct {
 	CreatedBy uuid.UUID `json:"created_by" gorm:"not null"`
 	User      User      `json:"-" gorm:"foreignKey:CreatedBy;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
+
+type AllHistory struct {
+	ID             uuid.UUID `json:"id"`
+	HistoryType    string    `json:"history_type"`
+	HistoryContext string    `json:"history_context"`
+	CreatedAt      time.Time `json:"created_at"`
+}

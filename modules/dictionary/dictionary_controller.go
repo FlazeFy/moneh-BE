@@ -24,7 +24,7 @@ func (c *DictionaryController) GetAllDictionary(ctx *gin.Context) {
 	// Pagination
 	pagination, err := utils.GetPagination(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
