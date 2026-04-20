@@ -32,7 +32,11 @@ func NewFlowController(flowService FlowService, statsService stats.StatsService)
 // Queries
 func (c *FlowController) GetAllFlow(ctx *gin.Context) {
 	// Pagination
-	pagination := utils.GetPagination(ctx)
+	pagination, err := utils.GetPagination(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	// Currency
 	currency, exist := ctx.Get("currency")

@@ -22,7 +22,11 @@ func NewDictionaryController(dictionaryService DictionaryService) *DictionaryCon
 // Queries
 func (c *DictionaryController) GetAllDictionary(ctx *gin.Context) {
 	// Pagination
-	pagination := utils.GetPagination(ctx)
+	pagination, err := utils.GetPagination(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	// Service : Get All Dictionary
 	dictionary, total, err := c.DictionaryService.GetAllDictionary(pagination)

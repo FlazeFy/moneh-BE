@@ -22,7 +22,11 @@ func NewErrorController(errorsService ErrorService) *ErrorController {
 // Queries
 func (c *ErrorController) GetAllError(ctx *gin.Context) {
 	// Pagination
-	pagination := utils.GetPagination(ctx)
+	pagination, err := utils.GetPagination(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	// Service : Get All Error
 	errorsList, total, err := c.ErrorService.GetAllError(pagination)
