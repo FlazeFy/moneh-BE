@@ -2,6 +2,7 @@ package feedback
 
 import (
 	"errors"
+	"math"
 	"moneh/models"
 	"moneh/utils"
 	"net/http"
@@ -21,20 +22,33 @@ func NewFeedbackController(feedbackService FeedbackService) *FeedbackController 
 
 // Queries
 func (c *FeedbackController) GetAllFeedback(ctx *gin.Context) {
-	// Service : Get All Feedback
-	feedback, err := c.FeedbackService.GetAllFeedback()
+	// Pagination
+	pagination, err := utils.GetPagination(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
 
+	// Service : Get All Feedback
+	feedbackList, total, err := c.FeedbackService.GetAllFeedback(pagination)
 	if err != nil {
 		switch {
 		case errors.Is(err, gorm.ErrRecordNotFound):
-			utils.BuildResponseMessage(ctx, "failed", "feedback", "get", http.StatusNotFound, nil, nil)
+			utils.BuildResponseMessage(ctx, "failed", "feedback", "empty", http.StatusNotFound, nil, nil)
 		default:
 			utils.BuildErrorMessage(ctx, err.Error())
 		}
 		return
 	}
 
-	utils.BuildResponseMessage(ctx, "success", "feedback", "get", http.StatusOK, feedback, nil)
+	totalPages := int(math.Ceil(float64(total) / float64(pagination.Limit)))
+	metadata := gin.H{
+		"total":       total,
+		"page":        pagination.Page,
+		"limit":       pagination.Limit,
+		"total_pages": totalPages,
+	}
+	utils.BuildResponseMessage(ctx, "success", "feedback", "get", http.StatusOK, feedbackList, metadata)
 }
 
 // Command

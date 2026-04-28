@@ -2,6 +2,7 @@ package feedback
 
 import (
 	"moneh/models"
+	"moneh/utils"
 
 	"github.com/google/uuid"
 )
@@ -9,7 +10,7 @@ import (
 // Feedback Interface
 type FeedbackService interface {
 	CreateFeedback(feedback *models.Feedback, userID uuid.UUID) error
-	GetAllFeedback() ([]models.Feedback, error)
+	GetAllFeedback(pagination utils.Pagination) ([]models.AllFeedbackData, int, error)
 	HardDeleteFeedbackByID(ID uuid.UUID) error
 }
 
@@ -25,8 +26,8 @@ func NewFeedbackService(feedbackRepo FeedbackRepository) FeedbackService {
 	}
 }
 
-func (r *feedbackService) GetAllFeedback() ([]models.Feedback, error) {
-	return r.feedbackRepo.FindAllFeedback()
+func (r *feedbackService) GetAllFeedback(pagination utils.Pagination) ([]models.AllFeedbackData, int, error) {
+	return r.feedbackRepo.FindAllFeedback(pagination)
 }
 
 func (r *feedbackService) CreateFeedback(feedback *models.Feedback, userID uuid.UUID) error {

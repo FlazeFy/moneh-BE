@@ -16,4 +16,12 @@ type (
 		CreatedBy uuid.UUID `json:"created_by" gorm:"not null"`
 		User      User      `json:"user" gorm:"foreignKey:CreatedBy;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" validate:"-" binding:"-"`
 	}
+	AllFeedbackData struct {
+		ID           uuid.UUID `json:"id"`
+		FeedbackBody string    `json:"feedback_body"`
+		FeedbackRate int       `json:"feedback_rate"`
+		CreatedAt    time.Time `json:"created_at"`
+		Username     string    `json:"username"`
+		Email        string    `json:"email"`
+	}
 )

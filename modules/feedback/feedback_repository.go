@@ -2,6 +2,7 @@ package feedback
 
 import (
 	"moneh/models"
+	"moneh/utils"
 	"time"
 
 	"github.com/google/uuid"
@@ -11,7 +12,7 @@ import (
 // Feedback Interface
 type FeedbackRepository interface {
 	CreateFeedback(feedback *models.Feedback, userID uuid.UUID) error
-	FindAllFeedback() ([]models.Feedback, error)
+	FindAllFeedback(pagination utils.Pagination) ([]models.AllFeedbackData, int, error)
 	HardDeleteFeedbackByID(ID uuid.UUID) error
 
 	// For Seeder
@@ -28,19 +29,29 @@ func NewFeedbackRepository(db *gorm.DB) FeedbackRepository {
 	return &feedbackRepository{db: db}
 }
 
-func (r *feedbackRepository) FindAllFeedback() ([]models.Feedback, error) {
+func (r *feedbackRepository) FindAllFeedback(pagination utils.Pagination) ([]models.AllFeedbackData, int, error) {
 	// Model
-	var feedbacks []models.Feedback
+	var total int
+	var feedbacks []models.AllFeedbackData
+
+	// Pagination Count
+	offset := (pagination.Page - 1) * pagination.Limit
 
 	// Query
-	if err := r.db.Preload("User").Find(&feedbacks).Error; err != nil {
-		return nil, err
-	}
-	if len(feedbacks) == 0 {
-		return nil, gorm.ErrRecordNotFound
+	err := r.db.Table("feedbacks").
+		Select(`feedbacks.id, feedbacks.feedback_body, feedbacks.feedback_rate, feedbacks.created_at, users.username, users.email`).
+		Joins("LEFT JOIN users ON users.id = feedbacks.created_by").
+		Order("feedbacks.created_at ASC").
+		Limit(pagination.Limit).
+		Offset(offset).
+		Scan(&feedbacks).Error
+
+	if err != nil {
+		return nil, 0, err
 	}
 
-	return feedbacks, nil
+	total = len(feedbacks)
+	return feedbacks, total, nil
 }
 
 func (r *feedbackRepository) CreateFeedback(feedback *models.Feedback, userID uuid.UUID) error {
